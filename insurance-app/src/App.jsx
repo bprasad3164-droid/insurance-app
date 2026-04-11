@@ -6,6 +6,7 @@ import AgentLogin from "./pages/AgentLogin";
 import Policies from "./pages/Policies";
 import Claim from "./pages/Claim";
 import AdminDashboard from "./pages/AdminDashboard";
+import Analytics from "./pages/Analytics";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/policies" element={<Policies />} />
         <Route path="/claim" element={<Claim />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/analytics" element={<Analytics />} />
       </Routes>
     </BrowserRouter>
   );
