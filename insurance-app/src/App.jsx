@@ -1,9 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import AdminLogin from "./pages/AdminLogin";
-import UserLogin from "./pages/UserLogin";
-import AgentLogin from "./pages/AgentLogin";
+import Login from "./pages/Login";
 import Policies from "./pages/Policies";
 import Claim from "./pages/Claim";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -17,9 +15,11 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/user" element={<UserLogin />} />
-        <Route path="/agent" element={<AgentLogin />} />
+        <Route path="/login" element={<Login />} />
+        {/* Legacy redirects / ease of access */}
+        <Route path="/admin" element={<Login />} />
+        <Route path="/user" element={<Login />} />
+        <Route path="/agent" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
         {/* Protected Routes */}

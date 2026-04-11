@@ -70,7 +70,7 @@ const plans = [
     glow: "rgba(244,63,94,.4)",
     features: ["₹10L Coverage", "500+ Hospitals", "No Claim Bonus", "Dental & Vision"],
     tag: "Most Popular",
-    href: "/user",
+    href: "/login",
   },
   {
     icon: <Zap className="w-8 h-8" />,
@@ -82,7 +82,7 @@ const plans = [
     glow: "rgba(139,92,246,.4)",
     features: ["₹50L Term Plan", "Tax Benefits", "Critical Illness", "Premium Waiver"],
     tag: "Best Value",
-    href: "/user",
+    href: "/login",
   },
   {
     icon: <Car className="w-8 h-8" />,
@@ -94,7 +94,7 @@ const plans = [
     glow: "rgba(6,182,212,.4)",
     features: ["Zero Depreciation", "Roadside Assist", "Engine Protect", "Cashless Repairs"],
     tag: "Instant Issuance",
-    href: "/user",
+    href: "/login",
   },
 ];
 
@@ -153,7 +153,13 @@ export default function Home() {
             </div>
 
             <div className="hidden md:flex items-center gap-3">
-              <a href="/user" style={{ color: "rgba(255,255,255,.7)", fontWeight: 700, fontSize: 14, textDecoration: "none", padding: "8px 18px" }}>Sign In</a>
+                  <a href="/login"
+                    style={{ background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.2)", color: "#fff", fontWeight: 700, fontSize: 16, textDecoration: "none", padding: "16px 36px", borderRadius: 14, display: "inline-flex", alignItems: "center", gap: 10, backdropFilter: "blur(10px)" }}
+                    onMouseOver={e => e.currentTarget.style.background = "rgba(255,255,255,.14)"}
+                    onMouseOut={e => e.currentTarget.style.background = "rgba(255,255,255,.08)"}
+                  >
+                    Sign In
+                  </a>
               <a href="/register" style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none", padding: "10px 22px", borderRadius: 12, boxShadow: "0 4px 20px rgba(99,102,241,.4)" }}>
                 Get Started →
               </a>
@@ -441,7 +447,7 @@ export default function Home() {
                   >
                     Get Started Free <ArrowRight className="w-5 h-5" />
                   </a>
-                  <a href="/user"
+                  <a href="/login"
                     style={{ background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.2)", color: "#fff", fontWeight: 700, fontSize: 16, textDecoration: "none", padding: "16px 36px", borderRadius: 14, display: "inline-flex", alignItems: "center", gap: 10, backdropFilter: "blur(10px)" }}
                     onMouseOver={e => e.currentTarget.style.background = "rgba(255,255,255,.14)"}
                     onMouseOut={e => e.currentTarget.style.background = "rgba(255,255,255,.08)"}

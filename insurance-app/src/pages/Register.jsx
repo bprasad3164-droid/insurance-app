@@ -84,7 +84,7 @@ export default function Register() {
         </form>
 
         <p className="mt-8 text-center text-gray-500 font-bold">
-          Already a member? <a href="/user" className="text-blue-600 hover:underline">Log in</a>
+          Already a member? <a href="/login" className="text-blue-600 hover:underline">Log in</a>
         </p>
         <p className="mt-3 text-center">
           <a href="/" className="text-sm font-bold text-gray-400 hover:text-blue-600 transition-colors">← Back to Home</a>
