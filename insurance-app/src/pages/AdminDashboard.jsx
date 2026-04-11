@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
   const [claims, setClaims] = useState([]);
   const [stats, setStats] = useState({ total_claims: 0, approved: 0 });
   const [showModal, setShowModal] = useState(false);
-  const [newPolicy, setNewPolicy] = useState({ name: "", description: "", premium: "" });
+  const [newPolicy, setNewPolicy] = useState({ name: "", description: "", premium: "", category: "health" });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
@@ -47,9 +49,14 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-clay-bg w-full p-8 flex flex-col items-center">
       <header className="flex justify-between clay p-6 mb-12 w-full max-w-6xl shadow-xl">
-        <div className="flex items-center gap-3">
-            <BarChart3 className="text-blue-600 w-8 h-8" />
-            <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Executive Oversight</h1>
+        <div className="flex items-center gap-6">
+            <button onClick={() => navigate(-1)} className="clay p-3 hover:text-blue-600 transition rounded-xl">
+                <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-3">
+                <BarChart3 className="text-blue-600 w-8 h-8" />
+                <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Executive Oversight</h1>
+            </div>
         </div>
         <div className="flex gap-4">
             <button 
@@ -159,6 +166,18 @@ export default function AdminDashboard() {
                                 required
                                 onChange={e => setNewPolicy({...newPolicy, description: e.target.value})}
                             />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Category Selection</label>
+                            <select 
+                                className="clay-inset w-full p-4 focus:outline-none focus:ring-2 focus:ring-green-400 font-bold bg-white/50"
+                                value={newPolicy.category}
+                                onChange={e => setNewPolicy({...newPolicy, category: e.target.value})}
+                            >
+                                <option value="health">Health Insurance</option>
+                                <option value="life">Life Insurance</option>
+                                <option value="vehicle">Vehicle Insurance</option>
+                            </select>
                         </div>
                         <div>
                             <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Quarterly Premium (INR)</label>

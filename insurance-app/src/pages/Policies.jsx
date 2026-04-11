@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, ShieldCheck, Zap, Info, CreditCard, Heart, Car, Activity, AlignLeft, Filter } from "lucide-react";
+import { ShoppingCart, ShieldCheck, Zap, Info, CreditCard, Heart, Car, Activity, AlignLeft, Filter, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const categories = [
     { id: 'all', name: 'All Plans', icon: <AlignLeft className="w-4 h-4" /> },
@@ -15,6 +16,7 @@ export default function Policies() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [compareList, setCompareList] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchPolicies();
@@ -60,11 +62,16 @@ export default function Policies() {
   return (
     <div className="min-h-screen bg-clay-bg p-8 flex flex-col items-center">
       <header className="w-full max-w-7xl flex flex-col md:flex-row justify-between items-center clay p-8 mb-16 shadow-xl glass sticky top-8 z-10">
-          <div className="flex items-center gap-4 mb-4 md:mb-0">
-            <Zap className="w-10 h-10 text-blue-600 fill-blue-600" />
-            <div>
-                <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Marketplace</h1>
-                <p className="text-[10px] font-black tracking-[0.3em] text-blue-600">Enterprise Grade Plans Only</p>
+          <div className="flex items-center gap-6 mb-4 md:mb-0">
+            <button onClick={() => navigate(-1)} className="clay p-3 hover:text-blue-600 transition rounded-xl">
+                <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-4">
+                <Zap className="w-10 h-10 text-blue-600 fill-blue-600" />
+                <div>
+                    <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Marketplace</h1>
+                    <p className="text-[10px] font-black tracking-[0.3em] text-blue-600">Enterprise Grade Plans Only</p>
+                </div>
             </div>
           </div>
           

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileUp, Send, CheckCircle, ShieldCheck } from "lucide-react";
+import { FileUp, Send, CheckCircle, ShieldCheck, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Claim() {
   const [policies, setPolicies] = useState([]);
@@ -9,6 +10,7 @@ export default function Claim() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get("http://127.0.0.1:8000/api/policies/").then(res => setPolicies(res.data));
@@ -44,9 +46,14 @@ export default function Claim() {
   return (
     <div className="min-h-screen bg-clay-bg p-8 flex flex-col items-center">
       <header className="w-full max-w-5xl flex justify-between items-center clay p-6 mb-12 shadow-xl">
-          <div className="flex items-center gap-4">
-            <ShieldCheck className="w-8 h-8 text-blue-600" />
-            <h1 className="text-2xl font-black text-gray-800 tracking-tighter">Settlement Center</h1>
+          <div className="flex items-center gap-6">
+            <button onClick={() => navigate(-1)} className="clay p-3 hover:text-blue-600 transition rounded-xl">
+                <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-4">
+                <ShieldCheck className="w-8 h-8 text-blue-600" />
+                <h1 className="text-2xl font-black text-gray-800 tracking-tighter">Settlement Center</h1>
+            </div>
           </div>
           <a href="/" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">Dashboard</a>
       </header>

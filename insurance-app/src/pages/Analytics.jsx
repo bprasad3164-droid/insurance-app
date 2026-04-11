@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Analytics() {
   const [data, setData] = useState([]);
   const [stats, setStats] = useState({ total_claims: 0, approved: 0, pending: 0 });
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get("http://127.0.0.1:8000/api/analytics/").then(res => {
@@ -21,8 +24,13 @@ export default function Analytics() {
 
   return (
     <div className="min-h-screen bg-gray-200 w-full p-8 flex flex-col items-center">
-      <header className="flex justify-between clay p-5 mb-10 w-full max-w-5xl shadow-xl">
-        <h1 className="text-2xl font-black text-gray-800 tracking-tight text-center">Business Intelligence</h1>
+      <header className="flex justify-between items-center clay p-5 mb-10 w-full max-w-5xl shadow-xl">
+        <div className="flex items-center gap-6">
+            <button onClick={() => navigate(-1)} className="clay p-2 hover:text-blue-600 transition rounded-xl shadow-sm">
+                <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-2xl font-black text-gray-800 tracking-tight">Business Intelligence</h1>
+        </div>
         <a href="/" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">Home</a>
       </header>
 
