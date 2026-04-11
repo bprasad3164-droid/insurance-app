@@ -43,12 +43,21 @@ export default function Login() {
 
   // Handle manual role selection via URL query param if present
   useEffect(() => {
+    // Check if already logged in
+    const token = localStorage.getItem("access");
+    const storedRole = localStorage.getItem("role");
+    if (token) {
+      if (storedRole === "admin") navigate("/admin-dashboard");
+      else navigate("/dashboard");
+      return;
+    }
+
     const params = new URLSearchParams(location.search);
     const roleParam = params.get("role");
     if (roleParam && roles.find(r => r.id === roleParam)) {
       setActiveRole(roleParam);
     }
-  }, [location]);
+  }, [location, navigate]);
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();

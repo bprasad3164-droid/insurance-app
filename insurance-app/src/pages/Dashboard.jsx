@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ShieldCheck, FileText, BarChart3, LogOut, ChevronRight, User } from "lucide-react";
 
 export default function Dashboard() {
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState(localStorage.getItem("role") || "");
 
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
@@ -14,12 +14,6 @@ export default function Dashboard() {
     localStorage.clear();
     window.location.href = "/";
   };
-
-  if (!role) {
-    // Not logged in — redirect to home
-    window.location.href = "/";
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-[#e0e5ec] w-full p-10 flex flex-col items-center">
