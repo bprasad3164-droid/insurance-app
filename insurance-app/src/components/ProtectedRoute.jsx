@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 
 export default function ProtectedRoute({ children, roleRequired }) {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("access"); // standardized key
   const role = localStorage.getItem("role");
 
   if (!token) {
@@ -9,8 +9,7 @@ export default function ProtectedRoute({ children, roleRequired }) {
   }
 
   if (roleRequired && role !== roleRequired) {
-      alert("Unauthorized Access: You do not have the required permissions.");
-      return <Navigate to="/" />;
+    return <Navigate to="/dashboard" />;
   }
 
   return children;
