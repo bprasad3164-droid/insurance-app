@@ -149,10 +149,10 @@ export default function Policies() {
                 <div className="flex gap-4">
                     <motion.button 
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => handleBuy(p)}
+                        onClick={() => window.location.href = `/buy/${p.id}`}
                         className="flex-grow bg-blue-600 text-white p-5 rounded-3xl font-black text-lg shadow-xl flex items-center justify-center gap-3 hover:bg-blue-700 transition-all uppercase tracking-widest"
                     >
-                        <CreditCard className="w-6 h-6" /> Secure Now
+                        <CreditCard className="w-6 h-6" /> Calculate & Buy
                     </motion.button>
                 </div>
               </motion.div>

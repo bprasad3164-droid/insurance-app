@@ -48,13 +48,13 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
           <motion.a
-            href="/policies"
+            href="/my-policies"
             whileHover={{ scale: 1.05 }}
             className="clay p-8 bg-white/50 border border-white flex items-center justify-between group"
           >
             <div className="text-left">
               <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Marketplace</p>
-              <p className="text-2xl font-black text-gray-800 tracking-tight">Browse Policies</p>
+              <p className="text-2xl font-black text-gray-800 tracking-tight">My Active Plans</p>
             </div>
             <ChevronRight className="w-8 h-8 text-blue-600 group-hover:translate-x-2 transition-transform" />
           </motion.a>

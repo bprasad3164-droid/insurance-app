@@ -23,7 +23,8 @@ class Policy(models.Model):
     )
     name = models.CharField(max_length=100)
     description = models.TextField()
-    premium = models.FloatField()
+    base_premium = models.FloatField(default=0.0)
+    coverage = models.FloatField(default=0.0)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='health')
 
     def __str__(self):
@@ -32,6 +33,8 @@ class Policy(models.Model):
 class UserPolicy(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
+    premium = models.FloatField(default=0.0)
+    status = models.CharField(max_length=20, default='Active')
     purchase_date = models.DateTimeField(auto_now_add=True)
     expiry_date = models.DateTimeField(null=True, blank=True)
     certificate_id = models.CharField(max_length=50, unique=True, null=True, blank=True)

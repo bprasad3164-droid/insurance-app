@@ -76,15 +76,37 @@ def add_policy(request):
     Policy.objects.create(
         name=request.data.get('name'),
         description=request.data.get('description'),
-        premium=request.data.get('premium'),
+        base_premium=request.data.get('premium'),
+        coverage=request.data.get('coverage', 0),
         category=request.data.get('category', 'health')
     )
     return Response({"msg": "Policy Added"})
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
+def calculate_premium(request):
+    try:
+        age = int(request.data['age'])
+        salary = int(request.data['salary'])
+        policy_id = request.data['policy_id']
+
+        policy = Policy.objects.get(id=policy_id)
+
+        risk_factor = 1.2 if age > 40 else 1.0
+        premium = policy.base_premium * risk_factor + (salary * 0.01)
+
+        return Response({
+            "premium": premium,
+            "policy_name": policy.name
+        })
+    except Exception as e:
+        return Response({"msg": str(e)}, status=400)
+
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def buy_policy(request):
     policy_id = request.data.get('policy_id')
+    premium = request.data.get('premium', 0)
     try:
         policy = Policy.objects.get(id=policy_id)
     except Policy.DoesNotExist:
@@ -93,7 +115,9 @@ def buy_policy(request):
     UserPolicy.objects.create(
         user=request.user,
         policy=policy,
-        certificate_id=cert_id
+        premium=premium,
+        certificate_id=cert_id,
+        status='Active'
     )
     return Response({"msg": "Purchase Successful", "certificate_id": cert_id})
 

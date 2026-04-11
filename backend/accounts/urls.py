@@ -7,6 +7,7 @@ urlpatterns = [
     path('kyc-update/', views.update_kyc),
     
     path('policies/', views.get_policies),
+    path('calculate/', views.calculate_premium),
     path('buy-policy/', views.buy_policy),
     path('my-policies/', views.get_user_policies),
     path('download-cert/<str:cert_id>/', views.download_certificate),

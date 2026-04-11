@@ -8,6 +8,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Analytics from "./pages/Analytics";
 import Register from "./pages/Register";
 import ProfileKYC from "./pages/ProfileKYC";
+import BuyPolicy from "./pages/BuyPolicy";
+import MyPolicies from "./pages/MyPolicies";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -60,6 +62,22 @@ export default function App() {
             element={
                 <ProtectedRoute>
                     <AdminDashboard />
+                </ProtectedRoute>
+            } 
+        />
+        <Route 
+            path="/buy/:id" 
+            element={
+                <ProtectedRoute>
+                    <BuyPolicy />
+                </ProtectedRoute>
+            } 
+        />
+        <Route 
+            path="/my-policies" 
+            element={
+                <ProtectedRoute>
+                    <MyPolicies />
                 </ProtectedRoute>
             } 
         />
