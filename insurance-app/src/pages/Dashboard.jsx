@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { ShieldCheck, FileText, BarChart3, LogOut, ChevronRight, User, Clock, Activity } from "lucide-react";
 import axios from "axios";
+import { motion } from "framer-motion";
 import ClaimTracking from "../components/ClaimTracking";
 
 export default function Dashboard() {

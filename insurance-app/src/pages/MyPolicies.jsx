@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { ShieldCheck, Download, Calendar, Activity, CheckCircle2, ArrowRight, User, Hash } from "lucide-react";
+import { ShieldCheck, Download, Calendar, Activity, CheckCircle2, ArrowRight, User, Hash, IndianRupee } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function MyPolicies() {

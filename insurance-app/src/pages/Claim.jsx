@@ -56,7 +56,7 @@ export default function Claim() {
                 <h1 className="text-2xl font-black text-gray-800 tracking-tighter">Settlement Center</h1>
             </div>
           </div>
-          <a href="/" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">Dashboard</a>
+          <a href="/dashboard" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">Dashboard</a>
       </header>
 
       <motion.div 

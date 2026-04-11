@@ -18,7 +18,7 @@ export default function Register() {
     try {
       await axios.post("http://127.0.0.1:8000/api/register/", { email, password, role });
       alert("Registration Successful! Please login.");
-      navigate(`/${role}`);
+      navigate("/login");
     } catch (err) {
       alert("Error: " + (err.response?.data?.msg || err.message));
     } finally {
@@ -95,7 +95,7 @@ export default function Register() {
           Already a member? <a href="/login" className="text-blue-600 hover:underline">Log in</a>
         </p>
         <p className="mt-3 text-center">
-          <a href="/" className="text-sm font-bold text-gray-400 hover:text-blue-600 transition-colors">← Back to Home</a>
+          <a href="/home" className="text-sm font-bold text-gray-400 hover:text-blue-600 transition-colors">← Back to Home</a>
         </p>
       </motion.div>
     </div>

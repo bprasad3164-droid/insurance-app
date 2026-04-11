@@ -66,7 +66,7 @@ export default function AdminDashboard() {
                 <PlusCircle className="w-5 h-5" /> New Policy
             </button>
             <a href="/analytics" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">Intelligence</a>
-            <a href="/" className="bg-gray-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg">Home</a>
+            <a href="/home" className="bg-gray-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg">Home</a>
         </div>
       </header>
 
