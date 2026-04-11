@@ -16,13 +16,12 @@ export default function ProfileKYC() {
     fetchUserPolicies();
   }, []);
 
-  const fetchProfile = async () => {
-    const token = localStorage.getItem("access");
-    const res = await axios.get("http://127.0.0.1:8000/api/login/", {
-        headers: { Authorization: `Bearer ${token}` }
+  const fetchProfile = () => {
+    setUser({
+      email: localStorage.getItem("email") || "Unknown",
+      kyc_status: localStorage.getItem("kyc_status") || "Pending",
+      role: localStorage.getItem("role") || "user",
     });
-    // For simulation, we'll use the token info
-    setUser({ email: localStorage.getItem("email"), kyc_status: localStorage.getItem("kyc_status") || "Pending" });
   };
 
   const fetchUserPolicies = async () => {
