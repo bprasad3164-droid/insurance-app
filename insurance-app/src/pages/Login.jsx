@@ -77,12 +77,10 @@ export default function Login() {
       localStorage.setItem("kyc_status", res.data.kyc_status || "Pending");
       localStorage.setItem("email", email);
 
-      // Branch navigation based on role
+      // Branch navigation based on role from backend
       const actualRole = res.data.role;
-      if (actualRole === "admin") {
+      if (actualRole === "admin" || actualRole === "agent") {
         navigate("/admin-dashboard");
-      } else if (actualRole === "agent") {
-        navigate("/dashboard");
       } else {
         navigate("/dashboard");
       }
