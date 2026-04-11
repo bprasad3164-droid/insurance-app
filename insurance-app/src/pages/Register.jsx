@@ -2,12 +2,13 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { UserPlus, Mail, Lock, UserCheck } from "lucide-react";
+import { UserPlus, Mail, Lock, UserCheck, Eye, EyeOff } from "lucide-react";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -50,15 +51,22 @@ export default function Register() {
             />
           </div>
 
-          <div className="relative">
-            <Lock className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+          <div className="relative group">
+            <Lock className="absolute left-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
             <input
-              className="w-full p-4 pl-12 rounded-2xl bg-white/50 border border-white/20 shadow-inner focus:ring-4 focus:ring-blue-400 outline-none font-bold"
-              type="password"
+              className="w-full p-4 pl-12 pr-12 rounded-2xl bg-white/50 border border-white/20 shadow-inner focus:ring-4 focus:ring-blue-400 outline-none font-bold"
+              type={showPassword ? "text" : "password"}
               placeholder="Strong Password"
               required
               onChange={e => setPassword(e.target.value)}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-4 text-gray-400 hover:text-blue-500 transition-colors focus:outline-none"
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
 
           <div className="relative">

@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, Users, Briefcase, Mail, Lock, ArrowRight, Home } from "lucide-react";
+import { ShieldCheck, Users, Briefcase, Mail, Lock, ArrowRight, Home, Eye, EyeOff } from "lucide-react";
 
 const roles = [
   {
@@ -35,6 +35,7 @@ export default function Login() {
   const [activeRole, setActiveRole] = useState("user");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -181,14 +182,21 @@ export default function Login() {
                     <div className="relative group">
                       <Lock className="absolute left-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                       <input
-                        className="w-full p-4 pl-12 rounded-2xl outline-none font-bold text-gray-800 placeholder:text-gray-400 transition-all shadow-inner"
+                        className="w-full p-4 pl-12 pr-12 rounded-2xl outline-none font-bold text-gray-800 placeholder:text-gray-400 transition-all shadow-inner"
                         style={{ background: "#e0e5ec", boxShadow: "inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff" }}
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         placeholder="Password"
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-4 text-gray-400 hover:text-blue-500 transition-colors focus:outline-none"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
                     </div>
                   </div>
 
