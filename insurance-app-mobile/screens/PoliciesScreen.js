@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import api from "../services/api";
 
-export default function PoliciesScreen() {
+export default function PoliciesScreen({ navigation }) {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,8 +26,16 @@ export default function PoliciesScreen() {
       <Text style={styles.policyName}>{item.name}</Text>
       <Text style={styles.policyDesc}>{item.description}</Text>
       <View style={styles.footer}>
-          <Text style={styles.premiumText}>₹ {item.premium.toLocaleString()}</Text>
-          <Text style={styles.tag}>Active</Text>
+          <View>
+            <Text style={styles.premiumText}>₹ {item.premium.toLocaleString()}</Text>
+            <Text style={styles.perYear}>BASE PREMIUM</Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.quoteBtn} 
+            onPress={() => navigation.navigate("BuyPolicy", { policyId: item.id })}
+          >
+            <Text style={styles.quoteBtnText}>Get Quote</Text>
+          </TouchableOpacity>
       </View>
     </View>
   );
@@ -101,13 +109,24 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#3b82f6'
   },
-  tag: {
-    backgroundColor: '#dcfce7',
-    color: '#166534',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    fontSize: 12,
+  perYear: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#94a3b8',
+    marginTop: 2
+  },
+  quoteBtn: {
+    backgroundColor: '#3b82f6',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+    shadowColor: "#3b82f6",
+    shadowOpacity: 0.2,
+    elevation: 4
+  },
+  quoteBtnText: {
+    color: '#fff',
+    fontSize: 14,
     fontWeight: 'bold'
   }
 });

@@ -5,6 +5,7 @@ import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import PoliciesScreen from './screens/PoliciesScreen';
 import ClaimScreen from './screens/ClaimScreen';
+import BuyPolicyScreen from './screens/BuyPolicyScreen';
 
 const Stack = createStackNavigator();
 
@@ -20,9 +21,10 @@ export default function App() {
         }}
       >
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ headerLeft: null }} />
         <Stack.Screen name="Policies" component={PoliciesScreen} />
         <Stack.Screen name="Claim" component={ClaimScreen} />
+        <Stack.Screen name="BuyPolicy" component={BuyPolicyScreen} options={{ title: "Premium Calculator" }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

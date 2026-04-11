@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, TextInput } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import api from "../services/api";
 
 export default function ClaimScreen({ navigation }) {
   const [policies, setPolicies] = useState([]);
   const [selectedPolicy, setSelectedPolicy] = useState("");
+  const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,8 +29,8 @@ export default function ClaimScreen({ navigation }) {
     
     try {
         await api.post("/claim/", {
-            user: 1, // Simulated user ID
-            policy: selectedPolicy
+            policy: selectedPolicy,
+            amount: amount
         });
         alert("Claim Submitted Successfully!");
         navigation.goBack();
@@ -58,6 +59,15 @@ export default function ClaimScreen({ navigation }) {
                     ))}
                   </Picker>
               </View>
+
+              <Text style={styles.label}>Claim Amount (INR)</Text>
+              <TextInput 
+                style={styles.input}
+                placeholder="e.g. 50000"
+                keyboardType="numeric"
+                value={amount}
+                onChangeText={setAmount}
+              />
 
               <TouchableOpacity style={styles.submitButton} onPress={submitClaim}>
                   <Text style={styles.submitText}>Submit Claim</Text>
@@ -97,8 +107,17 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 10
   },
+  input: {
+    backgroundColor: '#f8fafc',
+    padding: 15,
+    borderRadius: 15,
+    marginBottom: 25,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1a202c'
+  },
   pickerContainer: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#f8fafc',
     borderRadius: 15,
     marginBottom: 30,
     overflow: 'hidden'
