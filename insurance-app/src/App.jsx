@@ -7,6 +7,7 @@ import Policies from "./pages/Policies";
 import Claim from "./pages/Claim";
 import AdminDashboard from "./pages/AdminDashboard";
 import Analytics from "./pages/Analytics";
+import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/user" element={<UserLogin />} />
         <Route path="/agent" element={<AgentLogin />} />
+        <Route path="/register" element={<Register />} />
         
         {/* Protected Routes */}
         <Route 

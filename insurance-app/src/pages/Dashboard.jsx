@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShieldCheck, UserPlus, FileText, BarChart3, LogOut, ChevronRight } from "lucide-react";
 
 export default function Dashboard() {
   const [role, setRole] = useState("");
@@ -18,72 +20,114 @@ export default function Dashboard() {
 
   if (!role) {
     return (
-      <div className="min-h-screen bg-gray-200 w-full p-6 flex flex-col items-center">
-        <header className="flex justify-between clay p-4 mb-6 w-full max-w-4xl">
-          <h1 className="text-xl font-bold font-serif text-gray-800 tracking-tight">Pro Insurance Portal</h1>
-          <nav className="space-x-6">
-            <a href="#" className="hover:text-blue-600 transition-colors font-semibold">Guidelines</a>
-            <a href="#" className="hover:text-blue-600 transition-colors font-semibold">Contact</a>
+      <div className="min-h-screen bg-clay-bg w-full p-8 flex flex-col items-center">
+        <header className="flex justify-between items-center clay p-6 mb-16 w-full max-w-6xl shadow-xl glass">
+          <div className="flex items-center gap-3">
+             <ShieldCheck className="w-10 h-10 text-blue-600" />
+             <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Pro Insurance</h1>
+          </div>
+          <nav className="flex items-center gap-8">
+            <a href="/register" className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition flex items-center gap-2">
+                <UserPlus className="w-5 h-5" /> Get Started
+            </a>
           </nav>
         </header>
 
-        <div className="text-center mb-12 flex flex-col items-center">
-          <h2 className="text-4xl font-extrabold text-gray-800 mb-4 tracking-tight">Your Protection, Our Priority</h2>
-          <p className="text-gray-600 max-w-xl text-lg font-medium leading-relaxed">
-            Experience the future of insurance management with our role-based portal. Secure, intuitive, and designed for efficiency.
+        <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-20 max-w-3xl"
+        >
+          <h2 className="text-7xl font-black text-gray-800 mb-8 tracking-tighter leading-none">
+            Digital Asset <span className="text-blue-600">Protection.</span>
+          </h2>
+          <p className="text-gray-500 text-2xl font-medium leading-relaxed">
+            The world's first role-based insurance ecosystem for the modern enterprise. Instant claims, real-time analytics, and native mobile access.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full max-w-5xl px-4">
-          <a href="/admin" className="clay group p-12 text-center flex flex-col items-center hover:scale-105 transition-all duration-300">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors text-blue-600 group-hover:text-white">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            </div>
-            <span className="font-bold text-2xl text-gray-800">Admin</span>
-          </a>
-          <a href="/user" className="clay group p-12 text-center flex flex-col items-center hover:scale-105 transition-all duration-300">
-             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6 group-hover:bg-green-600 transition-colors text-green-600 group-hover:text-white">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            </div>
-            <span className="font-bold text-2xl text-gray-800">User</span>
-          </a>
-          <a href="/agent" className="clay group p-12 text-center flex flex-col items-center hover:scale-105 transition-all duration-300">
-            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-6 group-hover:bg-purple-600 transition-colors text-purple-600 group-hover:text-white">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            </div>
-            <span className="font-bold text-2xl text-gray-800">Agent</span>
-          </a>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full max-w-6xl">
+          {[
+              { title: "Administrator", role: "admin", color: "blue", icon: <ShieldCheck className="w-10 h-10" /> },
+              { title: "Policy Holder", role: "user", color: "green", icon: <FileText className="w-10 h-10" /> },
+              { title: "Verification", role: "agent", color: "purple", icon: <BarChart3 className="w-10 h-10" /> }
+          ].map((card, idx) => (
+             <motion.a 
+                key={card.role}
+                href={`/${card.role}`} 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.1 }}
+                whileHover={{ y: -10, scale: 1.02 }}
+                className="clay group p-12 text-center flex flex-col items-center border border-white/40"
+             >
+                <div className={`w-20 h-20 bg-${card.color}-100 rounded-3xl flex items-center justify-center mb-8 group-hover:bg-${card.color}-600 transition-all duration-500 shadow-inner`}>
+                    <div className={`text-${card.color}-600 group-hover:text-white transition-colors`}>{card.icon}</div>
+                </div>
+                <span className="font-black text-2xl text-gray-800 tracking-tight uppercase">{card.title}</span>
+                <div className="mt-4 flex items-center gap-2 text-blue-600 font-black text-xs uppercase opacity-0 group-hover:opacity-100 transition-opacity">
+                    Access Portal <ChevronRight className="w-4 h-4" />
+                </div>
+             </motion.a>
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-200 w-full p-8 flex flex-col items-center">
-      <header className="flex justify-between clay p-5 mb-12 w-full max-w-5xl shadow-xl">
-        <h1 className="text-2xl font-black text-blue-800">Dashboard</h1>
+    <div className="min-h-screen bg-clay-bg w-full p-10 flex flex-col items-center">
+      <header className="flex justify-between items-center clay p-6 mb-16 w-full max-w-6xl shadow-xl glass">
+        <div className="flex items-center gap-3">
+             <ShieldCheck className="w-10 h-10 text-blue-600" />
+             <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Executive Portal</h1>
+        </div>
         <button 
           onClick={handleLogout}
-          className="bg-red-500 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-600 transition-all shadow-md active:scale-95"
+          className="bg-red-500 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-red-600 transition flex items-center gap-2"
         >
-          Logout
+          <LogOut className="w-5 h-5" /> Secure Logout
         </button>
       </header>
 
-      <div className="clay p-12 w-full max-w-4xl text-center shadow-2xl animate-in fade-in zoom-in duration-500">
-        <h2 className="text-5xl font-black mb-8 capitalize text-gray-800 tracking-tight">
-          Welcome, {role}!
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="clay p-16 w-full max-w-5xl shadow-3xl text-center border border-white/50"
+      >
+        <span className="text-blue-600 font-black text-xs uppercase tracking-[0.3em] mb-4 block">Dashboard Access Verified</span>
+        <h2 className="text-7xl font-black mb-10 text-gray-800 tracking-tighter leading-none">
+          Welcome back,<br/><span className="text-blue-600 capitalize underline decoration-8 decoration-white/50 underline-offset-8">{role}</span>
         </h2>
-        <div className="bg-white/50 p-8 rounded-3xl border border-white/40 shadow-inner">
-            <p className="text-xl text-gray-700 font-medium">
-                You are currently logged in as an <span className="text-blue-600 font-bold underline decoration-wavy underline-offset-4">{role}</span>.
-            </p>
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="clay p-6 font-bold text-gray-700 hover:bg-white/60 transition-colors cursor-pointer">View Active Policies</div>
-                <div className="clay p-6 font-bold text-gray-700 hover:bg-white/60 transition-colors cursor-pointer">Process Claims</div>
-            </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+            <motion.a 
+                href="/policies"
+                whileHover={{ scale: 1.05 }}
+                className="clay p-8 bg-white/50 border border-white flex items-center justify-between group"
+            >
+                <div className="text-left">
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Active Solutions</p>
+                    <p className="text-2xl font-black text-gray-800 tracking-tight">Browse Policies</p>
+                </div>
+                <ChevronRight className="w-8 h-8 text-blue-600 group-hover:translate-x-2 transition-transform" />
+            </motion.a>
+            
+            <motion.a 
+                href={role === 'admin' || role === 'agent' ? "/admin-dashboard" : "/claim"}
+                whileHover={{ scale: 1.05 }}
+                className="clay p-8 bg-white/50 border border-white flex items-center justify-between group"
+            >
+                 <div className="text-left">
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Operations</p>
+                    <p className="text-2xl font-black text-gray-800 tracking-tight">
+                        {role === 'admin' || role === 'agent' ? "System Oversight" : "File a Claim"}
+                    </p>
+                </div>
+                <ChevronRight className="w-8 h-8 text-blue-600 group-hover:translate-x-2 transition-transform" />
+            </motion.a>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
