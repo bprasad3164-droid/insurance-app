@@ -20,3 +20,19 @@ class User(AbstractUser):
         related_name='accounts_user_permissions',
         blank=True
     )
+
+class Policy(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    premium = models.FloatField()
+
+    def __str__(self):
+        return self.name
+
+class Claim(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, default='Pending')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.policy.name} ({self.status})"
