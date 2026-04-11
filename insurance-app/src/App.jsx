@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import AdminLogin from "./pages/AdminLogin";
 import UserLogin from "./pages/UserLogin";
@@ -8,19 +9,36 @@ import Claim from "./pages/Claim";
 import AdminDashboard from "./pages/AdminDashboard";
 import Analytics from "./pages/Analytics";
 import Register from "./pages/Register";
+import ProfileKYC from "./pages/ProfileKYC";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Home />} />
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/user" element={<UserLogin />} />
         <Route path="/agent" element={<AgentLogin />} />
         <Route path="/register" element={<Register />} />
         
         {/* Protected Routes */}
+        <Route 
+            path="/dashboard" 
+            element={
+                <ProtectedRoute>
+                    <Dashboard />
+                </ProtectedRoute>
+            } 
+        />
+        <Route 
+            path="/profile" 
+            element={
+                <ProtectedRoute>
+                    <ProfileKYC />
+                </ProtectedRoute>
+            } 
+        />
         <Route 
             path="/policies" 
             element={

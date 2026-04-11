@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Helvetica, Arial, sans-serif; padding: 50px; color: #1e293b; }
+        .cert-container { border: 15px solid #3b82f6; padding: 40px; text-align: center; }
+        .header { color: #3b82f6; font-size: 48px; font-weight: 900; margin-bottom: 20px; }
+        .title { font-size: 24px; text-transform: uppercase; letter-spacing: 5px; margin-bottom: 40px; }
+        .content { font-size: 18px; line-height: 1.6; margin-bottom: 50px; }
+        .bold { font-weight: bold; color: #000; }
+        .footer { margin-top: 100px; display: flex; justify-content: space-between; }
+        .footer-item { text-align: left; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="cert-container">
+        <div class="header">PRO INSURANCE</div>
+        <div class="title">COHORT CERTIFICATE OF COVERAGE</div>
+        
+        <div class="content">
+            This is to certify that <span class="bold">{{ user.username }}</span> is officially covered under the 
+            <br>
+            <span class="bold">{{ policy.name }}</span>
+            <br>
+            subject to the terms and conditions outlined in the master policy agreement.
+        </div>
+
+        <div class="bold" style="font-size: 20px; color: #3b82f6;">
+            CERTIFICATE ID: {{ cert_id }}
+        </div>
+
+        <div class="footer">
+            <div class="footer-item">
+                <span class="bold">Issued On:</span> {{ date|date:"M d, Y" }}
+            </div>
+            <div class="footer-item" style="text-align: right;">
+                <span class="bold">Authorized Signatory:</span>
+                <br>
+                Pro Insurance Digital Ledger
+            </div>
+        </div>
+    </div>
+</body>
+</html>
