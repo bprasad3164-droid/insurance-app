@@ -228,7 +228,7 @@ export default function Login() {
                       New here? <a href="/register" className="text-blue-600 hover:underline">Create Account</a>
                     </p>
                   )}
-                  <a href="/" className="flex items-center justify-center gap-2 text-sm font-black text-gray-400 hover:text-gray-600 transition-colors">
+                  <a href="/home" className="flex items-center justify-center gap-2 text-sm font-black text-gray-400 hover:text-gray-600 transition-colors">
                     <Home className="w-4 h-4" /> Back to Home
                   </a>
                 </div>
