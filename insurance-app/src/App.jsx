@@ -7,6 +7,7 @@ import Policies from "./pages/Policies";
 import Claim from "./pages/Claim";
 import AdminDashboard from "./pages/AdminDashboard";
 import Analytics from "./pages/Analytics";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   return (
@@ -16,10 +17,40 @@ export default function App() {
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/user" element={<UserLogin />} />
         <Route path="/agent" element={<AgentLogin />} />
-        <Route path="/policies" element={<Policies />} />
-        <Route path="/claim" element={<Claim />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/analytics" element={<Analytics />} />
+        
+        {/* Protected Routes */}
+        <Route 
+            path="/policies" 
+            element={
+                <ProtectedRoute>
+                    <Policies />
+                </ProtectedRoute>
+            } 
+        />
+        <Route 
+            path="/claim" 
+            element={
+                <ProtectedRoute roleRequired="user">
+                    <Claim />
+                </ProtectedRoute>
+            } 
+        />
+        <Route 
+            path="/admin-dashboard" 
+            element={
+                <ProtectedRoute>
+                    <AdminDashboard />
+                </ProtectedRoute>
+            } 
+        />
+        <Route 
+            path="/analytics" 
+            element={
+                <ProtectedRoute roleRequired="admin">
+                    <Analytics />
+                </ProtectedRoute>
+            } 
+        />
       </Routes>
     </BrowserRouter>
   );

@@ -13,7 +13,7 @@ export default function Dashboard() {
   const handleLogout = () => {
     localStorage.clear();
     setRole("");
-    window.location.reload();
+    window.location.href = "/";
   };
 
   if (!role) {
