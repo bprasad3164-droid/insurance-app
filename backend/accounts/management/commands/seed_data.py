@@ -83,9 +83,9 @@ class Command(BaseCommand):
         else:
             self.stdout.write("  Policies already exist")
 
-        self.stdout.write(self.style.SUCCESS("\n✅ Seed complete!\n"))
+        self.stdout.write(self.style.SUCCESS("\nSeed complete!\n"))
         self.stdout.write("=" * 50)
-        self.stdout.write("  ADMIN  → admin@proinsurance.com / Admin@123")
-        self.stdout.write("  AGENT  → agent@proinsurance.com / Agent@123")
-        self.stdout.write("  USER   → user@proinsurance.com  / User@1234")
+        self.stdout.write("  ADMIN  --> admin@proinsurance.com / Admin@123")
+        self.stdout.write("  AGENT  --> agent@proinsurance.com / Agent@123")
+        self.stdout.write("  USER   --> user@proinsurance.com  / User@1234")
         self.stdout.write("=" * 50)
