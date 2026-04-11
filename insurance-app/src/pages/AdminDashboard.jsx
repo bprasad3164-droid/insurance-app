@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft } from "lucide-react";
+import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
@@ -10,6 +10,11 @@ export default function AdminDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [newPolicy, setNewPolicy] = useState({ name: "", description: "", premium: "", category: "health" });
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
 
   useEffect(() => {
     fetchData();
@@ -58,7 +63,7 @@ export default function AdminDashboard() {
                 <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Executive Oversight</h1>
             </div>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
             <button 
                 onClick={() => setShowModal(true)}
                 className="bg-green-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 transition shadow-lg"
@@ -67,6 +72,12 @@ export default function AdminDashboard() {
             </button>
             <a href="/analytics" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">Intelligence</a>
             <a href="/home" className="bg-gray-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg">Home</a>
+            <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-red-600 transition flex items-center gap-2"
+            >
+                <LogOut className="w-5 h-5" /> Logout
+            </button>
         </div>
       </header>
 
