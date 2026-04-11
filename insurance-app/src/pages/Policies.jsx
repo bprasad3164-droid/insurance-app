@@ -14,6 +14,7 @@ const categories = [
 export default function Policies() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [compareList, setCompareList] = useState([]);
   const navigate = useNavigate();
@@ -24,12 +25,18 @@ export default function Policies() {
 
   const fetchPolicies = async () => {
     setLoading(true);
-    const url = filter === 'all' 
-        ? "http://127.0.0.1:8000/api/policies/" 
-        : `http://127.0.0.1:8000/api/policies/?category=${filter}`;
-    const res = await axios.get(url);
-    setData(res.data);
-    setLoading(false);
+    setError(null);
+    try {
+      const url = filter === 'all'
+          ? "http://127.0.0.1:8000/api/policies/"
+          : `http://127.0.0.1:8000/api/policies/?category=${filter}`;
+      const res = await axios.get(url);
+      setData(res.data);
+    } catch (err) {
+      setError("Could not load policies. Make sure the backend is running.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBuy = async (policy) => {
@@ -121,6 +128,20 @@ export default function Policies() {
           <div className="flex flex-col items-center gap-4 py-32">
               <div className="w-20 h-20 border-8 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
               <p className="font-black text-blue-600 tracking-widest animate-pulse">OPTIMIZING QUOTES...</p>
+          </div>
+      ) : error ? (
+          <div className="flex flex-col items-center gap-6 py-32">
+              <div className="clay p-12 text-center max-w-md">
+                  <ShieldCheck className="w-16 h-16 text-red-400 mx-auto mb-4" />
+                  <h2 className="text-2xl font-black text-gray-700 mb-2">Connection Error</h2>
+                  <p className="text-gray-400 font-medium mb-6">{error}</p>
+                  <button
+                      onClick={fetchPolicies}
+                      className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition"
+                  >
+                      Retry
+                  </button>
+              </div>
           </div>
       ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-7xl pb-32">
