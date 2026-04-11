@@ -13,6 +13,7 @@ urlpatterns = [
     path('download-cert/<str:cert_id>/', views.download_certificate),
     
     path('claim/', views.create_claim),
+    path('claim/my/', views.my_claims),
     path('claims/', views.all_claims),
     path('approve-agent/<int:id>/', views.agent_approve),
     path('approve-admin/<int:id>/', views.admin_approve),

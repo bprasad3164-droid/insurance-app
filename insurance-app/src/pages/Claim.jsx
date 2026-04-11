@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 export default function Claim() {
   const [policies, setPolicies] = useState([]);
   const [selectedPolicy, setSelectedPolicy] = useState("");
+  const [amount, setAmount] = useState("");
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -26,8 +27,8 @@ export default function Claim() {
     
     // Simulate multi-part upload logic
     const formData = new FormData();
-    formData.append("user", 1); // Mock user ID
     formData.append("policy", selectedPolicy);
+    formData.append("amount", amount);
     if (file) formData.append("file", file);
 
     try {
@@ -90,6 +91,18 @@ export default function Claim() {
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">Estimated Settlement Amount (INR)</label>
+            <input 
+              type="number"
+              className="clay-inset w-full p-5 focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold bg-transparent"
+              placeholder="e.g. 50000"
+              value={amount}
+              required
+              onChange={e => setAmount(e.target.value)}
+            />
           </div>
 
           <div>

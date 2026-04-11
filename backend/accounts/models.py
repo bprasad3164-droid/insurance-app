@@ -40,10 +40,17 @@ class UserPolicy(models.Model):
     certificate_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
 
 class Claim(models.Model):
+    STATUS_CHOICES = (
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, default='Pending')
-    agent_status = models.CharField(max_length=20, default='Pending')
+    amount = models.FloatField(default=0.0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    agent_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class Document(models.Model):
     file = models.FileField(upload_to='documents/')

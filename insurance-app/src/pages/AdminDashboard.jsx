@@ -22,14 +22,14 @@ export default function AdminDashboard() {
     setStats(resStats.data);
   };
 
-  const agentApprove = async (id) => {
-    await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`);
+  const agentApprove = async (id, status = 'Approved') => {
+    await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`, { status });
     fetchData();
   };
 
-  const adminApprove = async (id) => {
+  const adminApprove = async (id, status = 'Approved') => {
     try {
-        await axios.post(`http://127.0.0.1:8000/api/approve-admin/${id}/`);
+        await axios.post(`http://127.0.0.1:8000/api/approve-admin/${id}/`, { status });
         fetchData();
     } catch (e) {
         alert(e.response.data.msg);
@@ -94,6 +94,7 @@ export default function AdminDashboard() {
                         <th className="p-6">Reference</th>
                         <th className="p-6">Client ID</th>
                         <th className="p-6">Policy ID</th>
+                        <th className="p-6">Requested Amount</th>
                         <th className="p-6">Agent Verification</th>
                         <th className="p-6">System Status</th>
                         <th className="p-6">Executive Action</th>
@@ -103,8 +104,9 @@ export default function AdminDashboard() {
                     {claims.map(c => (
                         <tr key={c.id} className="border-b border-gray-50/50 hover:bg-white/40 transition-colors">
                             <td className="p-6 text-gray-400">#CLM-{c.id}</td>
-                            <td className="p-6">USER_{c.user_id}</td>
-                            <td className="p-6 text-blue-600">POL_{c.policy_id}</td>
+                            <td className="p-6">USER_{c.user || c.user_id}</td>
+                            <td className="p-6 text-blue-600">POL_{c.policy || c.policy_id}</td>
+                            <td className="p-6 font-black text-gray-800">₹{c.amount?.toLocaleString() || '0'}</td>
                             <td className="p-6">
                                 <span className={`px-4 py-2 rounded-full text-xs flex items-center w-max gap-2 ${c.agent_status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                     {c.agent_status === 'Approved' ? <CheckCircle2 className="w-3 h-3"/> : <AlertCircle className="w-3 h-3"/>}
@@ -119,10 +121,16 @@ export default function AdminDashboard() {
                             </td>
                             <td className="p-6">
                                 {role === 'agent' && c.agent_status === 'Pending' && (
-                                    <button onClick={() => agentApprove(c.id)} className="bg-orange-500 text-white px-5 py-2 rounded-xl text-xs font-black shadow-lg hover:bg-orange-600 transition">VERIFY</button>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => agentApprove(c.id, 'Approved')} className="bg-green-600 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:bg-green-700 transition uppercase tracking-widest">Verify</button>
+                                        <button onClick={() => agentApprove(c.id, 'Rejected')} className="bg-red-500 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:bg-red-600 transition uppercase tracking-widest">Reject</button>
+                                    </div>
                                 )}
                                 {role === 'admin' && c.status === 'Pending' && (
-                                    <button onClick={() => adminApprove(c.id)} className="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-black shadow-lg hover:bg-blue-700 transition">AUTHORIZE</button>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => adminApprove(c.id, 'Approved')} className="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:bg-blue-700 transition uppercase tracking-widest">Settle</button>
+                                        <button onClick={() => adminApprove(c.id, 'Rejected')} className="bg-gray-500 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:bg-gray-600 transition uppercase tracking-widest">Deny</button>
+                                    </div>
                                 )}
                             </td>
                         </tr>

@@ -1,14 +1,26 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { ShieldCheck, FileText, BarChart3, LogOut, ChevronRight, User } from "lucide-react";
+import { ShieldCheck, FileText, BarChart3, LogOut, ChevronRight, User, Clock, Activity } from "lucide-react";
+import axios from "axios";
+import ClaimTracking from "../components/ClaimTracking";
 
 export default function Dashboard() {
   const [role, setRole] = useState(localStorage.getItem("role") || "");
+  const [claims, setClaims] = useState([]);
 
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
     if (storedRole) setRole(storedRole);
+    fetchMyClaims();
   }, []);
+
+  const fetchMyClaims = async () => {
+    try {
+        const token = localStorage.getItem("access");
+        const res = await axios.get("http://127.0.0.1:8000/api/claim/my/", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        setClaims(res.data);
+    } catch (err) { console.error(err); }
+  };
 
   const handleLogout = () => {
     localStorage.clear();
@@ -101,6 +113,22 @@ export default function Dashboard() {
           </motion.a>
         )}
       </motion.div>
+
+      {/* Claim Tracking Sidebar/Section */}
+      {claims.length > 0 && (
+          <div className="w-full max-w-5xl mt-20">
+              <div className="flex items-center gap-4 mb-10">
+                  <div className="clay p-4 rounded-3xl text-blue-600">
+                      <Clock className="w-8 h-8" />
+                  </div>
+                  <div>
+                      <h2 className="text-3xl font-black text-gray-800 tracking-tight uppercase">Settlement Timeline</h2>
+                      <p className="text-[10px] font-black tracking-[0.3em] text-blue-600 uppercase">Real-time status tracking</p>
+                  </div>
+              </div>
+              <ClaimTracking claims={claims} />
+          </div>
+      )}
     </div>
   );
 }

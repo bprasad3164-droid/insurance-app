@@ -156,16 +156,24 @@ def download_certificate(request, cert_id):
 # ================= CLAIMS =================
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def create_claim(request):
     try:
-        Claim.objects.create(
-            user_id=request.data.get('user', 1),
-            policy_id=request.data['policy']
+        claim = Claim.objects.create(
+            user=request.user,
+            policy_id=request.data['policy'],
+            amount=request.data.get('amount', 0)
         )
-        return Response({"msg": "Claim Submitted"})
+        return Response({"msg": "Claim Submitted", "claim_id": claim.id})
     except Exception as e:
         return Response({"msg": str(e)}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_claims(request):
+    claims = Claim.objects.filter(user=request.user)
+    serializer = ClaimSerializer(claims, many=True)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -177,9 +185,10 @@ def all_claims(request):
 def agent_approve(request, id):
     try:
         claim = Claim.objects.get(id=id)
-        claim.agent_status = 'Approved'
+        status = request.data.get('status', 'Approved')
+        claim.agent_status = status
         claim.save()
-        return Response({"msg": "Agent Approved"})
+        return Response({"msg": f"Agent {status}"})
     except Claim.DoesNotExist:
         return Response({"msg": "Claim not found"}, status=404)
 
@@ -188,17 +197,22 @@ def agent_approve(request, id):
 def admin_approve(request, id):
     try:
         claim = Claim.objects.get(id=id)
-        if claim.agent_status == 'Approved':
-            claim.status = 'Approved'
-            claim.save()
+        if claim.agent_status != 'Approved':
+            return Response({"msg": "Agent approval required first"}, status=400)
+        
+        status = request.data.get('status', 'Approved')
+        claim.status = status
+        claim.save()
+        
+        if status == 'Approved':
             send_mail(
                 "Claim Approved",
-                f"Your claim #{id} has been fully approved and is being processed.",
+                f"Your claim #{id} for policy {claim.policy.name} has been fully approved.",
                 "admin@proinsurance.com",
                 [claim.user.email]
             )
-            return Response({"msg": "Admin Approved and Email Sent"})
-        return Response({"msg": "Agent approval required first"}, status=400)
+        
+        return Response({"msg": f"Admin {status} and Notification Processed"})
     except Claim.DoesNotExist:
         return Response({"msg": "Claim not found"}, status=404)
 
