@@ -20,7 +20,7 @@ export default function Analytics() {
     const token = localStorage.getItem("access");
     if (!token) return navigate("/login");
 
-    axios.get("/api/analytics/", {
+    axios.get("http://127.0.0.1:8000/api/analytics/", {
         headers: { Authorization: `Bearer ${token}` }
     }).then(res => {
       const pendingClaims = res.data.claims - res.data.approved;

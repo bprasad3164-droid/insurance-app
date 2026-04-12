@@ -24,7 +24,7 @@ export default function Claim() {
   const handleHome = () => navigate("/dashboard");
 
   useEffect(() => {
-    axios.get("/api/policies/").then(res => setPolicies(res.data));
+    axios.get("http://127.0.0.1:8000/api/policies/").then(res => setPolicies(res.data));
   }, []);
 
   const handleFileChange = (e) => {
@@ -43,7 +43,7 @@ export default function Claim() {
 
     try {
       const token = localStorage.getItem("access");
-      await axios.post("/api/claim/", formData, {
+      await axios.post("http://127.0.0.1:8000/api/claim/", formData, {
         headers: { 
           "Content-Type": "multipart/form-data",
           "Authorization": `Bearer ${token}`

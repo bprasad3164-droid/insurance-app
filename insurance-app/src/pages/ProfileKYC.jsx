@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { UserCheck, ShieldOff, ShieldCheck, UploadCloud, ChevronLeft, CreditCard, ArrowLeft, Home, LogOut } from "lucide-react";
+import { UserCheck, ShieldOff, ShieldCheck, UploadCloud, ChevronLeft, CreditCard, ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function ProfileKYC() {
@@ -42,7 +42,7 @@ export default function ProfileKYC() {
   const fetchUserPolicies = async () => {
       try {
           const token = localStorage.getItem("access");
-          const res = await axios.get("/api/my-policies/", {
+          const res = await axios.get("http://127.0.0.1:8000/api/my-policies/", {
             headers: { Authorization: `Bearer ${token}` }
           });
           setPolicies(res.data);
@@ -75,83 +75,54 @@ export default function ProfileKYC() {
 
   const downloadCert = async (certId) => {
       const token = localStorage.getItem("access");
-      window.open(`/api/download-cert/${certId}/?access_token=${token}`);
+      window.open(`http://127.0.0.1:8000/api/download-cert/${certId}/?access_token=${token}`);
   };
 
-  const payWithRazorpay = async () => {
+  const pay = async (method) => {
     try {
       const token = localStorage.getItem("access");
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
-      const amount = 500;
-      const policy_id = policies[0]?.id || 1;
+      let amount = 500;
+      let policy_id = policies[0]?.id || 1;
 
-      // STEP 1: Create Order
-      const res = await axios.post("/api/payment/create-order/", {
+      // STEP 1: UI simulation (important)
+      if (method === "UPI") {
+        alert("Opening UPI App...");
+      }
+
+      if (method === "Card") {
+        const card = prompt("Enter Card Number (demo: 1234)");
+        if (!card) return;
+      }
+
+      if (method === "Net Banking") {
+        const bank = prompt("Enter Bank Name");
+        if (!bank) return;
+      }
+
+      // STEP 2: Call backend
+      const res = await axios.post("http://127.0.0.1:8000/api/make-payment/", {
+        policy_id,
         amount,
-        policy_id
+        method
       }, config);
 
-      if (!res.data.order_id) {
-        alert("Order creation failed on server.");
-        return;
+      if (!res.data.payment_id) {
+        throw new Error("Payment not created");
       }
 
-      const rzp_key = res.data.key;
-      if (!rzp_key || rzp_key.includes("YOUR_KEY")) {
-        alert("Razorpay Key not configured in backend settings.py");
-        return;
-      }
+      // STEP 3: Invoice
+      const invoiceRes = await axios.post("http://127.0.0.1:8000/api/invoice/create/", {
+        payment_id: res.data.payment_id
+      }, config);
 
-      if (!window.Razorpay) {
-        alert("Razorpay SDK failed to load. Please check your internet connection.");
-        return;
-      }
-
-      const options = {
-        key: rzp_key,
-        amount: res.data.amount,
-        currency: "INR",
-        name: "Pro Insurance",
-        description: "Official Policy Payment",
-        order_id: res.data.order_id,
-        handler: async function (response) {
-          try {
-            // STEP 2: Verify Payment
-            const verifyRes = await axios.post("/api/payment/verify/", {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature
-            }, config);
-
-            // STEP 3: Automatic Invoice Generation
-            const invoiceRes = await axios.post("/api/invoice/create/", {
-              payment_id: verifyRes.data.payment_id
-            }, config);
-
-            setInvoiceId(invoiceRes.data.invoice_id);
-            alert("Payment & Verification Success ✅");
-
-          } catch (err) {
-            console.error(err);
-            alert("Verification Failed ❌");
-          }
-        },
-        prefill: {
-          name: localStorage.getItem("user_name") || "Valued Customer",
-          email: "customer@proinsurance.com"
-        },
-        theme: {
-          color: "#2563eb"
-        }
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+      setInvoiceId(invoiceRes.data.invoice_id);
+      alert("Payment Success ✅");
 
     } catch (err) {
       console.error(err);
-      alert("Checkout Initialization Failed. Check if Backend is running.");
+      alert("Payment Failed ❌");
     }
   };
 
@@ -269,21 +240,21 @@ export default function ProfileKYC() {
                 </div>
             </div>
 
-            {/* Payment Section - NOW USING RAZORPAY */}
-            <div className="clay p-10 bg-white shadow-2xl relative overflow-hidden">
+            {/* Payment Section */}
+            <div className="clay p-10 bg-white/40 shadow-2xl">
                 <div className="flex items-center gap-3 mb-8">
                     <CreditCard className="w-6 h-6 text-blue-600" />
-                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">Razorpay Gateway</h2>
+                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">Make Manual Payment</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <button onClick={payWithRazorpay} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
+                    <button onClick={()=>pay("UPI")} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
                         UPI
                     </button>
-                    <button onClick={payWithRazorpay} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
+                    <button onClick={()=>pay("Card")} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
                         Credit / Debit Card
                     </button>
-                    <button onClick={payWithRazorpay} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
+                    <button onClick={()=>pay("Net Banking")} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
                         Net Banking
                     </button>
                 </div>
@@ -299,7 +270,7 @@ export default function ProfileKYC() {
                             <p className="text-blue-100 text-xs font-bold">Your invoice is ready for download.</p>
                         </div>
                         <button
-                            onClick={() => window.open(`/api/invoice/download/${invoiceId}/?access_token=${localStorage.getItem("access")}`)}
+                            onClick={() => window.open(`http://127.0.0.1:8000/api/invoice/download/${invoiceId}/`)}
                             className="bg-white text-blue-600 px-6 py-3 rounded-xl font-black text-xs shadow-xl hover:bg-gray-100 transition tracking-widest uppercase flex items-center gap-2"
                         >
                             <UploadCloud className="w-4 h-4 rotate-180" /> Download Invoice

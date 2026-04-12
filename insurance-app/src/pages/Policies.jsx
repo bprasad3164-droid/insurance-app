@@ -93,8 +93,8 @@ export default function Policies() {
     try {
       const url =
         filter === "all"
-          ? "/api/policies/"
-          : `/api/policies/?category=${filter}`;
+          ? "http://127.0.0.1:8000/api/policies/"
+          : `http://127.0.0.1:8000/api/policies/?category=${filter}`;
       const res = await axios.get(url, { timeout: 5000 });
       if (res.data && res.data.length > 0) {
         setPlans(res.data);

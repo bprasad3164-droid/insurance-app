@@ -8,6 +8,7 @@ export default function AgentDashboard() {
     const [claims, setClaims] = useState([]);
     const [stats, setStats] = useState({ pending: 0, verified: 0 });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     const handleBack = () => {
@@ -25,7 +26,7 @@ export default function AgentDashboard() {
     const fetchClaims = async () => {
         setLoading(true);
         try {
-            const res = await axios.get("/api/claims/", {
+            const res = await axios.get("http://127.0.0.1:8000/api/claims/", {
                 headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
             });
             
@@ -36,8 +37,10 @@ export default function AgentDashboard() {
             const pending = claimsData.filter(c => c.agent_status === "Pending").length;
             const verified = claimsData.filter(c => c.agent_status === "Approved").length;
             setStats({ pending, verified });
+            setError(null);
         } catch (err) {
             console.error(err);
+            setError("Unable to sync field logs. Please check your connectivity.");
             if (err.response?.status === 401) navigate("/login");
         } finally {
             setLoading(false);
@@ -46,7 +49,7 @@ export default function AgentDashboard() {
 
     const handleVerifyClaim = async (id, status) => {
         try {
-            await axios.post(`/api/approve-agent/${id}/`, { status }, {
+            await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`, { status }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
             });
             alert(`Claim #${id} successfully marked as ${status}.`);
@@ -104,11 +107,26 @@ export default function AgentDashboard() {
                         <span className="text-6xl font-black text-blue-600 tracking-tighter">{stats.verified}</span>
                     </motion.div>
 
-                    <div className="clay p-8 flex flex-col bg-blue-600 text-white justify-center">
-                        <h3 className="font-black text-xl mb-1 tracking-tight">Agent Active</h3>
-                        <p className="text-blue-100 text-xs font-bold uppercase tracking-widest">Digital Field Verification Unit</p>
+                    <div className="clay p-8 flex flex-col bg-blue-600 text-white justify-center shadow-[0_20px_50px_rgba(59,130,246,0.3)]">
+                        <h3 className="font-black text-2xl mb-1 tracking-tight text-white drop-shadow-md">Agent Active</h3>
+                        <p className="text-blue-200 text-xs font-black uppercase tracking-[0.2em]">Digital Field Verification Unit</p>
                     </div>
                 </div>
+
+                {error && (
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="clay p-6 mb-12 bg-red-50 border-2 border-red-200 flex items-center gap-4 text-red-600"
+                    >
+                        <XCircle className="w-8 h-8" />
+                        <div>
+                            <p className="font-black uppercase tracking-widest text-xs">System Alert</p>
+                            <p className="font-bold text-sm">{error}</p>
+                        </div>
+                        <button onClick={fetchClaims} className="ml-auto bg-red-600 text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-red-700 transition">RETRY SYNC</button>
+                    </motion.div>
+                )}
 
                 <div className="flex items-center gap-3 mb-8">
                     <FileText className="w-6 h-6 text-gray-700" />
