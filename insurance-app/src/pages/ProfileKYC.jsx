@@ -83,18 +83,38 @@ export default function ProfileKYC() {
       const token = localStorage.getItem("access");
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
-      // STEP 1: Payment
+      let amount = 500;
+      let policy_id = policies[0]?.id || 1;
+
+      // STEP 1: UI simulation (important)
+      if (method === "UPI") {
+        alert("Opening UPI App...");
+      }
+
+      if (method === "Card") {
+        const card = prompt("Enter Card Number (demo: 1234)");
+        if (!card) return;
+      }
+
+      if (method === "Net Banking") {
+        const bank = prompt("Enter Bank Name");
+        if (!bank) return;
+      }
+
+      // STEP 2: Call backend
       const res = await axios.post("http://127.0.0.1:8000/api/make-payment/", {
-        policy_id: policies[0]?.id || 1, 
-        amount: 500,
-        method: method
+        policy_id,
+        amount,
+        method
       }, config);
 
-      const paymentId = res.data.payment_id;
+      if (!res.data.payment_id) {
+        throw new Error("Payment not created");
+      }
 
-      // STEP 2: Generate Invoice
+      // STEP 3: Invoice
       const invoiceRes = await axios.post("http://127.0.0.1:8000/api/invoice/create/", {
-        payment_id: paymentId
+        payment_id: res.data.payment_id
       }, config);
 
       setInvoiceId(invoiceRes.data.invoice_id);

@@ -328,12 +328,16 @@ from .models import Payment, Invoice
 def make_payment(request):
     try:
         payment = Payment.objects.create(
-            user=request.user,
+            user=request.user if request.user.is_authenticated else None,
             policy_id=request.data.get('policy_id'),
-            amount=request.data.get('amount', 500),
-            method=request.data.get('method', 'UPI')
+            amount=request.data.get('amount'),
+            method=request.data.get('method'),
+            status='success'
         )
-        return Response({"payment_id": payment.id})
+        return Response({
+            "payment_id": payment.id,
+            "status": "success"
+        })
     except Exception as e:
         return Response({"error": str(e)}, status=400)
 
@@ -342,13 +346,14 @@ def make_payment(request):
 def generate_invoice(request):
     try:
         payment_id = request.data.get('payment_id')
-        payment = Payment.objects.get(id=payment_id)
+        payment = Payment.objects.filter(id=payment_id).first()
 
-        # Basic invoice number generation
-        invoice_no = f"INV-{payment.id}-{uuid.uuid4().hex[:4].upper()}"
+        if not payment:
+            return Response({"error": "Payment not found"}, status=404)
+
         invoice = Invoice.objects.create(
             payment=payment,
-            invoice_number=invoice_no
+            invoice_number=f"INV{payment.id}-{uuid.uuid4().hex[:4].upper()}"
         )
 
         return Response({

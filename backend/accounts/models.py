@@ -70,10 +70,11 @@ class Document(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class Payment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     policy_id = models.IntegerField() # Linked to policy or userpolicy
     amount = models.FloatField()
     method = models.CharField(max_length=50) # UPI, Card, Net Banking
+    status = models.CharField(max_length=20, default='success')
     timestamp = models.DateTimeField(auto_now_add=True)
 
 class Invoice(models.Model):
