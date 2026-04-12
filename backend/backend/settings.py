@@ -161,3 +161,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Razorpay Configuration
+RAZORPAY_KEY_ID = "rzp_test_YOUR_KEY_ID_HERE"
+RAZORPAY_KEY_SECRET = "YOUR_KEY_SECRET_HERE"

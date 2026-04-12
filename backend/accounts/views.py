@@ -410,3 +410,67 @@ def download_invoice(request, id):
 
     except Exception as e:
         return Response({"error": str(e)}, status=404)
+
+# ================= RAZORPAY INTEGRATION =================
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_order(request):
+    try:
+        from django.conf import settings
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        
+        # Razorpay expects amount in paise (1 INR = 100 paise)
+        amount = int(float(request.data.get('amount', 500)) * 100)
+        
+        order = client.order.create({
+            "amount": amount,
+            "currency": "INR",
+            "payment_capture": 1
+        })
+        
+        payment = Payment.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            policy_id=request.data.get('policy_id'),
+            amount=request.data.get('amount'),
+            method='Razorpay',
+            razorpay_order_id=order['id'],
+            status='created'
+        )
+        
+        return Response({
+            "order_id": order['id'],
+            "amount": order['amount'],
+            "key": settings.RAZORPAY_KEY_ID
+        })
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def verify_payment(request):
+    try:
+        from django.conf import settings
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        
+        data = request.data
+        params_dict = {
+            'razorpay_order_id': data['razorpay_order_id'],
+            'razorpay_payment_id': data['razorpay_payment_id'],
+            'razorpay_signature': data['razorpay_signature']
+        }
+        
+        # Verify signature
+        client.utility.verify_payment_signature(params_dict)
+        
+        # Update payment record
+        payment = Payment.objects.get(razorpay_order_id=data['razorpay_order_id'])
+        payment.status = 'success'
+        payment.razorpay_payment_id = data['razorpay_payment_id']
+        payment.razorpay_signature = data['razorpay_signature']
+        payment.save()
+        
+        return Response({"msg": "Payment Verified Success", "payment_id": payment.id})
+    except razorpay.errors.SignatureVerificationError:
+        return Response({"error": "Signature Verification Failed"}, status=400)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)

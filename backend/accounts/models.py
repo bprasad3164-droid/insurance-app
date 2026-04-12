@@ -74,7 +74,10 @@ class Payment(models.Model):
     policy_id = models.IntegerField() # Linked to policy or userpolicy
     amount = models.FloatField()
     method = models.CharField(max_length=50) # UPI, Card, Net Banking
-    status = models.CharField(max_length=20, default='success')
+    status = models.CharField(max_length=20, default='created') # created, success, failed
+    razorpay_order_id = models.CharField(max_length=100, null=True, blank=True)
+    razorpay_payment_id = models.CharField(max_length=100, null=True, blank=True)
+    razorpay_signature = models.CharField(max_length=255, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
 class Invoice(models.Model):

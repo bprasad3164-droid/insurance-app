@@ -78,51 +78,69 @@ export default function ProfileKYC() {
       window.open(`http://127.0.0.1:8000/api/download-cert/${certId}/?access_token=${token}`);
   };
 
-  const pay = async (method) => {
+  const payWithRazorpay = async () => {
     try {
       const token = localStorage.getItem("access");
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
-      let amount = 500;
-      let policy_id = policies[0]?.id || 1;
+      const amount = 500;
+      const policy_id = policies[0]?.id || 1;
 
-      // STEP 1: UI simulation (important)
-      if (method === "UPI") {
-        alert("Opening UPI App...");
-      }
-
-      if (method === "Card") {
-        const card = prompt("Enter Card Number (demo: 1234)");
-        if (!card) return;
-      }
-
-      if (method === "Net Banking") {
-        const bank = prompt("Enter Bank Name");
-        if (!bank) return;
-      }
-
-      // STEP 2: Call backend
-      const res = await axios.post("http://127.0.0.1:8000/api/make-payment/", {
-        policy_id,
+      // STEP 1: Create Order
+      const res = await axios.post("http://127.0.0.1:8000/api/payment/create-order/", {
         amount,
-        method
+        policy_id
       }, config);
 
-      if (!res.data.payment_id) {
-        throw new Error("Payment not created");
+      if (!res.data.order_id) {
+        alert("Order creation failed");
+        return;
       }
 
-      // STEP 3: Invoice
-      const invoiceRes = await axios.post("http://127.0.0.1:8000/api/invoice/create/", {
-        payment_id: res.data.payment_id
-      }, config);
+      const options = {
+        key: res.data.key,
+        amount: res.data.amount,
+        currency: "INR",
+        name: "Pro Insurance",
+        description: "Official Policy Payment",
+        order_id: res.data.order_id,
+        handler: async function (response) {
+          try {
+            // STEP 2: Verify Payment
+            const verifyRes = await axios.post("http://127.0.0.1:8000/api/payment/verify/", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            }, config);
 
-      setInvoiceId(invoiceRes.data.invoice_id);
-      alert("Payment Success ✅");
+            // STEP 3: Automatic Invoice Generation
+            const invoiceRes = await axios.post("http://127.0.0.1:8000/api/invoice/create/", {
+              payment_id: verifyRes.data.payment_id
+            }, config);
+
+            setInvoiceId(invoiceRes.data.invoice_id);
+            alert("Payment & Verification Success ✅");
+
+          } catch (err) {
+            console.error(err);
+            alert("Verification Failed ❌");
+          }
+        },
+        prefill: {
+          name: localStorage.getItem("user_name") || "Valued Customer",
+          email: "customer@proinsurance.com"
+        },
+        theme: {
+          color: "#2563eb"
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
 
     } catch (err) {
       console.error(err);
-      alert("Payment Failed ❌");
+      alert("Checkout Initialization Failed ❌");
     }
   };
 
@@ -240,21 +258,21 @@ export default function ProfileKYC() {
                 </div>
             </div>
 
-            {/* Payment Section */}
-            <div className="clay p-10 bg-white/40 shadow-2xl">
+            {/* Payment Section - NOW USING RAZORPAY */}
+            <div className="clay p-10 bg-white shadow-2xl relative overflow-hidden">
                 <div className="flex items-center gap-3 mb-8">
                     <CreditCard className="w-6 h-6 text-blue-600" />
-                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">Make Manual Payment</h2>
+                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">Razorpay Gateway</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <button onClick={()=>pay("UPI")} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
+                    <button onClick={payWithRazorpay} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
                         UPI
                     </button>
-                    <button onClick={()=>pay("Card")} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
+                    <button onClick={payWithRazorpay} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
                         Credit / Debit Card
                     </button>
-                    <button onClick={()=>pay("Net Banking")} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
+                    <button onClick={payWithRazorpay} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
                         Net Banking
                     </button>
                 </div>

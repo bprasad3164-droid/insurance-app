@@ -28,4 +28,8 @@ urlpatterns = [
     path('make-payment/', views.make_payment),
     path('invoice/create/', views.generate_invoice),
     path('invoice/download/<int:id>/', views.download_invoice),
+
+    # Razorpay Specifics
+    path('payment/create-order/', views.create_order),
+    path('payment/verify/', views.verify_payment),
 ]
