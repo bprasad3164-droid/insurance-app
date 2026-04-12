@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { ShieldCheck, Download, Calendar, Activity, CheckCircle2, ArrowRight, User, Hash, IndianRupee } from "lucide-react";
+import { ShieldCheck, Download, Calendar, Activity, CheckCircle2, ArrowRight, ArrowLeft, User, Hash, IndianRupee } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function MyPolicies() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/dashboard");
+    }
+  };
 
   useEffect(() => {
     fetchMyPolicies();
@@ -48,6 +56,9 @@ export default function MyPolicies() {
         
         <header className="flex flex-col md:flex-row justify-between items-center mb-16 gap-6">
             <div className="flex items-center gap-4">
+                <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-gray-600">
+                    <ArrowLeft className="w-5 h-5" /> Back
+                </button>
                 <div className="clay p-4 rounded-3xl text-blue-600">
                     <ShieldCheck className="w-10 h-10" />
                 </div>
@@ -56,12 +67,17 @@ export default function MyPolicies() {
                     <p className="text-xs font-black tracking-[0.3em] text-blue-600 uppercase">Active Protection Logs</p>
                 </div>
             </div>
-            <button 
-                onClick={() => navigate("/policies")}
-                className="clay px-8 py-4 rounded-2xl font-black text-gray-800 hover:text-blue-600 transition flex items-center gap-3 group"
-            >
-                Browse New Plans <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            <div className="flex items-center gap-3">
+                <button 
+                    onClick={() => navigate("/policies")}
+                    className="clay px-8 py-4 rounded-2xl font-black text-gray-800 hover:text-blue-600 transition flex items-center gap-3 group"
+                >
+                    Browse New Plans <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+                <a href="/claim" className="clay px-5 py-4 rounded-2xl font-black text-gray-600 hover:text-green-600 transition flex items-center gap-2">
+                    Next <ArrowRight className="w-4 h-4" />
+                </a>
+            </div>
         </header>
 
         {data.length === 0 ? (

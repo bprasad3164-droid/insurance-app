@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { ShieldCheck, FileText, BarChart3, LogOut, ChevronRight, User, Clock, Activity } from "lucide-react";
+import { ShieldCheck, FileText, BarChart3, LogOut, ChevronRight, User, Clock, Activity, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import ClaimTracking from "../components/ClaimTracking";
 
 export default function Dashboard() {
   const [role, setRole] = useState(localStorage.getItem("role") || "");
   const [claims, setClaims] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
@@ -24,6 +26,14 @@ export default function Dashboard() {
     } catch (err) { console.error(err); }
   };
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/home");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = "/";
@@ -32,11 +42,17 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#e0e5ec] w-full p-10 flex flex-col items-center">
       <header className="flex justify-between items-center clay p-6 mb-16 w-full max-w-6xl shadow-xl">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-gray-600">
+            <ArrowLeft className="w-5 h-5" /> Back
+          </button>
           <ShieldCheck className="w-10 h-10 text-blue-600" />
           <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Executive Portal</h1>
         </div>
         <div className="flex items-center gap-4">
+          <a href="/policies" className="clay px-5 py-3 rounded-xl font-black text-gray-600 hover:text-green-600 transition flex items-center gap-2">
+            Next <ChevronRight className="w-4 h-4" />
+          </a>
           <a href="/profile" className="clay p-3 hover:text-blue-600 transition rounded-xl" title="Profile & KYC">
             <User className="w-6 h-6" />
           </a>

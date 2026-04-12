@@ -11,6 +11,16 @@ export default function AdminDashboard() {
   const [newPolicy, setNewPolicy] = useState({ name: "", description: "", premium: "", category: "health" });
   const navigate = useNavigate();
 
+  const role = localStorage.getItem("role");
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = "/";
@@ -49,14 +59,14 @@ export default function AdminDashboard() {
       alert("New Policy Created Successfully");
   };
 
-  const role = localStorage.getItem("role");
+
 
   return (
     <div className="min-h-screen bg-clay-bg w-full p-8 flex flex-col items-center">
       <header className="flex justify-between clay p-6 mb-12 w-full max-w-6xl shadow-xl">
         <div className="flex items-center gap-6">
-            <button onClick={() => navigate(-1)} className="clay p-3 hover:text-blue-600 transition rounded-xl">
-                <ArrowLeft className="w-5 h-5" />
+            <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-gray-600">
+                <ArrowLeft className="w-5 h-5" /> Back
             </button>
             <div className="flex items-center gap-3">
                 <BarChart3 className="text-blue-600 w-8 h-8" />
@@ -70,8 +80,9 @@ export default function AdminDashboard() {
             >
                 <PlusCircle className="w-5 h-5" /> New Policy
             </button>
-            <a href="/analytics" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">Intelligence</a>
+            <a href="/analytics" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg flex items-center gap-2">Intelligence</a>
             <a href="/home" className="bg-gray-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg">Home</a>
+            <a href="/policies" className="bg-green-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-green-700 transition shadow-lg flex items-center gap-2">Next →</a>
             <button
                 onClick={handleLogout}
                 className="bg-red-500 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-red-600 transition flex items-center gap-2"
