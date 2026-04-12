@@ -14,10 +14,11 @@ export default function AdminDashboard() {
   const role = localStorage.getItem("role");
 
   const handleBack = () => {
+    // Admin/Agent fall back to login, never to the public marketing /home page
     if (window.history.length > 1) {
       navigate(-1);
     } else {
-      navigate("/");
+      navigate("/login");
     }
   };
 
@@ -81,8 +82,7 @@ export default function AdminDashboard() {
                 <PlusCircle className="w-5 h-5" /> New Policy
             </button>
             <a href="/analytics" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg flex items-center gap-2">Intelligence</a>
-            <a href="/home" className="bg-gray-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg">Home</a>
-            <a href="/policies" className="bg-green-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-green-700 transition shadow-lg flex items-center gap-2">Next →</a>
+            <a href="/admin-dashboard" className="bg-gray-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg">Overview</a>
             <button
                 onClick={handleLogout}
                 className="bg-red-500 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-red-600 transition flex items-center gap-2"
