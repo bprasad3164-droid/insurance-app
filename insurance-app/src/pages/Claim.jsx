@@ -40,8 +40,12 @@ export default function Claim() {
     if (file) formData.append("file", file);
 
     try {
+      const token = localStorage.getItem("access");
       await axios.post("http://127.0.0.1:8000/api/claim/", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
+        headers: { 
+          "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${token}`
+        }
       });
       setSuccess(true);
       setTimeout(() => setSuccess(false), 5000);
