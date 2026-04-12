@@ -65,6 +65,7 @@ def update_kyc(request):
 
         user.kyc_status = 'Pending'
         user.save()
+        return Response({"msg": "KYC Documents Uploaded for Review"})
     return Response({"msg": "All three documents (Aadhaar, PAN, Selfie) are required"}, status=400)
 
 @api_view(['GET'])

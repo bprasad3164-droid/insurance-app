@@ -6,19 +6,28 @@ import { useNavigate } from "react-router-dom";
 
 export default function Analytics() {
   const [data, setData] = useState([]);
-  const [stats, setStats] = useState({ total_claims: 0, approved: 0, pending: 0 });
+  const [stats, setStats] = useState({ claims: 0, approved: 0, pending: 0, users: 0, policies: 0 });
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/analytics/").then(res => {
-      setStats(res.data);
+    const token = localStorage.getItem("access");
+    if (!token) return navigate("/login");
+
+    axios.get("http://127.0.0.1:8000/api/analytics/", {
+        headers: { Authorization: `Bearer ${token}` }
+    }).then(res => {
+      const pendingClaims = res.data.claims - res.data.approved;
+      setStats({ ...res.data, pending: pendingClaims });
       const chartData = [
         { name: "Approved", value: res.data.approved },
-        { name: "Pending", value: res.data.pending }
+        { name: "Pending", value: pendingClaims }
       ];
       setData(chartData);
+    }).catch(err => {
+        console.error(err);
+        if (err.response?.status === 401 || err.response?.status === 403) navigate("/login");
     });
-  }, []);
+  }, [navigate]);
 
   const COLORS = ["#10B981", "#F59E0B"];
 
@@ -65,7 +74,7 @@ export default function Analytics() {
         <div className="space-y-8">
             <div className="clay p-10 shadow-xl border-l-8 border-blue-500 transform hover:scale-102 transition-transform">
                 <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Claims Volume</span>
-                <p className="text-6xl font-black text-gray-800 mt-2">{stats.total_claims}</p>
+                <p className="text-6xl font-black text-gray-800 mt-2">{stats.claims}</p>
             </div>
             <div className="clay p-10 shadow-xl border-l-8 border-green-500 transform hover:scale-102 transition-transform">
                 <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Approved for Settlement</span>

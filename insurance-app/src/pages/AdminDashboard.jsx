@@ -115,7 +115,7 @@ export default function AdminDashboard() {
                 <PlusCircle className="w-5 h-5" /> New Policy
             </button>
             <a href="/analytics" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg flex items-center gap-2">Intelligence</a>
-            <a href="/admin-dashboard" className="bg-gray-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg">Overview</a>
+            <a href="/dashboard" className="bg-gray-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg">Overview</a>
             <button
                 onClick={handleLogout}
                 className="bg-red-500 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-red-600 transition flex items-center gap-2"
