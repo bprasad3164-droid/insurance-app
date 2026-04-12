@@ -1,0 +1,28 @@
+# ── Django ────────────────────────────────────────────────
+*.sqlite3
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+*.log
+media/
+staticfiles/
+.venv/
+venv/
+env/
+
+# ── Node / React ──────────────────────────────────────────
+node_modules/
+dist/
+build/
+.cache/
+*.local
+
+# ── OS / Editor ───────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
