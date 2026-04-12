@@ -79,6 +79,7 @@ export default function Login() {
 
       // Branch navigation based on role from backend
       const actualRole = res.data.role;
+      setLoading(false);
       if (actualRole === "admin" || actualRole === "agent") {
         navigate("/admin-dashboard");
       } else {
@@ -86,7 +87,10 @@ export default function Login() {
       }
     } catch (err) {
       setError(
-        err.response?.data?.msg || "Login failed. Please check your credentials."
+        err.response?.data?.detail ||
+        err.response?.data?.msg ||
+        err.response?.data?.non_field_errors?.[0] ||
+        "Login failed. Please check your credentials."
       );
       setLoading(false);
     }
