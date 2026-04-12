@@ -65,8 +65,46 @@ def update_kyc(request):
 
         user.kyc_status = 'Pending'
         user.save()
-        return Response({"msg": "KYC Documents Uploaded for Review"})
     return Response({"msg": "All three documents (Aadhaar, PAN, Selfie) are required"}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_pending_kyc(request):
+    if request.user.role != 'admin':
+        return Response({"msg": "Unauthorized"}, status=403)
+    from .models import KYC
+    kycs = KYC.objects.filter(status='Pending')
+    data = []
+    for k in kycs:
+        data.append({
+            "id": k.id,
+            "user_id": k.user.id,
+            "username": k.user.username,
+            "email": k.user.email,
+            "aadhaar": k.aadhaar_file.url if k.aadhaar_file else None,
+            "pan": k.pan_file.url if k.pan_file else None,
+            "selfie": k.selfie_file.url if k.selfie_file else None,
+            "submitted_at": k.submitted_at
+        })
+    return Response(data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def verify_kyc(request, id):
+    if request.user.role != 'admin':
+        return Response({"msg": "Unauthorized"}, status=403)
+    from .models import KYC
+    try:
+        kyc = KYC.objects.get(id=id)
+        status = request.data.get('status', 'Verified')
+        kyc.status = status
+        kyc.save()
+        
+        kyc.user.kyc_status = status
+        kyc.user.save()
+        return Response({"msg": f"KYC {status}"})
+    except KYC.DoesNotExist:
+        return Response({"msg": "KYC not found"}, status=404)
 
 # ================= POLICY ENGINE =================
 
@@ -191,8 +229,10 @@ def all_claims(request):
     return Response(list(Claim.objects.all().values()))
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def agent_approve(request, id):
+    if request.user.role != 'agent':
+        return Response({"msg": "Unauthorized"}, status=403)
     try:
         claim = Claim.objects.get(id=id)
         status = request.data.get('status', 'Approved')
@@ -203,8 +243,10 @@ def agent_approve(request, id):
         return Response({"msg": "Claim not found"}, status=404)
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def admin_approve(request, id):
+    if request.user.role != 'admin':
+        return Response({"msg": "Unauthorized"}, status=403)
     try:
         claim = Claim.objects.get(id=id)
         if claim.agent_status != 'Approved':
@@ -245,12 +287,21 @@ def create_payment(request):
 # ================= ANALYTICS =================
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def analytics(request):
+    if request.user.role != 'admin':
+        return Response({"msg": "Unauthorized"}, status=403)
+        
+    total_users = User.objects.count()
+    total_policies = UserPolicy.objects.count()
+    total_claims = Claim.objects.count()
+    approved_claims = Claim.objects.filter(status='Approved').count()
+
     return Response({
-        "total_claims": Claim.objects.count(),
-        "approved": Claim.objects.filter(status='Approved').count(),
-        "pending": Claim.objects.filter(status='Pending').count()
+        "users": total_users,
+        "policies": total_policies,
+        "claims": total_claims,
+        "approved": approved_claims
     })
 
 # ================= NOTIFICATIONS =================

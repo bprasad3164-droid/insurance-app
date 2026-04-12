@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut } from "lucide-react";
+import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut, Check, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export default function AdminDashboard() {
   const [claims, setClaims] = useState([]);
-  const [stats, setStats] = useState({ total_claims: 0, approved: 0 });
+  const [kycs, setKycs] = useState([]);
+  const [stats, setStats] = useState({ users: 0, policies: 0, claims: 0, approved: 0 });
   const [showModal, setShowModal] = useState(false);
   const [newPolicy, setNewPolicy] = useState({ name: "", description: "", premium: "", category: "health" });
   const navigate = useNavigate();
@@ -32,23 +34,54 @@ export default function AdminDashboard() {
   }, []);
 
   const fetchData = async () => {
-    const resClaims = await axios.get("http://127.0.0.1:8000/api/claims/");
-    const resStats = await axios.get("http://127.0.0.1:8000/api/analytics/");
-    setClaims(resClaims.data);
-    setStats(resStats.data);
+    try {
+        const token = localStorage.getItem("access");
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        const resClaims = await axios.get("http://127.0.0.1:8000/api/claims/", { headers });
+        const resStats = await axios.get("http://127.0.0.1:8000/api/analytics/", { headers });
+        const resKyc = await axios.get("http://127.0.0.1:8000/api/kyc-pending/", { headers });
+        
+        setClaims(resClaims.data);
+        setStats({
+            users: resStats.data.users,
+            policies: resStats.data.policies,
+            claims: resStats.data.claims,
+            approved: resStats.data.approved,
+            name: "Platform Insights"
+        });
+        setKycs(resKyc.data);
+    } catch (err) {
+        console.error(err);
+    }
+  };
+
+  const adminApproveKYC = async (id, status = 'Verified') => {
+      try {
+          await axios.post(`http://127.0.0.1:8000/api/kyc-verify/${id}/`, { status }, {
+              headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
+          });
+          fetchData();
+      } catch (e) {
+          alert('Failed to verify KYC');
+      }
   };
 
   const agentApprove = async (id, status = 'Approved') => {
-    await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`, { status });
+    await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`, { status }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
+    });
     fetchData();
   };
 
   const adminApprove = async (id, status = 'Approved') => {
     try {
-        await axios.post(`http://127.0.0.1:8000/api/approve-admin/${id}/`, { status });
+        await axios.post(`http://127.0.0.1:8000/api/approve-admin/${id}/`, { status }, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
+        });
         fetchData();
     } catch (e) {
-        alert(e.response.data.msg);
+        alert(e.response?.data?.msg || "Failed to update claim.");
     }
   };
 
@@ -92,16 +125,62 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 w-full max-w-6xl mb-16">
-        <motion.div whileHover={{ scale: 1.02 }} className="clay p-12 text-center shadow-2xl bg-white/20">
-          <h3 className="text-gray-400 font-black mb-2 uppercase tracking-widest text-sm">System Capacity</h3>
-          <p className="text-7xl font-black text-gray-800">{stats.total_claims}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 w-full max-w-7xl mb-16">
+        <motion.div whileHover={{ scale: 1.02 }} className="clay p-12 text-center shadow-2xl bg-white/20 flex flex-col justify-center">
+          <h3 className="text-gray-400 font-black mb-2 uppercase tracking-widest text-sm">System Capacity (Users)</h3>
+          <p className="text-7xl font-black text-gray-800">{stats.users}</p>
         </motion.div>
-        <motion.div whileHover={{ scale: 1.02 }} className="clay p-12 text-center shadow-2xl bg-green-50/50 border-b-8 border-green-500">
+        
+        <div className="clay p-8 shadow-2xl bg-white border border-gray-100 flex flex-col items-center justify-center">
+            <h3 className="text-gray-400 font-black mb-6 uppercase tracking-widest text-xs w-full text-left">Revenue & Activity Streams</h3>
+            <ResponsiveContainer width="100%" height={160}>
+                <BarChart data={[stats]}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.2} />
+                    <XAxis dataKey="name" hide />
+                    <Tooltip cursor={{fill: 'transparent'}} />
+                    <Bar dataKey="users" fill="#3b82f6" name="Total Users" radius={[10, 10, 0, 0]} barSize={40} />
+                    <Bar dataKey="claims" fill="#ef4444" name="Total Claims" radius={[10, 10, 0, 0]} barSize={40} />
+                    <Bar dataKey="policies" fill="#8b5cf6" name="Policies Sold" radius={[10, 10, 0, 0]} barSize={40} />
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
+
+        <motion.div whileHover={{ scale: 1.02 }} className="clay p-12 text-center shadow-2xl bg-green-50/50 border-b-8 border-green-500 flex flex-col justify-center">
           <h3 className="text-gray-400 font-black mb-2 uppercase tracking-widest text-sm">Resolved Claims</h3>
           <p className="text-7xl font-black text-green-600">{stats.approved}</p>
         </motion.div>
       </div>
+
+      {kycs.length > 0 && (
+          <div className="clay p-12 w-full max-w-7xl shadow-2xl relative mb-16 border-2 border-amber-200">
+            <div className="flex items-center gap-3 mb-10">
+                <FileText className="w-8 h-8 text-amber-500" />
+                <h2 className="text-4xl font-black text-gray-800 tracking-tight">Pending KYC Approvals</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {kycs.map(kyc => (
+                    <div key={kyc.id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col gap-4">
+                        <div className="flex items-center justify-between border-b pb-4">
+                            <div>
+                                <p className="text-sm font-black text-gray-800">{kyc.username}</p>
+                                <p className="text-xs text-gray-400 font-bold">{kyc.email}</p>
+                            </div>
+                            <span className="bg-amber-100 text-amber-600 px-3 py-1 rounded-lg text-[10px] uppercase font-black">Under Review</span>
+                        </div>
+                        <div className="flex gap-2">
+                             <a href={`http://127.0.0.1:8000${kyc.aadhaar}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 hover:underline">Aadhaar</a> • 
+                             <a href={`http://127.0.0.1:8000${kyc.pan}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 hover:underline">PAN</a> • 
+                             <a href={`http://127.0.0.1:8000${kyc.selfie}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 hover:underline">Selfie</a>
+                        </div>
+                        <div className="flex gap-2 mt-auto pt-4">
+                            <button onClick={() => adminApproveKYC(kyc.id, 'Verified')} className="flex-1 bg-green-500 text-white p-3 rounded-xl hover:bg-green-600 font-black text-xs uppercase shadow-lg transition">Verify</button>
+                            <button onClick={() => adminApproveKYC(kyc.id, 'Rejected')} className="flex-1 bg-red-50 text-red-500 p-3 rounded-xl hover:bg-red-100 font-black text-xs uppercase transition">Reject</button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+          </div>
+      )}
 
       <div className="clay p-12 w-full max-w-7xl shadow-2xl relative">
         <div className="flex items-center gap-3 mb-10">

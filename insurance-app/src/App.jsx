@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Policies from "./pages/Policies";
 import Claim from "./pages/Claim";
 import AdminDashboard from "./pages/AdminDashboard";
+import AgentDashboard from "./pages/AgentDashboard";
 import Analytics from "./pages/Analytics";
 import Register from "./pages/Register";
 import ProfileKYC from "./pages/ProfileKYC";
@@ -12,6 +13,13 @@ import BuyPolicy from "./pages/BuyPolicy";
 import MyPolicies from "./pages/MyPolicies";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
+
+const RoleBasedDashboard = () => {
+    const role = localStorage.getItem("role");
+    if (role === "admin") return <AdminDashboard />;
+    if (role === "agent") return <AgentDashboard />;
+    return <Dashboard />;
+};
 
 export default function App() {
   return (
@@ -31,7 +39,7 @@ export default function App() {
             path="/dashboard" 
             element={
                 <ProtectedRoute>
-                    <Dashboard />
+                    <RoleBasedDashboard />
                 </ProtectedRoute>
             } 
         />
@@ -59,14 +67,7 @@ export default function App() {
                 </ProtectedRoute>
             } 
         />
-        <Route 
-            path="/admin-dashboard" 
-            element={
-                <ProtectedRoute>
-                    <AdminDashboard />
-                </ProtectedRoute>
-            } 
-        />
+
         <Route 
             path="/buy/:id" 
             element={
