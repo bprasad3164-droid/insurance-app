@@ -68,3 +68,24 @@ class Document(models.Model):
     claim = models.ForeignKey(Claim, on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) # For KYC docs
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+class Payment(models.Model):
+    METHOD_CHOICES = (
+        ('upi','UPI'),
+        ('card','Card'),
+        ('netbanking','NetBanking'),
+        ('wallet','Wallet'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
+    amount = models.FloatField()
+    method = models.CharField(max_length=20, choices=METHOD_CHOICES)
+    status = models.CharField(max_length=20, default='success')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Invoice(models.Model):
+    payment = models.OneToOneField(Payment, on_delete=models.CASCADE)
+    invoice_number = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+

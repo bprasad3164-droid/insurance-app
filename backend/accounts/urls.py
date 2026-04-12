@@ -20,7 +20,9 @@ urlpatterns = [
     path('claims/', views.all_claims),
     path('approve-agent/<int:id>/', views.agent_approve),
     path('approve-admin/<int:id>/', views.admin_approve),
-    path('payment/', views.create_payment),
+    path('payment/', views.make_payment),
+    path('invoice/create/', views.generate_invoice),
+    path('invoice/download/<int:id>/', views.download_invoice),
     path('analytics/', views.analytics),
     path('notify/', views.send_notification),
 ]

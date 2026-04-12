@@ -3,12 +3,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, Claim, Policy, Document, UserPolicy
+from .models import User, Claim, Policy, Document, UserPolicy, Payment, Invoice
 from .serializers import PolicySerializer, UserPolicySerializer, ClaimSerializer
 from django.core.mail import send_mail
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+from reportlab.pdfgen import canvas
 import razorpay
 import io
 import uuid
@@ -305,15 +306,76 @@ def analytics(request):
         "approved": approved_claims
     })
 
-# ================= NOTIFICATIONS =================
+# ================= PAYMENTS & INVOICES =================
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
-def send_notification(request):
-    send_mail(
-        request.data.get('subject', "Policy Update"),
-        request.data.get('message', "Check your dashboard for updates."),
-        "admin@proinsurance.com",
-        [request.data.get('email', "user@test.com")]
-    )
-    return Response({"msg": "Notification sent (check console)"})
+@permission_classes([IsAuthenticated])
+def make_payment(request):
+    try:
+        payment = Payment.objects.create(
+            user=request.user,
+            policy_id=request.data['policy_id'],
+            amount=request.data['amount'],
+            method=request.data['method']
+        )
+        return Response({
+            "msg": "Payment Success",
+            "payment_id": payment.id
+        })
+    except Exception as e:
+        return Response({"msg": str(e)}, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_invoice(request):
+    try:
+        payment = Payment.objects.get(id=request.data['payment_id'])
+        invoice = Invoice.objects.create(
+            payment=payment,
+            invoice_number=str(uuid.uuid4()).upper()[:8]
+        )
+        return Response({
+            "invoice_id": invoice.id,
+            "invoice_number": invoice.invoice_number
+        })
+    except Exception as e:
+        return Response({"msg": str(e)}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def download_invoice(request, id):
+    try:
+        invoice = Invoice.objects.get(id=id)
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer)
+
+        # Draw Invoice Header
+        p.setFont("Helvetica-Bold", 16)
+        p.drawString(100, 800, "PRO INSURANCE - DIGITAL INVOICE")
+        p.line(100, 790, 500, 790)
+
+        # Invoice Details
+        p.setFont("Helvetica", 12)
+        p.drawString(100, 760, f"Invoice Number: {invoice.invoice_number}")
+        p.drawString(100, 740, f"Payment Date: {invoice.created_at.strftime('%Y-%m-%d %H:%M')}")
+        p.drawString(100, 720, f"Customer: {invoice.payment.user.email}")
+        
+        # Policy Details
+        p.drawString(100, 680, f"Policy: {invoice.payment.policy.name}")
+        p.drawString(100, 660, f"Amount Paid: INR {invoice.payment.amount}")
+        p.drawString(100, 640, f"Payment Method: {invoice.payment.method}")
+        p.drawString(100, 620, f"Status: {invoice.payment.status.upper()}")
+
+        # Footer
+        p.line(100, 100, 500, 100)
+        p.setFont("Helvetica-Oblique", 8)
+        p.drawString(100, 80, "This is a computer-generated invoice. No signature required.")
+
+        p.showPage()
+        p.save()
+
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename=f"invoice_{invoice.invoice_number}.pdf")
+    except Invoice.DoesNotExist:
+        return Response({"msg": "Invoice not found"}, status=404)
+
