@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calculator, CreditCard, ArrowLeft, ShieldCheck, Zap, User, IndianRupee } from "lucide-react";
+import { Calculator, CreditCard, ArrowLeft, ShieldCheck, Zap, User, IndianRupee, Home } from "lucide-react";
 
 export default function BuyPolicy() {
   const { id } = useParams();
@@ -14,6 +14,18 @@ export default function BuyPolicy() {
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/policies");
+    }
+  };
+
+  const handleHome = () => {
+    navigate("/dashboard");
+  };
 
   useEffect(() => {
     // Fetch policy details to show on the calculator
@@ -86,12 +98,21 @@ export default function BuyPolicy() {
   return (
     <div className="min-h-screen bg-[#e0e5ec] p-6 md:p-12 flex flex-col items-center">
       <div className="w-full max-w-4xl">
-        <button 
-          onClick={() => navigate("/policies")}
-          className="clay p-4 rounded-2xl mb-8 text-gray-400 hover:text-blue-600 transition flex items-center gap-2 group"
-        >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Back to Marketplace
-        </button>
+        <div className="flex gap-4 mb-8">
+            <button 
+              onClick={handleBack}
+              className="clay p-4 rounded-2xl text-gray-500 font-bold hover:text-blue-600 transition flex items-center gap-2 group"
+            >
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Back
+            </button>
+            <button 
+              onClick={handleHome}
+              className="clay p-4 rounded-2xl text-gray-500 font-bold hover:text-blue-600 transition flex items-center gap-2"
+              title="Go to Dashboard"
+            >
+              <Home className="w-5 h-5" /> Dashboard
+            </button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, Zap, CreditCard, Heart, Car, Activity, AlignLeft, ArrowLeft, X, Scale } from "lucide-react";
+import { ShieldCheck, Zap, CreditCard, Heart, Car, Activity, AlignLeft, ArrowLeft, X, Scale, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 /* ── Static fallback plans (shown when backend is offline) ── */
@@ -71,6 +71,18 @@ export default function Policies() {
   const [compareList, setCompareList]     = useState([]);
   const navigate = useNavigate();
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
+  const handleHome = () => {
+    navigate("/dashboard");
+  };
+
   useEffect(() => {
     loadPlans();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -124,8 +136,11 @@ export default function Policies() {
       {/* ── Header ── */}
       <header className="w-full max-w-7xl flex flex-col md:flex-row justify-between items-center clay p-8 mb-16 shadow-xl sticky top-8 z-10 gap-6">
         <div className="flex items-center gap-6">
-          <button onClick={() => navigate(-1)} className="clay p-3 hover:text-blue-600 transition rounded-xl">
-            <ArrowLeft className="w-5 h-5" />
+          <button onClick={handleBack} className="clay px-4 py-3 hover:text-blue-600 transition rounded-xl flex items-center gap-2 font-bold text-gray-500">
+            <ArrowLeft className="w-5 h-5" /> Back
+          </button>
+          <button onClick={handleHome} className="clay p-3 hover:text-blue-600 transition rounded-xl" title="Go to Dashboard">
+            <Home className="w-5 h-5 text-gray-500" />
           </button>
           <div className="flex items-center gap-4">
             <Zap className="w-10 h-10 text-blue-600 fill-blue-600" />

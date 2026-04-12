@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { UserCheck, ShieldOff, ShieldCheck, UploadCloud, ChevronLeft, CreditCard, ArrowLeft } from "lucide-react";
+import { UserCheck, ShieldOff, ShieldCheck, UploadCloud, ChevronLeft, CreditCard, ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function ProfileKYC() {
@@ -12,6 +12,18 @@ export default function ProfileKYC() {
   const [loading, setLoading] = useState(false);
   const [policies, setPolicies] = useState([]);
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
+  const handleHome = () => {
+    navigate("/dashboard");
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -68,11 +80,16 @@ export default function ProfileKYC() {
   return (
     <div className="min-h-screen bg-clay-bg p-8 flex flex-col items-center">
       <header className="w-full max-w-6xl flex justify-between items-center clay p-6 mb-16 shadow-xl glass">
-          <button onClick={() => navigate(-1)} className="flex items-center gap-2 font-bold text-gray-500 hover:text-blue-600 transition p-2 rounded-xl">
-              <ArrowLeft className="w-5 h-5" /> Back
-          </button>
+          <div className="flex gap-4">
+              <button onClick={handleBack} className="flex items-center gap-2 font-bold text-gray-500 hover:text-blue-600 transition p-2 rounded-xl">
+                  <ArrowLeft className="w-5 h-5" /> Back
+              </button>
+              <button onClick={handleHome} className="flex items-center gap-2 font-bold text-gray-500 hover:text-blue-600 transition p-2 rounded-xl" title="Dashboard">
+                  <Home className="w-5 h-5" />
+              </button>
+          </div>
           <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Member Profile</h1>
-          <div />
+          <div className="w-16"></div> {/* Spacer for center alignment */}
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 w-full max-w-7xl">
