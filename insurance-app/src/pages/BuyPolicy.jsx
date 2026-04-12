@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calculator, CreditCard, ArrowLeft, ShieldCheck, Zap, User, IndianRupee, Home, Download } from "lucide-react";
-import PaymentMethods from "../components/PaymentMethods";
+import { Calculator, CreditCard, ArrowLeft, ShieldCheck, Zap, User, IndianRupee, Home } from "lucide-react";
 
 export default function BuyPolicy() {
   const { id } = useParams();
@@ -15,9 +14,6 @@ export default function BuyPolicy() {
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [paymentId, setPaymentId] = useState(null);
-  const [invoiceId, setInvoiceId] = useState(null);
-  const [selectedMethod, setSelectedMethod] = useState(null);
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -61,12 +57,8 @@ export default function BuyPolicy() {
     }
   };
 
-  const handleSelectMethod = (method) => {
-    setSelectedMethod(method);
-  };
-
   const handleBuy = async () => {
-    if (!selectedMethod) return alert("Please select a payment method first");
+    if (premium === 0) return alert("Please calculate premium first");
     
     setLoading(true);
     const token = localStorage.getItem("access");
@@ -84,44 +76,19 @@ export default function BuyPolicy() {
     }
 
     try {
-      // 1. Process Payment
-      const paymentRes = await axios.post("http://127.0.0.1:8000/api/payment/", {
-        policy_id: id,
-        amount: premium,
-        method: selectedMethod
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const newPaymentId = paymentRes.data.payment_id;
-      setPaymentId(newPaymentId);
-
-      // 2. Buy Policy
       await axios.post("http://127.0.0.1:8000/api/buy-policy/", {
         policy_id: id,
         premium: premium
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
-      // 3. Generate Invoice
-      const invoiceRes = await axios.post("http://127.0.0.1:8000/api/invoice/create/", {
-        payment_id: newPaymentId
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setInvoiceId(invoiceRes.data.invoice_id);
-
       setSuccess(true);
-      // Removed auto-redirect for invoice download access
+      setTimeout(() => navigate("/dashboard"), 3000);
     } catch (err) {
-      alert("Transaction failed: " + (err.response?.data?.msg || err.message));
+      alert("Purchase failed: " + (err.response?.data?.msg || err.message));
     } finally {
       setLoading(false);
     }
-  };
-
-  const downloadInvoice = (id) => {
-    window.open(`http://127.0.0.1:8000/api/invoice/download/${id}/`);
   };
 
   if (!policy) return <div className="min-h-screen flex items-center justify-center bg-[#e0e5ec]">
@@ -242,35 +209,24 @@ export default function BuyPolicy() {
                                     <span className="text-sm self-end mb-2 opacity-60">/year</span>
                                 </div>
                                 
-                                {selectedMethod && !success && (
-                                    <button 
-                                        onClick={handleBuy}
-                                        disabled={loading}
-                                        className={`w-full bg-white text-blue-600 p-6 rounded-2xl font-black text-xl shadow-xl transition-all flex items-center justify-center gap-3 mt-8 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
-                                    >
-                                        <CreditCard className="w-6 h-6" /> {loading ? "Processing..." : `Pay ₹${premium.toLocaleString()}`}
-                                    </button>
-                                )}
-
-                                {success && (
-                                    <div className="mt-8 space-y-4">
-                                        <div className="bg-white/20 p-6 rounded-2xl text-center backdrop-blur-md">
-                                            <ShieldCheck className="w-12 h-12 mx-auto mb-2" />
-                                            <p className="text-xl font-black">Success! Policy Active</p>
+                                <button 
+                                    onClick={handleBuy}
+                                    disabled={loading || success}
+                                    className={`w-full bg-white text-blue-600 p-6 rounded-2xl font-black text-xl shadow-xl transition-all flex items-center justify-center gap-3 ${loading || success ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+                                >
+                                    {success ? (
+                                        <div className="flex items-center gap-2">
+                                            <ShieldCheck className="w-6 h-6" /> Success!
                                         </div>
-                                        <button 
-                                            onClick={() => downloadInvoice(invoiceId)}
-                                            className="w-full bg-emerald-500 text-white p-5 rounded-2xl font-black shadow-xl hover:bg-emerald-600 transition flex items-center justify-center gap-2"
-                                        >
-                                            <Download className="w-5 h-5" /> Download PDF Invoice
-                                        </button>
-                                        <button 
-                                            onClick={() => navigate("/dashboard")}
-                                            className="w-full bg-white/10 text-white p-4 rounded-xl font-bold hover:bg-white/20 transition"
-                                        >
-                                            Back to Dashboard
-                                        </button>
-                                    </div>
+                                    ) : (
+                                        <><CreditCard className="w-6 h-6" /> Confirm Purchase</>
+                                    )}
+                                </button>
+                                
+                                {success && (
+                                    <p className="text-center mt-4 text-xs font-bold opacity-80 animate-pulse">
+                                        Redirecting to your dashboard...
+                                    </p>
                                 )}
                             </div>
                             <div className="absolute top-0 right-0 -mr-8 -mt-8 opacity-10">
@@ -279,19 +235,6 @@ export default function BuyPolicy() {
                         </motion.div>
                     )}
                 </AnimatePresence>
-
-                {premium > 0 && !success && (
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="clay p-10"
-                    >
-                        <PaymentMethods 
-                            amount={premium} 
-                            onSelect={handleSelectMethod} 
-                        />
-                    </motion.div>
-                )}
             </motion.div>
         </div>
       </div>

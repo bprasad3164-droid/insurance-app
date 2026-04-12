@@ -70,22 +70,13 @@ class Document(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class Payment(models.Model):
-    METHOD_CHOICES = (
-        ('upi','UPI'),
-        ('card','Card'),
-        ('netbanking','NetBanking'),
-        ('wallet','Wallet'),
-    )
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
+    policy_id = models.IntegerField() # Linked to policy or userpolicy
     amount = models.FloatField()
-    method = models.CharField(max_length=20, choices=METHOD_CHOICES)
-    status = models.CharField(max_length=20, default='success')
-    created_at = models.DateTimeField(auto_now_add=True)
+    method = models.CharField(max_length=50) # UPI, Card, Net Banking
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 class Invoice(models.Model):
     payment = models.OneToOneField(Payment, on_delete=models.CASCADE)
-    invoice_number = models.CharField(max_length=100)
+    invoice_number = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-

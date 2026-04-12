@@ -11,6 +11,7 @@ export default function ProfileKYC() {
   const [selfie, setSelfie] = useState(null);
   const [loading, setLoading] = useState(false);
   const [policies, setPolicies] = useState([]);
+  const [invoiceId, setInvoiceId] = useState(null);
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -75,6 +76,34 @@ export default function ProfileKYC() {
   const downloadCert = async (certId) => {
       const token = localStorage.getItem("access");
       window.open(`http://127.0.0.1:8000/api/download-cert/${certId}/?access_token=${token}`);
+  };
+
+  const pay = async (method) => {
+    try {
+      const token = localStorage.getItem("access");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      
+      // STEP 1: Payment
+      const res = await axios.post("http://127.0.0.1:8000/api/make-payment/", {
+        policy_id: policies[0]?.id || 1, 
+        amount: 500,
+        method: method
+      }, config);
+
+      const paymentId = res.data.payment_id;
+
+      // STEP 2: Generate Invoice
+      const invoiceRes = await axios.post("http://127.0.0.1:8000/api/invoice/create/", {
+        payment_id: paymentId
+      }, config);
+
+      setInvoiceId(invoiceRes.data.invoice_id);
+      alert("Payment Success ✅");
+
+    } catch (err) {
+      console.error(err);
+      alert("Payment Failed ❌");
+    }
   };
 
   return (
@@ -189,6 +218,45 @@ export default function ProfileKYC() {
                     <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Next Renewal Date</p>
                     <p className="text-4xl font-black text-green-800">Oct 24</p>
                 </div>
+            </div>
+
+            {/* Payment Section */}
+            <div className="clay p-10 bg-white/40 shadow-2xl">
+                <div className="flex items-center gap-3 mb-8">
+                    <CreditCard className="w-6 h-6 text-blue-600" />
+                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">Make Manual Payment</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <button onClick={()=>pay("UPI")} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
+                        UPI
+                    </button>
+                    <button onClick={()=>pay("Card")} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
+                        Credit / Debit Card
+                    </button>
+                    <button onClick={()=>pay("Net Banking")} className="clay p-4 font-black text-xs text-blue-600 hover:scale-105 active:scale-95 transition tracking-widest uppercase">
+                        Net Banking
+                    </button>
+                </div>
+
+                {invoiceId && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-10 p-6 bg-blue-600 rounded-2xl flex items-center justify-between"
+                    >
+                        <div>
+                            <p className="text-white font-black text-lg">Payment Successful!</p>
+                            <p className="text-blue-100 text-xs font-bold">Your invoice is ready for download.</p>
+                        </div>
+                        <button
+                            onClick={() => window.open(`http://127.0.0.1:8000/api/invoice/download/${invoiceId}/`)}
+                            className="bg-white text-blue-600 px-6 py-3 rounded-xl font-black text-xs shadow-xl hover:bg-gray-100 transition tracking-widest uppercase flex items-center gap-2"
+                        >
+                            <UploadCloud className="w-4 h-4 rotate-180" /> Download Invoice
+                        </button>
+                    </motion.div>
+                )}
             </div>
         </motion.div>
       </div>
