@@ -38,9 +38,9 @@ export default function AdminDashboard() {
         const token = localStorage.getItem("access");
         const headers = { Authorization: `Bearer ${token}` };
         
-        const resClaims = await axios.get("http://127.0.0.1:8000/api/claims/", { headers });
-        const resStats = await axios.get("http://127.0.0.1:8000/api/analytics/", { headers });
-        const resKyc = await axios.get("http://127.0.0.1:8000/api/kyc-pending/", { headers });
+        const resClaims = await axios.get("/api/claims/", { headers });
+        const resStats = await axios.get("/api/analytics/", { headers });
+        const resKyc = await axios.get("/api/kyc-pending/", { headers });
         
         setClaims(resClaims.data);
         setStats({
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
 
   const adminApproveKYC = async (id, status = 'Verified') => {
       try {
-          await axios.post(`http://127.0.0.1:8000/api/kyc-verify/${id}/`, { status }, {
+          await axios.post(`/api/kyc-verify/${id}/`, { status }, {
               headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
           });
           fetchData();
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
   };
 
   const agentApprove = async (id, status = 'Approved') => {
-    await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`, { status }, {
+    await axios.post(`/api/approve-agent/${id}/`, { status }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
     });
     fetchData();
@@ -76,7 +76,7 @@ export default function AdminDashboard() {
 
   const adminApprove = async (id, status = 'Approved') => {
     try {
-        await axios.post(`http://127.0.0.1:8000/api/approve-admin/${id}/`, { status }, {
+        await axios.post(`/api/approve-admin/${id}/`, { status }, {
             headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
         });
         fetchData();
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
 
   const handleAddPolicy = async (e) => {
       e.preventDefault();
-      await axios.post("http://127.0.0.1:8000/api/add-policy/", newPolicy);
+      await axios.post("/api/add-policy/", newPolicy);
       setShowModal(false);
       setNewPolicy({ name: "", description: "", premium: "" });
       alert("New Policy Created Successfully");

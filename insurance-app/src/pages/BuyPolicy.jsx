@@ -31,7 +31,7 @@ export default function BuyPolicy() {
     // Fetch policy details to show on the calculator
     const fetchPolicy = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/policies/");
+        const res = await axios.get("/api/policies/");
         const found = res.data.find(p => p.id === parseInt(id));
         if (found) setPolicy(found);
       } catch (err) {
@@ -44,7 +44,7 @@ export default function BuyPolicy() {
   const handleCalculate = async () => {
     setCalculating(true);
     try {
-      const res = await axios.post("http://127.0.0.1:8000/api/calculate/", {
+      const res = await axios.post("/api/calculate/", {
         age,
         salary,
         policy_id: id
@@ -76,7 +76,7 @@ export default function BuyPolicy() {
     }
 
     try {
-      await axios.post("http://127.0.0.1:8000/api/buy-policy/", {
+      await axios.post("/api/buy-policy/", {
         policy_id: id,
         premium: premium
       }, {

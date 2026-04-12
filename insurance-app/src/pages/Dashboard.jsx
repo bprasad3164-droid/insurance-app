@@ -19,7 +19,7 @@ export default function Dashboard() {
   const fetchMyClaims = async () => {
     try {
         const token = localStorage.getItem("access");
-        const res = await axios.get("http://127.0.0.1:8000/api/claim/my/", {
+        const res = await axios.get("/api/claim/my/", {
             headers: { Authorization: `Bearer ${token}` }
         });
         setClaims(res.data);

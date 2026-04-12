@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { UserCheck, ShieldOff, ShieldCheck, UploadCloud, ChevronLeft, CreditCard, ArrowLeft, Home } from "lucide-react";
+import { UserCheck, ShieldOff, ShieldCheck, UploadCloud, ChevronLeft, CreditCard, ArrowLeft, Home, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function ProfileKYC() {
@@ -42,7 +42,7 @@ export default function ProfileKYC() {
   const fetchUserPolicies = async () => {
       try {
           const token = localStorage.getItem("access");
-          const res = await axios.get("http://127.0.0.1:8000/api/my-policies/", {
+          const res = await axios.get("/api/my-policies/", {
             headers: { Authorization: `Bearer ${token}` }
           });
           setPolicies(res.data);
@@ -75,7 +75,7 @@ export default function ProfileKYC() {
 
   const downloadCert = async (certId) => {
       const token = localStorage.getItem("access");
-      window.open(`http://127.0.0.1:8000/api/download-cert/${certId}/?access_token=${token}`);
+      window.open(`/api/download-cert/${certId}/?access_token=${token}`);
   };
 
   const payWithRazorpay = async () => {
@@ -87,18 +87,29 @@ export default function ProfileKYC() {
       const policy_id = policies[0]?.id || 1;
 
       // STEP 1: Create Order
-      const res = await axios.post("http://127.0.0.1:8000/api/payment/create-order/", {
+      const res = await axios.post("/api/payment/create-order/", {
         amount,
         policy_id
       }, config);
 
       if (!res.data.order_id) {
-        alert("Order creation failed");
+        alert("Order creation failed on server.");
+        return;
+      }
+
+      const rzp_key = res.data.key;
+      if (!rzp_key || rzp_key.includes("YOUR_KEY")) {
+        alert("Razorpay Key not configured in backend settings.py");
+        return;
+      }
+
+      if (!window.Razorpay) {
+        alert("Razorpay SDK failed to load. Please check your internet connection.");
         return;
       }
 
       const options = {
-        key: res.data.key,
+        key: rzp_key,
         amount: res.data.amount,
         currency: "INR",
         name: "Pro Insurance",
@@ -107,14 +118,14 @@ export default function ProfileKYC() {
         handler: async function (response) {
           try {
             // STEP 2: Verify Payment
-            const verifyRes = await axios.post("http://127.0.0.1:8000/api/payment/verify/", {
+            const verifyRes = await axios.post("/api/payment/verify/", {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature
             }, config);
 
             // STEP 3: Automatic Invoice Generation
-            const invoiceRes = await axios.post("http://127.0.0.1:8000/api/invoice/create/", {
+            const invoiceRes = await axios.post("/api/invoice/create/", {
               payment_id: verifyRes.data.payment_id
             }, config);
 
@@ -140,7 +151,7 @@ export default function ProfileKYC() {
 
     } catch (err) {
       console.error(err);
-      alert("Checkout Initialization Failed ❌");
+      alert("Checkout Initialization Failed. Check if Backend is running.");
     }
   };
 
@@ -288,7 +299,7 @@ export default function ProfileKYC() {
                             <p className="text-blue-100 text-xs font-bold">Your invoice is ready for download.</p>
                         </div>
                         <button
-                            onClick={() => window.open(`http://127.0.0.1:8000/api/invoice/download/${invoiceId}/`)}
+                            onClick={() => window.open(`/api/invoice/download/${invoiceId}/?access_token=${localStorage.getItem("access")}`)}
                             className="bg-white text-blue-600 px-6 py-3 rounded-xl font-black text-xs shadow-xl hover:bg-gray-100 transition tracking-widest uppercase flex items-center gap-2"
                         >
                             <UploadCloud className="w-4 h-4 rotate-180" /> Download Invoice

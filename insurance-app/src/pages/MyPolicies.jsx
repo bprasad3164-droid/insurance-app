@@ -28,7 +28,7 @@ export default function MyPolicies() {
         return;
     }
     try {
-      const res = await axios.get("http://127.0.0.1:8000/api/my-policies/", {
+      const res = await axios.get("/api/my-policies/", {
           headers: { Authorization: `Bearer ${token}` }
       });
       setData(res.data);
@@ -41,7 +41,7 @@ export default function MyPolicies() {
 
   const handleDownload = (certId) => {
     if (!certId) return alert("Certificate ID missing for this policy.");
-    window.location.href = `http://127.0.0.1:8000/api/download-cert/${certId}/`;
+    window.location.href = `/api/download-cert/${certId}/`;
   };
 
   if (loading) return (

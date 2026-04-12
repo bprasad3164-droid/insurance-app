@@ -25,7 +25,7 @@ export default function AgentDashboard() {
     const fetchClaims = async () => {
         setLoading(true);
         try {
-            const res = await axios.get("http://127.0.0.1:8000/api/claims/", {
+            const res = await axios.get("/api/claims/", {
                 headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
             });
             
@@ -46,7 +46,7 @@ export default function AgentDashboard() {
 
     const handleVerifyClaim = async (id, status) => {
         try {
-            await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`, { status }, {
+            await axios.post(`/api/approve-agent/${id}/`, { status }, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
             });
             alert(`Claim #${id} successfully marked as ${status}.`);
