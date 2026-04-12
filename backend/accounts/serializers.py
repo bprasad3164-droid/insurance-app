@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Policy, UserPolicy, Claim
+from .models import User, Policy, UserPolicy, Claim, KYC
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,4 +25,9 @@ class UserPolicySerializer(serializers.ModelSerializer):
 class ClaimSerializer(serializers.ModelSerializer):
     class Meta:
         model = Claim
+        fields = '__all__'
+
+class KYCSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KYC
         fields = '__all__'

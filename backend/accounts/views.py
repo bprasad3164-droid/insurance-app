@@ -50,13 +50,23 @@ def login_with_token(request):
 @permission_classes([IsAuthenticated])
 def update_kyc(request):
     user = request.user
-    file = request.FILES.get('file')
-    if file:
-        Document.objects.create(user=user, file=file)
+    aadhaar = request.FILES.get('aadhaar')
+    pan = request.FILES.get('pan')
+    selfie = request.FILES.get('selfie')
+    
+    if aadhaar and pan and selfie:
+        from .models import KYC
+        kyc, created = KYC.objects.get_or_create(user=user)
+        kyc.aadhaar_file = aadhaar
+        kyc.pan_file = pan
+        kyc.selfie_file = selfie
+        kyc.status = 'Pending'
+        kyc.save()
+
         user.kyc_status = 'Pending'
         user.save()
         return Response({"msg": "KYC Documents Uploaded for Review"})
-    return Response({"msg": "No file provided"}, status=400)
+    return Response({"msg": "All three documents (Aadhaar, PAN, Selfie) are required"}, status=400)
 
 # ================= POLICY ENGINE =================
 

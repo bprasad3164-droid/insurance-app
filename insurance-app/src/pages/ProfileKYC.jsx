@@ -6,7 +6,9 @@ import { useNavigate } from "react-router-dom";
 
 export default function ProfileKYC() {
   const [user, setUser] = useState(null);
-  const [file, setFile] = useState(null);
+  const [aadhaar, setAadhaar] = useState(null);
+  const [pan, setPan] = useState(null);
+  const [selfie, setSelfie] = useState(null);
   const [loading, setLoading] = useState(false);
   const [policies, setPolicies] = useState([]);
   const navigate = useNavigate();
@@ -35,10 +37,12 @@ export default function ProfileKYC() {
   };
 
   const handleKYCUpload = async () => {
-    if (!file) return alert("Select a document");
+    if (!aadhaar || !pan || !selfie) return alert("Please upload all 3 required documents (Aadhaar, PAN, and Selfie)");
     setLoading(true);
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("aadhaar", aadhaar);
+    formData.append("pan", pan);
+    formData.append("selfie", selfie);
     try {
       const token = localStorage.getItem("access");
       await axios.post("http://127.0.0.1:8000/api/kyc-update/", formData, {
@@ -92,15 +96,28 @@ export default function ProfileKYC() {
 
                 {user?.kyc_status !== 'Verified' && (
                     <div className="text-left space-y-4">
-                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">Verify Your Identity</p>
-                        <div className="clay-inset p-6 relative text-center hover:bg-white/30 transition">
-                            <UploadCloud className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                            <p className="text-[10px] font-bold text-gray-500 uppercase">{file ? file.name : "Upload Gov ID (Aadhar/PAN)"}</p>
-                            <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => setFile(e.target.files[0])} />
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">Verify Your Identity (Requires 3 files)</p>
+                        
+                        <div className="clay-inset p-4 relative text-center hover:bg-white/30 transition rounded-xl">
+                            <UploadCloud className="w-5 h-5 text-gray-400 mx-auto mb-1" />
+                            <p className="text-[10px] font-bold text-gray-500 uppercase">{aadhaar ? aadhaar.name : "1. Upload Aadhaar Card (PDF/JPG)"}</p>
+                            <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => setAadhaar(e.target.files[0])} />
+                        </div>
+
+                        <div className="clay-inset p-4 relative text-center hover:bg-white/30 transition rounded-xl">
+                            <UploadCloud className="w-5 h-5 text-gray-400 mx-auto mb-1" />
+                            <p className="text-[10px] font-bold text-gray-500 uppercase">{pan ? pan.name : "2. Upload PAN Card (PDF/JPG)"}</p>
+                            <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => setPan(e.target.files[0])} />
+                        </div>
+
+                        <div className="clay-inset p-4 relative text-center hover:bg-white/30 transition rounded-xl">
+                            <UploadCloud className="w-5 h-5 text-gray-400 mx-auto mb-1" />
+                            <p className="text-[10px] font-bold text-gray-500 uppercase">{selfie ? selfie.name : "3. Upload Live Selfie (JPG/PNG)"}</p>
+                            <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={e => setSelfie(e.target.files[0])} />
                         </div>
                         <button 
                             onClick={handleKYCUpload} 
-                            disabled={loading || !file}
+                            disabled={loading || !aadhaar || !pan || !selfie}
                             className="w-full bg-blue-600 text-white p-4 rounded-xl font-black text-sm shadow-xl hover:bg-blue-700 transition disabled:opacity-50"
                         >
                             {loading ? "PROCESSING..." : "SUBMIT FOR REVIEW"}

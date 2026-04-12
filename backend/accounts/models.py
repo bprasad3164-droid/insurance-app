@@ -15,6 +15,17 @@ class User(AbstractUser):
     groups = models.ManyToManyField('auth.Group', related_name='accounts_user_groups', blank=True)
     user_permissions = models.ManyToManyField('auth.Permission', related_name='accounts_user_permissions', blank=True)
 
+class KYC(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='kyc')
+    aadhaar_file = models.FileField(upload_to='kyc/aadhaar/')
+    pan_file = models.FileField(upload_to='kyc/pan/')
+    selfie_file = models.ImageField(upload_to='kyc/selfie/')
+    status = models.CharField(max_length=20, default='Pending') # Pending, Verified, Rejected
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - KYC ({self.status})"
+
 class Policy(models.Model):
     CATEGORY_CHOICES = (
         ('health', 'Health Insurance'),

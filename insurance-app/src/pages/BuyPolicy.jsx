@@ -56,6 +56,13 @@ export default function BuyPolicy() {
         return;
     }
 
+    const kycStatus = localStorage.getItem("kyc_status");
+    if (kycStatus !== "Verified") {
+        alert("KYC Verification Required to Purchase. Please complete KYC in your Profile.");
+        navigate("/profile");
+        return;
+    }
+
     try {
       await axios.post("http://127.0.0.1:8000/api/buy-policy/", {
         policy_id: id,
