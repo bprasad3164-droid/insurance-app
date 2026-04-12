@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { ShieldCheck, Download, Calendar, Activity, CheckCircle2, ArrowRight, ArrowLeft, User, Hash, IndianRupee } from "lucide-react";
+import { ShieldCheck, Download, Calendar, Activity, CheckCircle2, ArrowRight, ArrowLeft, User, Hash, IndianRupee, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function MyPolicies() {
@@ -58,6 +58,9 @@ export default function MyPolicies() {
             <div className="flex items-center gap-4">
                 <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-gray-600">
                     <ArrowLeft className="w-5 h-5" /> Back
+                </button>
+                <button onClick={() => navigate("/dashboard")} className="clay p-3 hover:text-blue-600 transition rounded-xl" title="Home">
+                    <Home className="w-5 h-5 text-gray-600" />
                 </button>
                 <div className="clay p-4 rounded-3xl text-blue-600">
                     <ShieldCheck className="w-10 h-10" />

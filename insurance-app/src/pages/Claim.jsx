@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileUp, Send, CheckCircle, ShieldCheck, ArrowLeft } from "lucide-react";
+import { FileUp, Send, CheckCircle, ShieldCheck, ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Claim() {
@@ -20,6 +20,8 @@ export default function Claim() {
       navigate("/dashboard");
     }
   };
+
+  const handleHome = () => navigate("/dashboard");
 
   useEffect(() => {
     axios.get("http://127.0.0.1:8000/api/policies/").then(res => setPolicies(res.data));
@@ -70,7 +72,9 @@ export default function Claim() {
           </div>
           <div className="flex items-center gap-3">
               <a href="/my-policies" className="clay px-5 py-3 rounded-xl font-black text-gray-600 hover:text-green-600 transition flex items-center gap-2">Next &rarr;</a>
-              <a href="/dashboard" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">Dashboard</a>
+              <button onClick={handleHome} className="clay p-3 hover:text-blue-600 transition rounded-xl" title="Home">
+                  <Home className="w-5 h-5 text-gray-600" />
+              </button>
           </div>
       </header>
 

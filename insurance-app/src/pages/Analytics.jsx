@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Analytics() {
   const [data, setData] = useState([]);
   const [stats, setStats] = useState({ claims: 0, approved: 0, pending: 0, users: 0, policies: 0 });
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate("/dashboard");
+  };
+
+  const handleHome = () => navigate("/dashboard");
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -35,12 +42,17 @@ export default function Analytics() {
     <div className="min-h-screen bg-gray-200 w-full p-8 flex flex-col items-center">
       <header className="flex justify-between items-center clay p-5 mb-10 w-full max-w-5xl shadow-xl">
         <div className="flex items-center gap-6">
-            <button onClick={() => navigate(-1)} className="clay p-2 hover:text-blue-600 transition rounded-xl shadow-sm">
-                <ArrowLeft className="w-5 h-5" />
-            </button>
+            <div className="flex gap-2">
+                <button onClick={handleBack} className="clay p-2 hover:text-blue-600 transition rounded-xl shadow-sm">
+                    <ArrowLeft className="w-5 h-5" />
+                </button>
+                <button onClick={handleHome} className="clay p-2 hover:text-blue-600 transition rounded-xl shadow-sm" title="Home">
+                    <Home className="w-5 h-5" />
+                </button>
+            </div>
             <h1 className="text-2xl font-black text-gray-800 tracking-tight">Business Intelligence</h1>
         </div>
-        <a href="/" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg">Home</a>
+        <div />
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 w-full max-w-6xl">
