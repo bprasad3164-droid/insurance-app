@@ -47,7 +47,7 @@ export default function Login() {
     const token = localStorage.getItem("access");
     const storedRole = localStorage.getItem("role");
     if (token) {
-      if (storedRole === "admin") navigate("/admin-dashboard");
+      if (storedRole === "admin" || storedRole === "agent") navigate("/dashboard");
       else navigate("/dashboard");
       return;
     }
@@ -78,13 +78,8 @@ export default function Login() {
       localStorage.setItem("email", email);
 
       // Branch navigation based on role from backend
-      const actualRole = res.data.role;
       setLoading(false);
-      if (actualRole === "admin" || actualRole === "agent") {
-        navigate("/admin-dashboard");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
     } catch (err) {
       setError(
         err.response?.data?.detail ||
