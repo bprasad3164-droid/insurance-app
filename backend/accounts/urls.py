@@ -33,6 +33,7 @@ urlpatterns = [
 
     # New Payment & Invoice paths
     path('make-payment/', views.make_payment),
+    path('payment-detail/<int:id>/', views.get_payment_detail),
     path('invoice/create/', views.generate_invoice),
     path('invoice/download/<int:id>/', views.download_invoice),
 

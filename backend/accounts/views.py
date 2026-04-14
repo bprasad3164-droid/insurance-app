@@ -465,6 +465,22 @@ def generate_invoice(request):
         return Response({"error": str(e)}, status=400)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_payment_detail(request, id):
+    try:
+        payment = Payment.objects.get(id=id)
+        return Response({
+            "id": payment.id,
+            "amount": payment.amount,
+            "method": payment.method,
+            "status": payment.status,
+            "timestamp": payment.timestamp
+        })
+    except Payment.DoesNotExist:
+        return Response({"error": "Payment not found"}, status=404)
+
+
+@api_view(['GET'])
 @permission_classes([AllowAny]) # Allow download via window.open
 def download_invoice(request, id):
     try:
@@ -483,25 +499,26 @@ def download_invoice(request, id):
         p.drawString(100, 750, f"Invoice Number: {invoice.invoice_number}")
         p.drawString(100, 730, f"Date: {invoice.created_at.strftime('%Y-%m-%d %H:%M')}")
         p.drawString(100, 710, f"Customer: {invoice.payment.user.username}")
+        p.drawString(100, 690, f"Payment Method: {invoice.payment.method}")
         
-        p.line(100, 690, 500, 690)
+        p.line(100, 670, 500, 670)
         
         p.setFont("Helvetica-Bold", 14)
-        p.drawString(100, 660, "Description")
-        p.drawString(400, 660, "Amount")
+        p.drawString(100, 640, "Description")
+        p.drawString(400, 640, "Amount")
         
         p.setFont("Helvetica", 12)
-        p.drawString(100, 640, f"Policy Premium Payment (#{invoice.payment.policy_id})")
-        p.drawString(400, 640, f"INR {invoice.payment.amount}")
+        p.drawString(100, 620, f"Policy Premium Payment (#{invoice.payment.policy_id})")
+        p.drawString(400, 620, f"INR {invoice.payment.amount}")
         
-        p.line(100, 620, 500, 620)
+        p.line(100, 600, 500, 600)
         
         p.setFont("Helvetica-Bold", 16)
-        p.drawString(100, 590, "TOTAL PAID")
-        p.drawString(400, 590, f"INR {invoice.payment.amount}")
+        p.drawString(100, 570, "TOTAL PAID")
+        p.drawString(400, 570, f"INR {invoice.payment.amount}")
         
         p.setFont("Helvetica-Oblique", 10)
-        p.drawString(100, 550, "Thank you for choosing Pro Insurance. For support, visit proinsurance.com")
+        p.drawString(100, 530, "Thank you for choosing Pro Insurance. For support, visit proinsurance.com")
 
         p.showPage()
         p.save()
@@ -511,3 +528,4 @@ def download_invoice(request, id):
 
     except Exception as e:
         return Response({"error": str(e)}, status=404)
+
