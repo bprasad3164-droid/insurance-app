@@ -12,6 +12,7 @@ urlpatterns = [
     path('add-policy/', views.add_policy),
     path('calculate/', views.calculate_premium),
     path('buy-policy/', views.buy_policy),
+    path('portfolio-stats/', views.get_portfolio_stats),
     path('my-policies/', views.get_user_policies),
     path('download-cert/<str:cert_id>/', views.download_certificate),
     

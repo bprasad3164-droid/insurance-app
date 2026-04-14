@@ -82,10 +82,33 @@ class Command(BaseCommand):
                 Policy.objects.create(**p)
                 created += 1
 
-        if created:
-            self.stdout.write(self.style.SUCCESS(f"  Created {created} sample policies"))
-        else:
-            self.stdout.write("  Policies already exist")
+        # ── Sample User Policies ─────────────────────────────────────────
+        test_user = User.objects.filter(email="user@test.com").first()
+        if test_user:
+            from django.utils import timezone
+            from datetime import timedelta
+            
+            p1 = Policy.objects.filter(name="Health Shield").first()
+            p2 = Policy.objects.filter(name="Motor Guard").first()
+            
+            if p1 and not UserPolicy.objects.filter(user=test_user, policy=p1).exists():
+                UserPolicy.objects.create(
+                    user=test_user,
+                    policy=p1,
+                    premium=4999.0,
+                    status="Active",
+                    expiry_date=timezone.now() + timedelta(days=200),
+                    certificate_id="CERT-SEED-H1"
+                )
+            if p2 and not UserPolicy.objects.filter(user=test_user, policy=p2).exists():
+                UserPolicy.objects.create(
+                    user=test_user,
+                    policy=p2,
+                    premium=1999.0,
+                    status="Active",
+                    expiry_date=timezone.now() + timedelta(days=30),
+                    certificate_id="CERT-SEED-M1"
+                )
 
         self.stdout.write(self.style.SUCCESS("\nSeed complete!\n"))
         self.stdout.write("=" * 50)

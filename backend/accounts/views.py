@@ -8,6 +8,9 @@ from .serializers import PolicySerializer, UserPolicySerializer, ClaimSerializer
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.template.loader import get_template
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Sum
 from xhtml2pdf import pisa
 import os
 import razorpay
@@ -161,15 +164,37 @@ def buy_policy(request):
         policy = Policy.objects.get(id=policy_id)
     except Policy.DoesNotExist:
         return Response({"msg": "Policy not found"}, status=404)
+        
     cert_id = f"CERT-{uuid.uuid4().hex[:8].upper()}"
+    expiry = timezone.now() + timedelta(days=365)
+    
     UserPolicy.objects.create(
         user=request.user,
         policy=policy,
         premium=premium,
         certificate_id=cert_id,
+        expiry_date=expiry,
         status='Active'
     )
-    return Response({"msg": "Purchase Successful", "certificate_id": cert_id})
+    return Response({"msg": "Purchase Successful", "certificate_id": cert_id, "expiry_date": expiry})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_portfolio_stats(request):
+    # Calculate Total Premium Invested
+    total = UserPolicy.objects.filter(user=request.user).aggregate(Sum('premium'))['premium__sum'] or 0
+    
+    # Find Next Renewal Date (Nearest Expiry)
+    next_renewal = UserPolicy.objects.filter(
+        user=request.user, 
+        status='Active', 
+        expiry_date__gt=timezone.now()
+    ).order_by('expiry_date').first()
+    
+    return Response({
+        "total_premium": total,
+        "next_renewal": next_renewal.expiry_date if next_renewal else None
+    })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

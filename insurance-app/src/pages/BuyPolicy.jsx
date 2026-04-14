@@ -22,6 +22,24 @@ export default function BuyPolicy() {
   const [vpa, setVpa] = useState("");
   const [cardNumber, setCardNumber] = useState("");
   const [selectedBank, setSelectedBank] = useState("");
+  const [portfolioStats, setPortfolioStats] = useState({ total_premium: 0, next_renewal: null });
+  const { token } = useAuthStore();
+
+  const fetchPortfolioStats = async () => {
+    try {
+        const t = localStorage.getItem("access");
+        const res = await axios.get("http://127.0.0.1:8000/api/portfolio-stats/", {
+            headers: { Authorization: `Bearer ${t}` }
+        });
+        setPortfolioStats(res.data);
+    } catch (err) {
+        console.error("Error fetching portfolio stats", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPortfolioStats();
+  }, []);
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -102,6 +120,9 @@ export default function BuyPolicy() {
             premium: premium
         }, { headers });
 
+        // Refresh stats after success
+        await fetchPortfolioStats();
+
         setSuccess(true);
         setTimeout(() => {
             navigate(`/payment-success?payment_id=${payRes.data.payment_id}&policy_id=${id}`);
@@ -146,12 +167,16 @@ export default function BuyPolicy() {
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Premium Invested</p>
                     <div className="flex items-center gap-2 text-blue-600">
                         <span className="text-2xl font-black">₹</span>
-                        <h2 className="text-4xl font-black tracking-tighter">85,400</h2>
+                        <h2 className="text-4xl font-black tracking-tighter">{portfolioStats.total_premium.toLocaleString()}</h2>
                     </div>
                 </div>
                 <div className="clay p-6 bg-white/50 min-w-[200px]">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Next Renewal Date</p>
-                    <h2 className="text-4xl font-black text-green-600 tracking-tighter capitalize">Oct 24</h2>
+                    <h2 className="text-4xl font-black text-green-600 tracking-tighter capitalize">
+                        {portfolioStats.next_renewal 
+                            ? new Date(portfolioStats.next_renewal).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
+                            : "No Active Policies"}
+                    </h2>
                 </div>
             </div>
         </div>
