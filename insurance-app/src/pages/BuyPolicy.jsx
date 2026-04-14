@@ -83,7 +83,6 @@ export default function BuyPolicy() {
     }
   };
 
-  const { token } = useAuthStore();
 
   const handleBuy = () => {
     if (premium === 0) return alert("Please calculate premium first");
