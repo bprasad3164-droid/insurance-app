@@ -7,6 +7,7 @@ urlpatterns = [
     path('kyc-update/', views.update_kyc),
     path('kyc-pending/', views.get_pending_kyc),
     path('kyc-verify/<int:id>/', views.verify_kyc),
+    path('agents/', views.get_agents),
     
     path('policies/', views.get_policies),
     path('add-policy/', views.add_policy),

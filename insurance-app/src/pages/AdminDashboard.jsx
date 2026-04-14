@@ -38,8 +38,13 @@ export default function AdminDashboard() {
   };
 
   const fetchAgents = async () => {
-      await axios.get("http://127.0.0.1:8000/api/register/"); 
-      setAgents([{id: 2, username: 'Agent_Prasad'}, {id: 3, username: 'Agent_Surveyor'}]);
+    try {
+        const token = localStorage.getItem("access");
+        const res = await axios.get("http://127.0.0.1:8000/api/agents/", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        setAgents(res.data);
+    } catch (err) { console.error("Error fetching agents", err); }
   };
 
   const handleAssign = async (agentId) => {
@@ -62,7 +67,7 @@ export default function AdminDashboard() {
         await fetchAgents();
     };
     load();
-  }, [fetchOpenTasks]);
+  }, []);
 
   const adminApprove = async (id, status = 'Approved') => {
     try {

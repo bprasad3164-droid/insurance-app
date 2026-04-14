@@ -16,6 +16,13 @@ import os
 import razorpay
 import io
 import uuid
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_agents(request):
+    if request.user.role != 'admin':
+        return Response({"msg": "Unauthorized"}, status=403)
+    agents = User.objects.filter(role='agent')
+    return Response(list(agents.values('id', 'username')))
 
 # ================= AUTH =================
 
