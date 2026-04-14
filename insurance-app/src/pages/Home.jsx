@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import {
   ShieldCheck, Heart, Car, Zap, Star, ChevronRight,
   ArrowRight, Phone, Mail, TrendingUp, Users, Award,

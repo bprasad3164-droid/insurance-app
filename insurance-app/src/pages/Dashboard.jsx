@@ -21,7 +21,10 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    fetchMyClaims();
+    const load = async () => {
+        await fetchMyClaims();
+    };
+    load();
   }, []);
 
   const handleBack = () => {

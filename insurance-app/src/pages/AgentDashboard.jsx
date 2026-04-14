@@ -15,7 +15,6 @@ export default function AgentDashboard() {
     const navigate = useNavigate();
 
     const handleBack = () => navigate("/dashboard");
-    const handleHome = () => navigate("/dashboard");
     const handleLogout = () => logout();
 
     useEffect(() => {
@@ -117,7 +116,7 @@ export default function AgentDashboard() {
                             <p className="font-black uppercase tracking-widest text-xs">System Alert</p>
                             <p className="font-bold text-sm">{error}</p>
                         </div>
-                        <button onClick={fetchClaims} className="ml-auto bg-red-600 text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-red-700 transition">RETRY SYNC</button>
+                        <button onClick={fetchTasks} className="ml-auto bg-red-600 text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-red-700 transition">RETRY SYNC</button>
                     </motion.div>
                 )}
 

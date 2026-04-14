@@ -56,9 +56,12 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    fetchData();
-    fetchOpenTasks();
-    fetchAgents();
+    const load = async () => {
+        await fetchData();
+        await fetchOpenTasks();
+        await fetchAgents();
+    };
+    load();
   }, [fetchOpenTasks]);
 
   const adminApprove = async (id, status = 'Approved') => {
