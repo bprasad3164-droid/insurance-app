@@ -241,33 +241,50 @@ export default function BuyPolicy() {
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="clay p-10 bg-blue-600 text-white shadow-3xl relative overflow-hidden"
+                            className="clay p-10 bg-white shadow-xl relative overflow-hidden"
                         >
-                            <div className="relative z-10">
-                                <p className="text-[10px] font-black opacity-60 uppercase tracking-[0.4em] mb-4 text-center">Final Annualized Quote</p>
-                                <div className="flex items-center justify-center gap-3 mb-10">
-                                    <span className="text-3xl opacity-60 font-black">₹</span>
-                                    <h2 className="text-7xl font-black tracking-tighter leading-none">{premium.toLocaleString()}</h2>
+                            <div className="flex items-center gap-5 mb-10">
+                                <div className="p-4 rounded-2xl bg-blue-50 text-blue-600">
+                                    <CreditCard className="w-10 h-10" />
                                 </div>
+                                <div>
+                                    <h1 className="text-4xl font-black text-gray-800 tracking-tighter uppercase leading-none">Manual Payment</h1>
+                                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.4em] mt-2">Handshake Protocol v2.4</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-8 mb-12">
+                                <button 
+                                    onClick={() => { setPaymentMethod('upi'); setShowPayment(true); setPaymentStep('form'); }}
+                                    className="clay p-10 rounded-[2.5rem] font-black group active:scale-95 transition-all flex flex-col items-center gap-6"
+                                >
+                                    <Smartphone className="w-14 h-14 text-blue-600 group-hover:scale-110 transition-transform" />
+                                    <span className="uppercase tracking-[0.2em] text-[10px] text-blue-600 font-black">UPI</span>
+                                </button>
                                 
                                 <button 
-                                    onClick={handleBuy}
-                                    disabled={loading || success}
-                                    className={`w-full bg-white text-blue-600 p-6 rounded-2xl font-black text-xl shadow-2xl transition-all flex items-center justify-center gap-3 ${loading || success ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.03] active:scale-95'}`}
+                                    onClick={() => { setPaymentMethod('card'); setShowPayment(true); setPaymentStep('form'); }}
+                                    className="clay p-10 rounded-[2.5rem] font-black group active:scale-95 transition-all flex flex-col items-center gap-6"
                                 >
-                                    {success ? (
-                                        <div className="flex items-center gap-2">
-                                            <ShieldCheck className="w-7 h-7" /> Secured!
-                                        </div>
-                                    ) : (
-                                        <><CreditCard className="w-7 h-7" /> Checkout Now</>
-                                    )}
+                                    <Card className="w-14 h-14 text-purple-600 group-hover:scale-110 transition-transform" />
+                                    <span className="uppercase tracking-[0.1em] text-[8px] text-purple-600 font-black text-center leading-tight">Credit / Debit<br/>Card</span>
+                                </button>
+                                
+                                <button 
+                                    onClick={() => { setPaymentMethod('netbanking'); setShowPayment(true); setPaymentStep('form'); }}
+                                    className="clay p-10 rounded-[2.5rem] font-black group active:scale-95 transition-all flex flex-col items-center gap-6"
+                                >
+                                    <Landmark className="w-14 h-14 text-orange-600 group-hover:scale-110 transition-transform" />
+                                    <span className="uppercase tracking-[0.2em] text-[10px] text-orange-600 font-black text-center">Net Banking</span>
                                 </button>
                             </div>
-                            <div className="absolute top-0 right-0 -mr-12 -mt-12 opacity-10">
-                                <Zap className="w-56 h-56 rotate-12" />
+
+                            <div className="clay-inset p-10 flex justify-between items-center rounded-3xl bg-gray-50/30">
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Amount to Remit</span>
+                                <span className="text-4xl font-black text-gray-800 tracking-tighter">₹{premium.toLocaleString()}</span>
                             </div>
                         </motion.div>
+
                     )}
                 </AnimatePresence>
             </motion.div>
@@ -295,7 +312,9 @@ export default function BuyPolicy() {
                                     <CreditCard className="w-8 h-8" />
                                 </div>
                                 <div>
-                                    <h1 className="text-4xl font-black text-gray-800 tracking-tighter uppercase">Manual Payment</h1>
+                                    <h1 className="text-4xl font-black text-gray-800 tracking-tighter uppercase">
+                                        {paymentMethod?.toUpperCase()} Payment
+                                    </h1>
                                     <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.4em]">Handshake Protocol v2.4</p>
                                 </div>
                             </div>
@@ -306,59 +325,13 @@ export default function BuyPolicy() {
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
-                        
-                        {/* Horizontal Selection Bar as per Screenshot */}
-                        {paymentStep === 'select' && (
-                            <div className="space-y-8 mb-10">
-                                <div className="flex gap-4">
-                                    <button 
-                                        onClick={() => { setPaymentMethod('upi'); setPaymentStep('form'); }}
-                                        className="flex-1 clay p-8 rounded-2xl font-black text-blue-600 hover:bg-blue-600 hover:text-white transition group active:scale-95"
-                                    >
-                                        <div className="flex flex-col items-center gap-3">
-                                            <UPI className="w-8 h-8" />
-                                            <span className="uppercase tracking-widest text-xs">UPI</span>
-                                        </div>
-                                    </button>
-                                    <button 
-                                        onClick={() => { setPaymentMethod('card'); setPaymentStep('form'); }}
-                                        className="flex-1 clay p-8 rounded-2xl font-black text-purple-600 hover:bg-purple-600 hover:text-white transition group active:scale-95"
-                                    >
-                                        <div className="flex flex-col items-center gap-3">
-                                            <Card className="w-8 h-8" />
-                                            <span className="uppercase tracking-widest text-[10px] text-center leading-tight">Credit / Debit Card</span>
-                                        </div>
-                                    </button>
-                                    <button 
-                                        onClick={() => { setPaymentMethod('netbanking'); setPaymentStep('form'); }}
-                                        className="flex-1 clay p-8 rounded-2xl font-black text-orange-600 hover:bg-orange-600 hover:text-white transition group active:scale-95"
-                                    >
-                                        <div className="flex flex-col items-center gap-3">
-                                            <Landmark className="w-8 h-8" />
-                                            <span className="uppercase tracking-widest text-xs">Net Banking</span>
-                                        </div>
-                                    </button>
-                                </div>
-                                
-                                <div className="clay-inset p-5 flex justify-between items-center rounded-2xl">
-                                    <span className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">Amount to Remit</span>
-                                    <span className="text-gray-800 font-black text-2xl">₹{premium.toLocaleString()}</span>
-                                </div>
-                            </div>
-                        )}
                     </div>
 
-                    {paymentStep === 'form' && (
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="p-10 pt-0"
-                        >
-                            <button onClick={() => setPaymentStep('select')} className="text-blue-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 mb-8 hover:gap-3 transition-all">
-                                <ArrowLeft className="w-4 h-4" /> Change Handshake Method
-                            </button>
+                    <div className="p-10 pt-0">
+                        {paymentStep === 'form' && (
+                            <>
+                                {paymentMethod === 'upi' && (
 
-                            {paymentMethod === 'upi' && (
                                 <div className="space-y-6">
                                     <div className="clay-inset p-6 rounded-3xl">
                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Merchant VPA Handle</label>
@@ -469,10 +442,13 @@ export default function BuyPolicy() {
                                     </div>
                                 </div>
                             )}
-                        </motion.div>
-                    )}
+                            </>
+                        )}
+                    </div>
 
                     {paymentStep === 'processing' && (
+
+
                         <div className="flex flex-col items-center justify-center py-20 bg-gray-50/10">
                             <div className="relative mb-12">
                                 <motion.div
