@@ -6,15 +6,16 @@ class Command(BaseCommand):
     help = "Seed default admin, agent, and user accounts + sample policies"
 
     def handle(self, *args, **kwargs):
-        # ── Default Users ──────────────────────────────────────────────
+        # ── Standardized Users ──────────────────────────────────────────────
         users = [
-            {"email": "admin@proinsurance.com",  "password": "Admin@123",  "role": "admin"},
-            {"email": "agent@proinsurance.com",  "password": "Agent@123",  "role": "agent"},
-            {"email": "user@proinsurance.com",   "password": "User@1234",  "role": "user"},
+            {"email": "admin@test.com",  "password": "admin123",  "role": "admin"},
+            {"email": "agent@test.com",  "password": "agent123",  "role": "agent"},
+            {"email": "user@test.com",   "password": "user123",   "role": "user"},
         ]
 
         for u in users:
-            if not User.objects.filter(email=u["email"]).exists():
+            existing_user = User.objects.filter(email=u["email"]).first()
+            if not existing_user:
                 User.objects.create_user(
                     username=u["email"],
                     email=u["email"],
@@ -24,7 +25,10 @@ class Command(BaseCommand):
                 )
                 self.stdout.write(self.style.SUCCESS(f"  Created {u['role']}: {u['email']}"))
             else:
-                self.stdout.write(f"  Already exists: {u['email']}")
+                existing_user.set_password(u["password"])
+                existing_user.role = u["role"]
+                existing_user.save()
+                self.stdout.write(self.style.SUCCESS(f"  Updated credentials for: {u['email']}"))
 
         # ── Sample Policies ─────────────────────────────────────────────
         policies = [

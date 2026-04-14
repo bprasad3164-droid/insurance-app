@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, Claim, Policy, Document, UserPolicy
+from .models import User, Claim, Policy, Document, UserPolicy, Appointment, RenewalRequest
 from .serializers import PolicySerializer, UserPolicySerializer, ClaimSerializer
 from django.core.mail import send_mail
 from django.http import HttpResponse
