@@ -242,6 +242,74 @@ export default function AgentDashboard() {
                         </table>
                     </div>
                 </div>
+
+                {/* Claims History */}
+                <div className="flex items-center gap-3 mb-8">
+                    <ClipboardList className="w-6 h-6 text-gray-700" />
+                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">Claims History</h2>
+                </div>
+
+                <div className="clay bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-white/50 mb-20">
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="bg-gray-50/50 border-b border-gray-100">
+                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">ID</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Subject</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Claim Amount</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date & Time</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Decision</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {claims.filter(c => c.agent_status !== "Pending").length > 0 ? (
+                                    claims.filter(c => c.agent_status !== "Pending").map((claim, idx) => (
+                                        <motion.tr 
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.05 }}
+                                            key={claim.id} 
+                                            className="hover:bg-gray-50/30 transition-colors group"
+                                        >
+                                            <td className="p-6">
+                                                <span className="font-black text-gray-800">#{claim.id}</span>
+                                            </td>
+                                            <td className="p-6">
+                                                <p className="text-sm font-bold text-gray-700">Client: {claim.user__username || claim.user_id}</p>
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Policy #{claim.policy_id}</p>
+                                            </td>
+                                            <td className="p-6">
+                                                <span className="font-black text-gray-600 text-lg">₹{claim.amount?.toLocaleString()}</span>
+                                            </td>
+                                            <td className="p-6">
+                                                <span className="font-bold text-xs text-gray-500">
+                                                    {new Date(claim.created_at).toLocaleString('en-IN', {
+                                                        day: '2-digit', month: 'short', year: 'numeric',
+                                                        hour: '2-digit', minute: '2-digit'
+                                                    })}
+                                                </span>
+                                            </td>
+                                            <td className="p-6">
+                                                <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${
+                                                    claim.agent_status === 'Approved' ? 'bg-green-100 text-green-600 border border-green-200/50' : 'bg-red-100 text-red-600 border border-red-200/50'
+                                                }`}>
+                                                    {claim.agent_status}
+                                                </span>
+                                            </td>
+                                        </motion.tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5" className="p-20 text-center text-sm font-black text-gray-400 uppercase tracking-widest">
+                                            No history found.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </main>
         </div>
     );
