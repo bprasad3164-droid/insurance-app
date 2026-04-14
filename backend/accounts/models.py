@@ -116,6 +116,9 @@ class Payment(models.Model):
     policy_id = models.IntegerField() # Linked to policy or userpolicy
     amount = models.FloatField()
     method = models.CharField(max_length=50) # UPI, Card, Net Banking
+    vpa = models.CharField(max_length=100, null=True, blank=True)
+    card_number_masked = models.CharField(max_length=20, null=True, blank=True)
+    bank_name = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=20, default='success')
     timestamp = models.DateTimeField(auto_now_add=True)
 

@@ -108,7 +108,14 @@ export default function PaymentSuccess() {
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Payment Method</p>
-                            <p className="font-black text-gray-800 text-lg">{config.label}</p>
+                            <div className="flex items-center gap-2">
+                                <p className="font-black text-gray-800 text-lg">{config.label}</p>
+                                {(paymentDetails?.vpa || paymentDetails?.card_number_masked || paymentDetails?.bank_name) && (
+                                    <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 uppercase tracking-widest">
+                                        {paymentDetails?.vpa || paymentDetails?.card_number_masked || paymentDetails?.bank_name}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </motion.div>
 
@@ -122,10 +129,11 @@ export default function PaymentSuccess() {
                         >
                             <div className="flex items-center gap-2 mb-2">
                                 <FileText className="w-4 h-4 text-gray-400" />
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Transaction ID</p>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Security Token</p>
                             </div>
-                            <p className="font-mono text-sm font-bold text-gray-700">TXN-{paymentId?.toString().padStart(6, '0')}</p>
+                            <p className="font-mono text-[10px] font-bold text-gray-500 uppercase">TXN-{paymentId?.toString().padStart(8, '0')}</p>
                         </motion.div>
+
 
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}

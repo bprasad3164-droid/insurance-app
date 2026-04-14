@@ -86,11 +86,14 @@ export default function BuyPolicy() {
         const token = localStorage.getItem("access");
         const headers = { Authorization: `Bearer ${token}` };
 
-        // 1. Create Payment Record (Manual)
+        // 1. Create Payment Record (Manual) with Metadata
         const payRes = await axios.post("http://127.0.0.1:8000/api/make-payment/", {
             policy_id: id,
             amount: premium,
-            method: paymentMethod.toUpperCase()
+            method: paymentMethod.toUpperCase(),
+            vpa: paymentMethod === 'upi' ? vpa : null,
+            card_number: paymentMethod === 'card' ? cardNumber : null,
+            bank_name: paymentMethod === 'netbanking' ? selectedBank : null
         }, { headers });
 
         // 2. Buy the Policy
@@ -119,21 +122,38 @@ export default function BuyPolicy() {
 
   return (
     <div className="min-h-screen bg-[#e0e5ec] p-6 md:p-12 flex flex-col items-center">
-      <div className="w-full max-w-4xl">
-        <div className="flex gap-4 mb-8">
-            <button 
-              onClick={handleBack}
-              className="clay p-4 rounded-2xl text-gray-500 font-bold hover:text-blue-600 transition flex items-center gap-2 group"
-            >
-              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Back
-            </button>
-            <button 
-              onClick={handleHome}
-              className="clay p-4 rounded-2xl text-gray-500 font-bold hover:text-blue-600 transition flex items-center gap-2"
-              title="Go to Dashboard"
-            >
-              <Home className="w-5 h-5" /> Dashboard
-            </button>
+      <div className="w-full max-w-6xl">
+        <div className="flex justify-between items-center mb-12">
+            <div className="flex gap-4">
+                <button 
+                onClick={handleBack}
+                className="clay p-4 rounded-2xl text-gray-500 font-bold hover:text-blue-600 transition flex items-center gap-2 group"
+                >
+                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Back
+                </button>
+                <button 
+                onClick={handleHome}
+                className="clay p-4 rounded-2xl text-gray-500 font-bold hover:text-blue-600 transition flex items-center gap-2"
+                title="Go to Dashboard"
+                >
+                <Home className="w-5 h-5" /> Dashboard
+                </button>
+            </div>
+            
+            {/* Header Stats From Screenshot */}
+            <div className="flex gap-6">
+                <div className="clay p-6 bg-white/50 min-w-[240px]">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Premium Invested</p>
+                    <div className="flex items-center gap-2 text-blue-600">
+                        <span className="text-2xl font-black">₹</span>
+                        <h2 className="text-4xl font-black tracking-tighter">85,400</h2>
+                    </div>
+                </div>
+                <div className="clay p-6 bg-white/50 min-w-[200px]">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Next Renewal Date</p>
+                    <h2 className="text-4xl font-black text-green-600 tracking-tighter capitalize">Oct 24</h2>
+                </div>
+            </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -142,29 +162,29 @@ export default function BuyPolicy() {
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="clay p-10 flex flex-col items-center text-center h-fit"
+              className="clay p-10 flex flex-col items-center text-center h-fit bg-white/30"
             >
                 <div className="p-4 rounded-3xl bg-blue-50 text-blue-600 mb-6">
                     <ShieldCheck className="w-12 h-12" />
                 </div>
-                <h1 className="text-4xl font-black text-gray-800 tracking-tight mb-4">{policy.name}</h1>
-                <p className="text-gray-500 font-medium mb-8 uppercase tracking-widest text-xs">{policy.category} Protection Plan</p>
+                <h1 className="text-4xl font-black text-gray-800 tracking-tight mb-4 uppercase">{policy.name}</h1>
+                <p className="text-gray-500 font-bold mb-8 uppercase tracking-[0.3em] text-[10px]">{policy.category} Protection Plan</p>
                 
                 <div className="w-full space-y-4">
-                    <div className="clay-inset p-4 flex justify-between items-center rounded-2xl">
-                        <span className="text-gray-400 font-bold text-sm">Base Premium</span>
-                        <span className="text-gray-800 font-black">₹{policy.base_premium}</span>
+                    <div className="clay-inset p-5 flex justify-between items-center rounded-2xl">
+                        <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Base Premium</span>
+                        <span className="text-gray-800 font-black text-xl">₹{policy.base_premium.toLocaleString()}</span>
                     </div>
-                    <div className="clay-inset p-4 flex justify-between items-center rounded-2xl">
-                        <span className="text-gray-400 font-bold text-sm">Max Coverage</span>
-                        <span className="text-blue-600 font-black">₹{policy.coverage || "5,00,000"}+</span>
+                    <div className="clay-inset p-5 flex justify-between items-center rounded-2xl">
+                        <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Max Coverage</span>
+                        <span className="text-blue-600 font-black text-xl">₹{(policy.coverage || 500000).toLocaleString()}+</span>
                     </div>
                 </div>
                 
-                <div className="mt-10 p-6 bg-blue-600/5 rounded-3xl border border-blue-100 flex items-start gap-3 text-left">
-                    <Zap className="w-5 h-5 text-blue-600 flex-shrink-0 mt-1" />
-                    <p className="text-xs text-blue-800 font-bold leading-relaxed">
-                        This plan uses AI-driven risk assessment. Premium adjusts based on your age and income brackets for optimal fairness.
+                <div className="mt-10 p-6 clay-inset bg-blue-50/30 rounded-3xl flex items-start gap-4 text-left border-none">
+                    <Zap className="w-6 h-6 text-blue-600 flex-shrink-0" />
+                    <p className="text-xs text-gray-500 font-bold leading-relaxed">
+                        This plan utilizes <span className="text-blue-600 font-black uppercase">Direct Handshake</span> technology. Your premium is calculated based on AI-assessed risk factors.
                     </p>
                 </div>
             </motion.div>
@@ -178,40 +198,40 @@ export default function BuyPolicy() {
                 <div className="clay p-10">
                     <div className="flex items-center gap-3 mb-8">
                         <Calculator className="w-6 h-6 text-blue-600" />
-                        <h2 className="text-2xl font-black text-gray-800 tracking-tight">Premium Calculator</h2>
+                        <h2 className="text-2xl font-black text-gray-800 tracking-tight uppercase">Premium Calculator</h2>
                     </div>
 
-                    <div className="space-y-8">
+                    <div className="space-y-10">
                         <div>
                             <div className="flex justify-between mb-4">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Your Age</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Applicant Age</label>
                                 <span className="font-black text-blue-600">{age} Years</span>
                             </div>
                             <input 
                                 type="range" min="18" max="100" value={age} 
                                 onChange={(e) => setAge(e.target.value)}
-                                className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 clay-inset p-0"
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 clay-inset"
                             />
                         </div>
 
                         <div>
                             <div className="flex justify-between mb-4">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Monthly Salary</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Monthly Liquidity</label>
                                 <span className="font-black text-blue-600">₹{salary.toLocaleString()}</span>
                             </div>
                             <input 
                                 type="range" min="5000" max="500000" step="5000" value={salary} 
                                 onChange={(e) => setSalary(e.target.value)}
-                                className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 clay-inset p-0"
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 clay-inset"
                             />
                         </div>
 
                         <button 
                             onClick={handleCalculate}
                             disabled={calculating}
-                            className={`w-full p-5 rounded-2xl font-black transition-all flex items-center justify-center gap-2 ${calculating ? 'opacity-50 cursor-not-allowed' : 'clay text-blue-600 group active:scale-95'}`}
+                            className={`w-full p-5 rounded-2xl font-black uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${calculating ? 'opacity-50 cursor-not-allowed' : 'clay text-blue-600 hover:scale-[1.02] active:scale-95'}`}
                         >
-                            {calculating ? "Calculating..." : <><Calculator className="w-5 h-5" /> Update Quote</>}
+                            {calculating ? "Processing Query..." : <><Calculator className="w-5 h-5" /> Calculate Quote</>}
                         </button>
                     </div>
                 </div>
@@ -221,38 +241,31 @@ export default function BuyPolicy() {
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="clay p-10 bg-blue-600 text-white shadow-2xl relative overflow-hidden"
+                            className="clay p-10 bg-blue-600 text-white shadow-3xl relative overflow-hidden"
                         >
                             <div className="relative z-10">
-                                <p className="text-[10px] font-black opacity-60 uppercase tracking-[0.3em] mb-2 text-center">Your Customized Quote</p>
-                                <div className="flex items-center justify-center gap-2 mb-8">
-                                    <span className="text-2xl opacity-60">₹</span>
-                                    <h2 className="text-6xl font-black tracking-tighter">{premium.toLocaleString()}</h2>
-                                    <span className="text-sm self-end mb-2 opacity-60">/year</span>
+                                <p className="text-[10px] font-black opacity-60 uppercase tracking-[0.4em] mb-4 text-center">Final Annualized Quote</p>
+                                <div className="flex items-center justify-center gap-3 mb-10">
+                                    <span className="text-3xl opacity-60 font-black">₹</span>
+                                    <h2 className="text-7xl font-black tracking-tighter leading-none">{premium.toLocaleString()}</h2>
                                 </div>
                                 
                                 <button 
                                     onClick={handleBuy}
                                     disabled={loading || success}
-                                    className={`w-full bg-white text-blue-600 p-6 rounded-2xl font-black text-xl shadow-xl transition-all flex items-center justify-center gap-3 ${loading || success ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+                                    className={`w-full bg-white text-blue-600 p-6 rounded-2xl font-black text-xl shadow-2xl transition-all flex items-center justify-center gap-3 ${loading || success ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.03] active:scale-95'}`}
                                 >
                                     {success ? (
                                         <div className="flex items-center gap-2">
-                                            <ShieldCheck className="w-6 h-6" /> Success!
+                                            <ShieldCheck className="w-7 h-7" /> Secured!
                                         </div>
                                     ) : (
-                                        <><CreditCard className="w-6 h-6" /> Confirm Purchase</>
+                                        <><CreditCard className="w-7 h-7" /> Checkout Now</>
                                     )}
                                 </button>
-                                
-                                {success && (
-                                    <p className="text-center mt-4 text-xs font-bold opacity-80 animate-pulse">
-                                        Redirecting to your dashboard...
-                                    </p>
-                                )}
                             </div>
-                            <div className="absolute top-0 right-0 -mr-8 -mt-8 opacity-10">
-                                <Zap className="w-48 h-48 rotate-12" />
+                            <div className="absolute top-0 right-0 -mr-12 -mt-12 opacity-10">
+                                <Zap className="w-56 h-56 rotate-12" />
                             </div>
                         </motion.div>
                     )}
@@ -268,171 +281,190 @@ export default function BuyPolicy() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-gray-900/40 backdrop-blur-xl"
+                className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-2xl"
             >
                 <motion.div 
-                    initial={{ scale: 0.9, y: 20 }}
+                    initial={{ scale: 0.9, y: 30 }}
                     animate={{ scale: 1, y: 0 }}
-                    className="clay bg-white w-full max-w-lg p-10 relative overflow-hidden"
+                    className="clay bg-white w-full max-w-2xl p-0 relative overflow-hidden border border-white"
                 >
-                    <button 
-                        onClick={() => setShowPayment(false)}
-                        className="absolute top-6 right-6 p-2 rounded-xl text-gray-400 hover:text-red-500 transition"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-
-                    {paymentStep === 'select' && (
-                        <div>
-                            <div className="flex items-center gap-3 mb-8">
-                                <Wallet className="w-8 h-8 text-blue-600" />
-                                <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Select Payment</h1>
+                    <div className="p-10 pb-0">
+                        <div className="flex justify-between items-start mb-10">
+                            <div className="flex items-center gap-4">
+                                <div className="p-4 rounded-2xl bg-blue-50 text-blue-600">
+                                    <CreditCard className="w-8 h-8" />
+                                </div>
+                                <div>
+                                    <h1 className="text-4xl font-black text-gray-800 tracking-tighter uppercase">Manual Payment</h1>
+                                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.4em]">Handshake Protocol v2.4</p>
+                                </div>
                             </div>
-                            
-                            <div className="space-y-4">
-                                <button 
-                                    onClick={() => { setPaymentMethod('upi'); setPaymentStep('form'); }}
-                                    className="w-full clay p-6 flex items-center justify-between group hover:scale-[1.02] transition active:scale-95"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-blue-50 rounded-2xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
-                                            <UPI className="w-6 h-6" />
-                                        </div>
-                                        <div className="text-left">
-                                            <p className="font-black text-gray-800">UPI Transfer</p>
-                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Instant & Secure</p>
-                                        </div>
-                                    </div>
-                                    <Check className="w-5 h-5 text-gray-200 group-hover:text-blue-600 transition" />
-                                </button>
-
-                                <button 
-                                    onClick={() => { setPaymentMethod('card'); setPaymentStep('form'); }}
-                                    className="w-full clay p-6 flex items-center justify-between group hover:scale-[1.02] transition active:scale-95"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-blue-50 rounded-2xl text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition">
-                                            <Card className="w-6 h-6" />
-                                        </div>
-                                        <div className="text-left">
-                                            <p className="font-black text-gray-800">Credit / Debit Card</p>
-                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Visa, Mastercard, RuPay</p>
-                                        </div>
-                                    </div>
-                                    <Check className="w-5 h-5 text-gray-200 group-hover:text-blue-600 transition" />
-                                </button>
-
-                                <button 
-                                    onClick={() => { setPaymentMethod('netbanking'); setPaymentStep('form'); }}
-                                    className="w-full clay p-6 flex items-center justify-between group hover:scale-[1.02] transition active:scale-95"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-blue-50 rounded-2xl text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition">
-                                            <Landmark className="w-6 h-6" />
-                                        </div>
-                                        <div className="text-left">
-                                            <p className="font-black text-gray-800">Net Banking</p>
-                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Direct Bank Transfer</p>
-                                        </div>
-                                    </div>
-                                    <Check className="w-5 h-5 text-gray-200 group-hover:text-blue-600 transition" />
-                                </button>
-                            </div>
+                            <button 
+                                onClick={() => setShowPayment(false)}
+                                className="p-3 rounded-2xl text-gray-300 hover:text-red-500 transition clay-inset border-none"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
                         </div>
-                    )}
+                        
+                        {/* Horizontal Selection Bar as per Screenshot */}
+                        {paymentStep === 'select' && (
+                            <div className="space-y-8 mb-10">
+                                <div className="flex gap-4">
+                                    <button 
+                                        onClick={() => { setPaymentMethod('upi'); setPaymentStep('form'); }}
+                                        className="flex-1 clay p-8 rounded-2xl font-black text-blue-600 hover:bg-blue-600 hover:text-white transition group active:scale-95"
+                                    >
+                                        <div className="flex flex-col items-center gap-3">
+                                            <UPI className="w-8 h-8" />
+                                            <span className="uppercase tracking-widest text-xs">UPI</span>
+                                        </div>
+                                    </button>
+                                    <button 
+                                        onClick={() => { setPaymentMethod('card'); setPaymentStep('form'); }}
+                                        className="flex-1 clay p-8 rounded-2xl font-black text-purple-600 hover:bg-purple-600 hover:text-white transition group active:scale-95"
+                                    >
+                                        <div className="flex flex-col items-center gap-3">
+                                            <Card className="w-8 h-8" />
+                                            <span className="uppercase tracking-widest text-[10px] text-center leading-tight">Credit / Debit Card</span>
+                                        </div>
+                                    </button>
+                                    <button 
+                                        onClick={() => { setPaymentMethod('netbanking'); setPaymentStep('form'); }}
+                                        className="flex-1 clay p-8 rounded-2xl font-black text-orange-600 hover:bg-orange-600 hover:text-white transition group active:scale-95"
+                                    >
+                                        <div className="flex flex-col items-center gap-3">
+                                            <Landmark className="w-8 h-8" />
+                                            <span className="uppercase tracking-widest text-xs">Net Banking</span>
+                                        </div>
+                                    </button>
+                                </div>
+                                
+                                <div className="clay-inset p-5 flex justify-between items-center rounded-2xl">
+                                    <span className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">Amount to Remit</span>
+                                    <span className="text-gray-800 font-black text-2xl">₹{premium.toLocaleString()}</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     {paymentStep === 'form' && (
                         <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
+                            className="p-10 pt-0"
                         >
-                            <button onClick={() => setPaymentStep('select')} className="text-blue-600 font-black text-xs uppercase tracking-widest flex items-center gap-2 mb-6 hover:gap-3 transition-all">
-                                <ArrowLeft className="w-4 h-4" /> Change Method
+                            <button onClick={() => setPaymentStep('select')} className="text-blue-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 mb-8 hover:gap-3 transition-all">
+                                <ArrowLeft className="w-4 h-4" /> Change Handshake Method
                             </button>
 
                             {paymentMethod === 'upi' && (
                                 <div className="space-y-6">
-                                    <div>
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Enter UPI ID (VPA)</label>
+                                    <div className="clay-inset p-6 rounded-3xl">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Merchant VPA Handle</label>
                                         <input 
-                                            placeholder="e.g. user@okaxis" 
-                                            value={vpa}
-                                            onChange={(e) => setVpa(e.target.value)}
-                                            className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 focus:text-blue-600 outline-none placeholder:opacity-30" 
+                                            placeholder="proinsure@axis" 
+                                            disabled
+                                            className="w-full bg-transparent p-0 font-black text-gray-300 text-2xl border-none outline-none focus:ring-0" 
                                         />
                                     </div>
-                                    <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100 flex gap-4">
-                                        <Smartphone className="w-8 h-8 text-blue-600 animate-bounce" />
-                                        <p className="text-xs text-blue-800 font-bold leading-relaxed">
-                                            Open your UPI app after clicking pay to authorize the ₹{premium.toLocaleString()} request.
-                                        </p>
+                                    
+                                    <div>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Your UPI ID</label>
+                                        <input 
+                                            placeholder="e.g. user@okicici" 
+                                            value={vpa}
+                                            onChange={(e) => setVpa(e.target.value)}
+                                            className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 focus:text-blue-600 outline-none placeholder:opacity-20" 
+                                        />
                                     </div>
-                                    <button 
-                                        onClick={handleFinalPayment}
-                                        className="w-full bg-blue-600 text-white p-6 rounded-2xl font-black text-xl shadow-xl hover:bg-blue-700 transition"
-                                    >
-                                        Pay Successfully
-                                    </button>
+
+                                    <div className="flex gap-4 pt-4">
+                                        <button 
+                                            onClick={handleFinalPayment}
+                                            className="flex-1 bg-blue-600 text-white p-6 rounded-2xl font-black text-lg shadow-xl hover:bg-blue-700 transition"
+                                        >
+                                            Transmit ₹{premium.toLocaleString()}
+                                        </button>
+                                    </div>
                                 </div>
                             )}
 
                             {paymentMethod === 'card' && (
                                 <div className="space-y-6">
-                                    <div>
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Card Number</label>
-                                        <div className="relative">
-                                            <input 
-                                                maxLength="16"
-                                                placeholder="xxxx xxxx xxxx xxxx" 
-                                                value={cardNumber}
-                                                onChange={(e) => setCardNumber(e.target.value)}
-                                                className="w-full clay-inset p-5 rounded-2xl font-mono font-black text-gray-700 outline-none" 
-                                            />
-                                            <div className="absolute right-5 top-5 flex gap-1">
-                                                <div className="w-6 h-4 bg-red-400 rounded-sm" />
-                                                <div className="w-6 h-4 bg-orange-400 rounded-sm" />
+                                    <div className="clay-inset p-6 rounded-3xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-xl mb-8 relative overflow-hidden">
+                                        <div className="relative z-10">
+                                            <div className="flex justify-between items-start mb-10">
+                                                <div className="w-12 h-10 bg-yellow-400/80 rounded-lg shadow-inner" />
+                                                <Card className="w-8 h-8 opacity-60" />
+                                            </div>
+                                            <p className="font-mono text-2xl tracking-[0.2em] mb-8 font-black">
+                                                {cardNumber ? cardNumber.match(/.{1,4}/g).join(' ') : '**** **** **** ****'}
+                                            </p>
+                                            <div className="flex justify-between items-end">
+                                                <div>
+                                                    <p className="text-[10px] uppercase font-black opacity-60 mb-1">Asset Holder</p>
+                                                    <p className="font-black tracking-widest text-sm uppercase">Member Token</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] uppercase font-black opacity-60 mb-1">Maturity</p>
+                                                    <p className="font-black tracking-widest text-sm">12/28</p>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div className="absolute top-0 right-0 -mr-8 -mt-8 opacity-10">
+                                            <Globe className="w-40 h-40" />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Primary Token Number</label>
+                                        <input 
+                                            maxLength="16"
+                                            placeholder="16-Digit Sequence" 
+                                            value={cardNumber}
+                                            onChange={(e) => setCardNumber(e.target.value)}
+                                            className="w-full clay-inset p-5 rounded-2xl font-mono font-black text-gray-700 outline-none placeholder:opacity-20" 
+                                        />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Expiry</label>
-                                            <input placeholder="MM / YY" className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 outline-none" />
+                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Security Code</label>
+                                            <input placeholder="***" maxLength="3" className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 outline-none placeholder:opacity-20" />
                                         </div>
-                                        <div>
-                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">CVV</label>
-                                            <input placeholder="***" maxLength="3" className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 outline-none" />
+                                        <div className="flex items-end">
+                                            <button 
+                                                onClick={handleFinalPayment}
+                                                className="w-full bg-purple-600 text-white p-5 rounded-2xl font-black text-lg shadow-xl hover:bg-purple-700 transition"
+                                            >
+                                                Authorize
+                                            </button>
                                         </div>
                                     </div>
-                                    <button 
-                                        onClick={handleFinalPayment}
-                                        className="w-full bg-purple-600 text-white p-6 rounded-2xl font-black text-xl shadow-xl hover:bg-purple-700 transition"
-                                    >
-                                        Initialize Encryption
-                                    </button>
                                 </div>
                             )}
 
                             {paymentMethod === 'netbanking' && (
                                 <div className="space-y-6">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Select Your Bank</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Institutional Portal Selection</label>
                                     <div className="grid grid-cols-2 gap-4">
                                         {['HDFC Bank', 'ICICI Bank', 'SBI Bank', 'Axis Bank'].map(bank => (
                                             <button 
                                                 key={bank}
                                                 onClick={() => setSelectedBank(bank)}
-                                                className={`p-4 rounded-xl font-black text-sm border-2 transition ${selectedBank === bank ? 'border-orange-500 bg-orange-50 text-orange-600' : 'border-gray-100 text-gray-400'}`}
+                                                className={`p-6 rounded-2xl font-black text-sm transition-all border-none ${selectedBank === bank ? 'clay bg-orange-600 text-white scale-[1.05]' : 'clay-inset text-gray-400 hover:text-orange-500'}`}
                                             >
                                                 {bank}
                                             </button>
                                         ))}
                                     </div>
-                                    <div className="mt-8">
+                                    <div className="mt-8 pt-4">
                                         <button 
                                             onClick={handleFinalPayment}
-                                            className="w-full bg-orange-600 text-white p-6 rounded-2xl font-black text-xl shadow-xl hover:bg-orange-700 transition"
+                                            disabled={!selectedBank}
+                                            className="w-full bg-orange-600 text-white p-6 rounded-2xl font-black text-xl shadow-xl hover:bg-orange-700 transition disabled:opacity-30 disabled:grayscale"
                                         >
-                                            Connect to {selectedBank || "Bank"}
+                                            Link to {selectedBank || "Institution"}
                                         </button>
                                     </div>
                                 </div>
@@ -441,17 +473,21 @@ export default function BuyPolicy() {
                     )}
 
                     {paymentStep === 'processing' && (
-                        <div className="flex flex-col items-center justify-center py-12">
-                            <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                className="mb-8"
-                            >
-                                <Loader2 className="w-16 h-16 text-blue-600" />
-                            </motion.div>
-                            <h2 className="text-2xl font-black text-gray-800 uppercase tracking-tighter mb-2">Processing Transaction</h2>
-                            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest text-center max-w-xs leading-relaxed">
-                                Please do not refresh or close this window. We are establishing a secure handshake with the financial provider.
+                        <div className="flex flex-col items-center justify-center py-20 bg-gray-50/10">
+                            <div className="relative mb-12">
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                                    className="w-24 h-24 border-8 border-blue-600/10 border-t-blue-600 rounded-full"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center uppercase font-black text-[8px] tracking-tighter text-blue-600">
+                                    Sync
+                                </div>
+                            </div>
+                            <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tighter mb-4">Establishing Handshake</h2>
+                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.3em] text-center max-w-sm leading-loose">
+                                Security Hash Verified. Contacting Financial Gateway.<br />
+                                <span className="text-blue-600">Do not interrupt transmission.</span>
                             </p>
                         </div>
                     )}

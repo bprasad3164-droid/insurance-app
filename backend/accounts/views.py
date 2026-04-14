@@ -428,11 +428,21 @@ from .models import Payment, Invoice
 @permission_classes([IsAuthenticated])
 def make_payment(request):
     try:
+        # Mask card if method is card
+        method = request.data.get('method')
+        card_num = request.data.get('card_number')
+        masked_card = None
+        if method == 'CARD' and card_num:
+            masked_card = f"**** **** **** {card_num[-4:]}"
+
         payment = Payment.objects.create(
-            user=request.user if request.user.is_authenticated else None,
+            user=request.user,
             policy_id=request.data.get('policy_id'),
             amount=request.data.get('amount'),
-            method=request.data.get('method'),
+            method=method,
+            vpa=request.data.get('vpa'),
+            card_number_masked=masked_card,
+            bank_name=request.data.get('bank_name'),
             status='success'
         )
         return Response({
@@ -473,11 +483,15 @@ def get_payment_detail(request, id):
             "id": payment.id,
             "amount": payment.amount,
             "method": payment.method,
+            "vpa": payment.vpa,
+            "card_number_masked": payment.card_number_masked,
+            "bank_name": payment.bank_name,
             "status": payment.status,
             "timestamp": payment.timestamp
         })
     except Payment.DoesNotExist:
         return Response({"error": "Payment not found"}, status=404)
+
 
 
 @api_view(['GET'])
@@ -499,7 +513,17 @@ def download_invoice(request, id):
         p.drawString(100, 750, f"Invoice Number: {invoice.invoice_number}")
         p.drawString(100, 730, f"Date: {invoice.created_at.strftime('%Y-%m-%d %H:%M')}")
         p.drawString(100, 710, f"Customer: {invoice.payment.user.username}")
-        p.drawString(100, 690, f"Payment Method: {invoice.payment.method}")
+        
+        # Method Details
+        method_str = f"Payment Method: {invoice.payment.method}"
+        if invoice.payment.method == 'CARD' and invoice.payment.card_number_masked:
+            method_str += f" ({invoice.payment.card_number_masked})"
+        elif invoice.payment.method == 'UPI' and invoice.payment.vpa:
+            method_str += f" ({invoice.payment.vpa})"
+        elif invoice.payment.method == 'NETBANKING' and invoice.payment.bank_name:
+            method_str += f" ({invoice.payment.bank_name})"
+            
+        p.drawString(100, 690, method_str)
         
         p.line(100, 670, 500, 670)
         
