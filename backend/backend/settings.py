@@ -12,10 +12,13 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -28,8 +31,8 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
-# CORS Configuration — allow all local Vite dev ports
-CORS_ALLOW_ALL_ORIGINS = True  # Dev only. Override with CORS_ALLOWED_ORIGINS in production.
+# CORS Configuration
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Application definition
@@ -135,10 +138,8 @@ STATIC_URL = 'static/'
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
 
-# CORS Settings
-CORS_ALLOW_ALL_ORIGINS = True
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # JWT Configuration
 from datetime import timedelta

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { ShieldCheck, Download, Calendar, Activity, CheckCircle2, ArrowRight, ArrowLeft, User, Hash, IndianRupee, Home } from "lucide-react";
@@ -17,11 +17,7 @@ export default function MyPolicies() {
     }
   };
 
-  useEffect(() => {
-    fetchMyPolicies();
-  }, []);
-
-  const fetchMyPolicies = async () => {
+  const fetchMyPolicies = useCallback(async () => {
     const token = localStorage.getItem("access");
     if (!token) {
         navigate("/login");
@@ -37,12 +33,30 @@ export default function MyPolicies() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchMyPolicies();
+  }, [fetchMyPolicies]);
 
   const handleDownload = (certId) => {
     if (!certId) return alert("Certificate ID missing for this policy.");
     window.location.href = `http://127.0.0.1:8000/api/download-cert/${certId}/`;
   };
+
+  const handleRenewal = async (policyId) => {
+    const token = localStorage.getItem("access");
+    try {
+        await axios.post("http://127.0.0.1:8000/api/renewals/create/", 
+            { policy_id: policyId },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert("Renewal request submitted successfully. An agent will be assigned to verify your profile.");
+    } catch (err) {
+        alert("Renewal request failed: " + (err.response?.data?.msg || err.message));
+    }
+  };
+
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-[#e0e5ec]">
@@ -130,12 +144,21 @@ export default function MyPolicies() {
                             </div>
                         </div>
 
-                        <button 
-                            onClick={() => handleDownload(item.certificate_id)}
-                            className="w-full clay p-5 rounded-2xl font-black flex items-center justify-center gap-3 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-lg active:scale-95"
-                        >
-                            <Download className="w-6 h-6" /> Download Certificate
-                        </button>
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={() => handleDownload(item.certificate_id)}
+                                className="flex-1 clay p-5 rounded-2xl font-black flex items-center justify-center gap-3 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-lg active:scale-95"
+                            >
+                                <Download className="w-6 h-6" /> Certificate
+                            </button>
+                            <button 
+                                onClick={() => handleRenewal(item.id)}
+                                className="flex-1 clay p-5 rounded-2xl font-black flex items-center justify-center gap-3 text-gray-600 hover:bg-green-600 hover:text-white transition-all shadow-lg active:scale-95 uppercase text-[10px] tracking-widest"
+                            >
+                                Extend Coverage
+                            </button>
+                        </div>
+
                         
                         <div className="absolute top-0 right-0 -mr-16 -mt-16 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
                             <ShieldCheck className="w-64 h-64" />

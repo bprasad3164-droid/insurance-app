@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calculator, CreditCard, ArrowLeft, ShieldCheck, Zap, User, IndianRupee, Home } from "lucide-react";
+import useAuthStore from "../store/authStore";
+
 
 export default function BuyPolicy() {
   const { id } = useParams();
@@ -57,21 +59,15 @@ export default function BuyPolicy() {
     }
   };
 
+  const { token } = useAuthStore();
+
   const handleBuy = async () => {
     if (premium === 0) return alert("Please calculate premium first");
     
     setLoading(true);
-    const token = localStorage.getItem("access");
     if (!token) {
         alert("Session expired. Please login again.");
         navigate("/login");
-        return;
-    }
-
-    const kycStatus = localStorage.getItem("kyc_status");
-    if (kycStatus !== "Verified") {
-        alert("KYC Verification Required to Purchase. Please complete KYC in your Profile.");
-        navigate("/profile");
         return;
     }
 
@@ -82,14 +78,23 @@ export default function BuyPolicy() {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
       setSuccess(true);
-      setTimeout(() => navigate("/dashboard"), 3000);
+      // Simulate/Pass payment_id from a payment gateway response in a real scenario
+      // For now, we simulate a successful payment_id to trigger the success screen logic
+      const mockPaymentId = `pay_${Math.random().toString(36).substr(2, 9)}`;
+      
+      setTimeout(() => {
+          navigate(`/payment-success?payment_id=${mockPaymentId}&policy_id=${id}`);
+      }, 1500);
+      
     } catch (err) {
       alert("Purchase failed: " + (err.response?.data?.msg || err.message));
     } finally {
       setLoading(false);
     }
   };
+
 
   if (!policy) return <div className="min-h-screen flex items-center justify-center bg-[#e0e5ec]">
     <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>

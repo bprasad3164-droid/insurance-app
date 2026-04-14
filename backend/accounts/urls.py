@@ -24,8 +24,16 @@ urlpatterns = [
     path('analytics/', views.analytics),
     path('notify/', views.send_notification),
     
+    # Workflow Paths
+    path('appointments/create/', views.create_appointment),
+    path('appointments/my/', views.my_appointments),
+    path('renewals/create/', views.create_renewal),
+    path('tasks/open/', views.get_open_tasks),
+    path('tasks/assign/', views.assign_task),
+
     # New Payment & Invoice paths
     path('make-payment/', views.make_payment),
     path('invoice/create/', views.generate_invoice),
     path('invoice/download/<int:id>/', views.download_invoice),
+
 ]

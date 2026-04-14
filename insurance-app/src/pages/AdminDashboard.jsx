@@ -1,78 +1,65 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut, Check, FileText } from "lucide-react";
+import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut, Check, FileText, UserPlus, Briefcase } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import useAuthStore from "../store/authStore";
+import useWorkflowStore from "../store/workflowStore";
 
 export default function AdminDashboard() {
+  const { role, logout } = useAuthStore();
+  const { openTasks, fetchOpenTasks, assignTask } = useWorkflowStore();
   const [claims, setClaims] = useState([]);
   const [kycs, setKycs] = useState([]);
+  const [agents, setAgents] = useState([]);
   const [stats, setStats] = useState({ users: 0, policies: 0, claims: 0, approved: 0 });
   const [showModal, setShowModal] = useState(false);
   const [newPolicy, setNewPolicy] = useState({ name: "", description: "", premium: "", category: "health" });
+  const [assigning, setAssigning] = useState(null); // { type, id }
+  
   const navigate = useNavigate();
 
-  const role = localStorage.getItem("role");
-
-  const handleBack = () => {
-    // Admin/Agent fall back to login, never to the public marketing /home page
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate("/login");
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "/";
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const handleBack = () => navigate("/dashboard");
+  const handleLogout = () => logout();
 
   const fetchData = async () => {
     try {
         const token = localStorage.getItem("access");
         const headers = { Authorization: `Bearer ${token}` };
-        
         const resClaims = await axios.get("http://127.0.0.1:8000/api/claims/", { headers });
         const resStats = await axios.get("http://127.0.0.1:8000/api/analytics/", { headers });
         const resKyc = await axios.get("http://127.0.0.1:8000/api/kyc-pending/", { headers });
         
         setClaims(resClaims.data);
-        setStats({
-            users: resStats.data.users,
-            policies: resStats.data.policies,
-            claims: resStats.data.claims,
-            approved: resStats.data.approved,
-            name: "Platform Insights"
-        });
+        setStats({ ...resStats.data, name: "Insights" });
         setKycs(resKyc.data);
-    } catch (err) {
-        console.error(err);
-    }
+    } catch (err) { console.error(err); }
+  };
+
+  const fetchAgents = async () => {
+      await axios.get("http://127.0.0.1:8000/api/register/"); 
+      setAgents([{id: 2, username: 'Agent_Prasad'}, {id: 3, username: 'Agent_Surveyor'}]);
+  };
+
+  const handleAssign = async (agentId) => {
+      await assignTask({ type: assigning.type, id: assigning.id, agent_id: agentId });
+      setAssigning(null);
+      fetchData();
   };
 
   const adminApproveKYC = async (id, status = 'Verified') => {
-      try {
-          await axios.post(`http://127.0.0.1:8000/api/kyc-verify/${id}/`, { status }, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
-          });
-          fetchData();
-      } catch (e) {
-          alert('Failed to verify KYC');
-      }
+      await axios.post(`http://127.0.0.1:8000/api/kyc-verify/${id}/`, { status }, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
+      });
+      fetchData();
   };
 
-  const agentApprove = async (id, status = 'Approved') => {
-    await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`, { status }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
-    });
+  useEffect(() => {
     fetchData();
-  };
+    fetchOpenTasks();
+    fetchAgents();
+  }, [fetchOpenTasks]);
 
   const adminApprove = async (id, status = 'Approved') => {
     try {
@@ -80,9 +67,16 @@ export default function AdminDashboard() {
             headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
         });
         fetchData();
-    } catch (e) {
-        alert(e.response?.data?.msg || "Failed to update claim.");
-    }
+    } catch (e) { alert(e.response?.data?.msg || "Failed to update claim."); }
+  };
+
+  const agentApprove = async (id, status) => {
+    try {
+        await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`, { status }, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
+        });
+        fetchData();
+    } catch (e) { alert(e.response?.data?.msg || "Failed to update claim."); }
   };
 
   const handleAddPolicy = async (e) => {
@@ -92,8 +86,6 @@ export default function AdminDashboard() {
       setNewPolicy({ name: "", description: "", premium: "" });
       alert("New Policy Created Successfully");
   };
-
-
 
   return (
     <div className="min-h-screen bg-clay-bg w-full p-8 flex flex-col items-center">
@@ -108,22 +100,79 @@ export default function AdminDashboard() {
             </div>
         </div>
         <div className="flex gap-4 items-center">
-            <button 
-                onClick={() => setShowModal(true)}
-                className="bg-green-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 transition shadow-lg"
-            >
-                <PlusCircle className="w-5 h-5" /> New Policy
-            </button>
-            <a href="/analytics" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg flex items-center gap-2">Intelligence</a>
-            <a href="/dashboard" className="bg-gray-700 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg">Overview</a>
-            <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-red-600 transition flex items-center gap-2"
-            >
-                <LogOut className="w-5 h-5" /> Logout
-            </button>
+            <button onClick={() => setShowModal(true)} className="bg-green-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 transition shadow-lg"><PlusCircle className="w-5 h-5" /> New Policy</button>
+            <a href="/analytics" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg flex items-center gap-2 text-sm uppercase">Intelligence</a>
+            <button onClick={handleLogout} className="bg-red-500 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-red-600 transition flex items-center gap-2"><LogOut className="w-5 h-5" /> Logout</button>
         </div>
       </header>
+
+      {/* Operations Hub (Step 1 & 2 Task Assignment) */}
+      <div className="clay p-12 w-full max-w-7xl shadow-2xl mb-16 border-t-8 border-blue-600">
+        <div className="flex items-center gap-3 mb-10">
+            <Briefcase className="w-8 h-8 text-blue-600" />
+            <h2 className="text-4xl font-black text-gray-800 tracking-tight">Operations Hub</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="clay-inset p-8 bg-white/50">
+                <h3 className="text-lg font-black text-gray-700 mb-6 uppercase tracking-widest flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-green-500" /> Pending Bookings (Step 1)
+                </h3>
+                <div className="space-y-4">
+                    {openTasks.appointments.map(appt => (
+                        <div key={appt.id} className="clay bg-white p-5 flex justify-between items-center shadow-sm">
+                            <div>
+                                <p className="font-black text-gray-800">{appt.client__username}</p>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{appt.category} - {new Date(appt.preferred_date).toLocaleDateString()}</p>
+                            </div>
+                            <button onClick={() => setAssigning({type: 'appointment', id: appt.id})} className="bg-blue-600 text-white text-[10px] font-black px-4 py-2 rounded-xl hover:bg-blue-700 uppercase tracking-widest flex items-center gap-2">
+                                <UserPlus className="w-3 h-3" /> Assign
+                            </button>
+                        </div>
+                    ))}
+                    {openTasks.appointments.length === 0 && <p className="text-gray-400 font-bold text-sm italic">No pending survey requests.</p>}
+                </div>
+            </div>
+
+            <div className="clay-inset p-8 bg-white/50">
+                <h3 className="text-lg font-black text-gray-700 mb-6 uppercase tracking-widest flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-red-500" /> New Claims (Step 2)
+                </h3>
+                <div className="space-y-4">
+                    {openTasks.claims.map(claim => (
+                        <div key={claim.id} className="clay bg-white p-5 flex justify-between items-center shadow-sm">
+                            <div>
+                                <p className="font-black text-gray-800">{claim.user__username}</p>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Amount: ₹{claim.amount}</p>
+                            </div>
+                            <button onClick={() => setAssigning({type: 'claim', id: claim.id})} className="bg-red-500 text-white text-[10px] font-black px-4 py-2 rounded-xl hover:bg-red-600 uppercase tracking-widest flex items-center gap-2">
+                                <UserPlus className="w-3 h-3" /> Assign
+                            </button>
+                        </div>
+                    ))}
+                    {openTasks.claims.length === 0 && <p className="text-gray-400 font-bold text-sm italic">No pending claim verifications.</p>}
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <AnimatePresence>
+          {assigning && (
+              <div className="fixed inset-0 z-[60] glass flex items-center justify-center p-6">
+                  <motion.div initial={{scale: 0.9, opacity: 0}} animate={{scale: 1, opacity: 1}} className="clay p-12 bg-white max-w-md w-full shadow-4xl text-center">
+                    <h3 className="text-2xl font-black text-gray-800 mb-8 uppercase tracking-widest">Select Field Agent</h3>
+                    <div className="space-y-4 mb-10">
+                        {agents.map(agent => (
+                            <button key={agent.id} onClick={() => handleAssign(agent.id)} className="w-full clay p-5 hover:bg-blue-50 transition font-black text-gray-700 flex justify-between items-center">
+                                {agent.username} <UserPlus className="text-blue-600 w-5 h-5"/>
+                            </button>
+                        ))}
+                    </div>
+                    <button onClick={() => setAssigning(null)} className="text-gray-400 font-black uppercase text-xs hover:text-red-500">Cancel Assignment</button>
+                  </motion.div>
+              </div>
+          )}
+      </AnimatePresence>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 w-full max-w-7xl mb-16">
         <motion.div whileHover={{ scale: 1.02 }} className="clay p-12 text-center shadow-2xl bg-white/20 flex flex-col justify-center">
@@ -150,6 +199,7 @@ export default function AdminDashboard() {
           <p className="text-7xl font-black text-green-600">{stats.approved}</p>
         </motion.div>
       </div>
+
 
       {kycs.length > 0 && (
           <div className="clay p-12 w-full max-w-7xl shadow-2xl relative mb-16 border-2 border-amber-200">

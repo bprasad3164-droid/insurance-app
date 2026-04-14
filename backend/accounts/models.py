@@ -50,9 +50,49 @@ class UserPolicy(models.Model):
     expiry_date = models.DateTimeField(null=True, blank=True)
     certificate_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
 
+class Appointment(models.Model):
+    """Step 1: Booking a slot for a new insurance policy survey."""
+    STATUS_CHOICES = (
+        ('Pending', 'Pending Assignment'),
+        ('Assigned', 'Agent Assigned'),
+        ('Surveyed', 'Survey Completed'),
+        ('Verified', 'Verified by Admin'),
+        ('Completed', 'Policy Created'),
+    )
+    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
+    preferred_date = models.DateTimeField()
+    category = models.CharField(max_length=20, choices=Policy.CATEGORY_CHOICES, default='health')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='Pending')
+    notes = models.TextField(blank=True, null=True)
+    agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='survey_tasks')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Booking {self.id} - {self.client.username}"
+
+class RenewalRequest(models.Model):
+    """Step 3: Requesting a renewal for an existing policy."""
+    STATUS_CHOICES = (
+        ('Pending', 'Pending Assignment'),
+        ('Assigned', 'Agent Assigned'),
+        ('Verified', 'Agent Verified'),
+        ('Approved', 'Approved by Admin'),
+        ('Rejected', 'Rejected'),
+    )
+    user_policy = models.ForeignKey(UserPolicy, on_delete=models.CASCADE, related_name='renewals')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='Pending')
+    agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='renewal_tasks')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    admin_comment = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Renewal {self.id} - {self.user_policy.certificate_id}"
+
 class Claim(models.Model):
     STATUS_CHOICES = (
         ('Pending', 'Pending'),
+        ('Assigned', 'Agent Assigned'),
+        ('Verified', 'Agent Verified'),
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
     )
@@ -60,8 +100,10 @@ class Claim(models.Model):
     policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
     amount = models.FloatField(default=0.0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='claim_tasks')
     agent_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
+
 
 class Document(models.Model):
     file = models.FileField(upload_to='documents/')

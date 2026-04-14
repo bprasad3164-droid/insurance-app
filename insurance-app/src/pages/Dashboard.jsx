@@ -6,15 +6,9 @@ import { useNavigate } from "react-router-dom";
 import ClaimTracking from "../components/ClaimTracking";
 
 export default function Dashboard() {
-  const [role, setRole] = useState(localStorage.getItem("role") || "");
+  const [role] = useState(localStorage.getItem("role") || "");
   const [claims, setClaims] = useState([]);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const storedRole = localStorage.getItem("role");
-    if (storedRole) setRole(storedRole);
-    fetchMyClaims();
-  }, []);
 
   const fetchMyClaims = async () => {
     try {
@@ -25,6 +19,10 @@ export default function Dashboard() {
         setClaims(res.data);
     } catch (err) { console.error(err); }
   };
+
+  useEffect(() => {
+    fetchMyClaims();
+  }, []);
 
   const handleBack = () => {
     if (window.history.length > 1) {

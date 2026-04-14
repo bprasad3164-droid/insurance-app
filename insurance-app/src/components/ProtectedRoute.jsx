@@ -1,18 +1,22 @@
+import React from "react";
 import { Navigate } from "react-router-dom";
+import useAuthStore from "../store/authStore";
 
 export default function ProtectedRoute({ children, roleRequired }) {
-  const token = localStorage.getItem("access");
-  const role = localStorage.getItem("role");
+    const { isAuthenticated, role, loading } = useAuthStore();
 
-  // Not logged in — go to home
-  if (!token) {
-    return <Navigate to="/" replace />;
-  }
+    if (loading) {
+        return <div className="flex items-center justify-center h-screen font-black text-blue-600">Authenticating...</div>;
+    }
 
-  // Wrong role — go to dashboard (not infinite loop)
-  if (roleRequired && role !== roleRequired) {
-    return <Navigate to="/dashboard" replace />;
-  }
+    if (!isAuthenticated) {
+        return <Navigate to="/" replace />;
+    }
 
-  return children;
+    if (roleRequired && role !== roleRequired) {
+        return <Navigate to="/dashboard" replace />;
+    }
+
+    return children;
 }
+

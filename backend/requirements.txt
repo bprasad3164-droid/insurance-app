@@ -7,3 +7,6 @@ gunicorn
 psycopg2-binary
 Pillow
 python-dotenv
+xhtml2pdf
+reportlab
+dj-database-url

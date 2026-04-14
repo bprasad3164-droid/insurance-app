@@ -9,6 +9,7 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+import os
 import razorpay
 import io
 import uuid
@@ -202,15 +203,103 @@ def download_certificate(request, cert_id):
     except UserPolicy.DoesNotExist:
         return Response({"msg": "Certificate not found"}, status=404)
 
+# ================= WORKFLOW: STEP 1 (BOOKING) =================
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_appointment(request):
+    try:
+        appt = Appointment.objects.create(
+            client=request.user,
+            preferred_date=request.data['preferred_date'],
+            category=request.data.get('category', 'health'),
+            notes=request.data.get('notes', '')
+        )
+        return Response({"msg": "Booking Request Submitted", "id": appt.id})
+    except Exception as e:
+        return Response({"msg": str(e)}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_appointments(request):
+    appts = Appointment.objects.filter(client=request.user)
+    # Basic data return for now
+    return Response(list(appts.values()))
+
+# ================= WORKFLOW: STEP 3 (RENEWAL) =================
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_renewal(request):
+    try:
+        user_policy = UserPolicy.objects.get(id=request.data['policy_id'], user=request.user)
+        renewal = RenewalRequest.objects.create(user_policy=user_policy)
+        return Response({"msg": "Renewal Request Submitted", "id": renewal.id})
+    except Exception as e:
+        return Response({"msg": str(e)}, status=400)
+
+# ================= WORKFLOW: ADMIN & AGENT LOGIC =================
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_open_tasks(request):
+    """Admin view to see everything needing assignment."""
+    if request.user.role != 'admin':
+        return Response({"msg": "Unauthorized"}, status=403)
+    
+    pending_appts = Appointment.objects.filter(status='Pending')
+    pending_claims = Claim.objects.filter(status='Pending')
+    pending_renewals = RenewalRequest.objects.filter(status='Pending')
+    
+    return Response({
+        "appointments": list(pending_appts.values('id', 'client__username', 'category', 'preferred_date')),
+        "claims": list(pending_claims.values('id', 'user__username', 'amount')),
+        "renewals": list(pending_renewals.values('id', 'user_policy__certificate_id'))
+    })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def assign_task(request):
+    if request.user.role != 'admin':
+        return Response({"msg": "Unauthorized"}, status=403)
+    
+    task_type = request.data.get('type') # 'appointment', 'claim', 'renewal'
+    task_id = request.data.get('id')
+    agent_id = request.data.get('agent_id')
+    
+    try:
+        agent = User.objects.get(id=agent_id, role='agent')
+        if task_type == 'appointment':
+            obj = Appointment.objects.get(id=task_id)
+            obj.status = 'Assigned'
+        elif task_type == 'claim':
+            obj = Claim.objects.get(id=task_id)
+            obj.status = 'Assigned'
+        elif task_type == 'renewal':
+            obj = RenewalRequest.objects.get(id=task_id)
+            obj.status = 'Assigned'
+        else:
+            return Response({"msg": "Invalid task type"}, status=400)
+            
+        obj.agent = agent
+        obj.save()
+        return Response({"msg": f"Task assigned to {agent.username}"})
+    except Exception as e:
+        return Response({"msg": str(e)}, status=400)
+
 # ================= CLAIMS =================
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_claim(request):
     try:
+        # Resolve policy accurately
+        policy_id = request.data.get('policy')
+        policy = Policy.objects.get(id=policy_id)
+        
         claim = Claim.objects.create(
             user=request.user,
-            policy_id=request.data['policy'],
+            policy=policy,
             amount=request.data.get('amount', 0)
         )
         return Response({"msg": "Claim Submitted", "claim_id": claim.id})
@@ -225,9 +314,18 @@ def my_claims(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def all_claims(request):
-    return Response(list(Claim.objects.all().values()))
+    if request.user.role == 'admin':
+        claims = Claim.objects.all()
+    elif request.user.role == 'agent':
+        claims = Claim.objects.filter(agent=request.user)
+    else:
+        return Response({"msg": "Unauthorized"}, status=403)
+    
+    serializer = ClaimSerializer(claims, many=True)
+    return Response(serializer.data)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -275,7 +373,9 @@ def admin_approve(request, id):
 @permission_classes([AllowAny])
 def create_payment(request):
     try:
-        client = razorpay.Client(auth=("rzp_test_KEY", "rzp_test_SECRET"))
+        key_id = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_KEY')
+        key_secret = os.environ.get('RAZORPAY_KEY_SECRET', 'rzp_test_SECRET')
+        client = razorpay.Client(auth=(key_id, key_secret))
         payment = client.order.create({
             "amount": int(request.data.get('amount', 5000)) * 100,
             "currency": "INR",
@@ -284,6 +384,7 @@ def create_payment(request):
         return Response(payment)
     except Exception as e:
         return Response({"msg": str(e)}, status=500)
+
 
 # ================= ANALYTICS =================
 

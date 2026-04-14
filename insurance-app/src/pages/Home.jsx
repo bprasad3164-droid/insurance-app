@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useState } from "react";
+import { useScroll, useTransform } from "framer-motion";
 import {
   ShieldCheck, Heart, Car, Zap, Star, ChevronRight,
   ArrowRight, Phone, Mail, TrendingUp, Users, Award,
@@ -313,7 +313,7 @@ export default function Home() {
                   <div style={{ position: "absolute", top: 20, right: 20, background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.15)", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "rgba(255,255,255,.7)" }}>{plan.tag}</div>
 
                   {/* Icon */}
-                  <div style={{ display: "inline-flex", background: `linear-gradient(135deg,${plan.color.split(' ')[1].replace('from-','').replace('to-','')})`, borderRadius: 18, padding: 16, background: `linear-gradient(135deg,var(--tw-gradient-stops))`, marginBottom: 20 }}>
+                  <div style={{ display: "inline-flex", background: "rgba(255,255,255,0.05)", borderRadius: 18, padding: 16, marginBottom: 20 }}>
                     <div style={{ background: `linear-gradient(135deg,${plan.color.includes('rose') ? '#f43f5e,#ec4899' : plan.color.includes('violet') ? '#8b5cf6,#6366f1' : '#06b6d4,#3b82f6'})`, borderRadius: 14, padding: 12, color: "#fff" }}>{plan.icon}</div>
                   </div>
 

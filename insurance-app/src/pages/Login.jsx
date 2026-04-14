@@ -1,8 +1,8 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, Users, Briefcase, Mail, Lock, ArrowRight, Home, Eye, EyeOff } from "lucide-react";
+import useAuthStore from "../store/authStore";
 
 const roles = [
   {
@@ -32,32 +32,24 @@ const roles = [
 ];
 
 export default function Login() {
-  const [activeRole, setActiveRole] = useState("user");
+  const { login, isAuthenticated, loading } = useAuthStore();
+  const [activeRole, setActiveRole] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roleParam = params.get("role");
+    return (roleParam && roles.find(r => r.id === roleParam)) ? roleParam : "user";
+  });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Handle manual role selection via URL query param if present
   useEffect(() => {
-    // Check if already logged in
-    const token = localStorage.getItem("access");
-    const storedRole = localStorage.getItem("role");
-    if (token) {
-      if (storedRole === "admin" || storedRole === "agent") navigate("/dashboard");
-      else navigate("/dashboard");
-      return;
+    if (isAuthenticated) {
+      navigate("/dashboard");
     }
+  }, [isAuthenticated, navigate]);
 
-    const params = new URLSearchParams(location.search);
-    const roleParam = params.get("role");
-    if (roleParam && roles.find(r => r.id === roleParam)) {
-      setActiveRole(roleParam);
-    }
-  }, [location, navigate]);
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
@@ -65,31 +57,19 @@ export default function Login() {
       setError("Please enter your email and password.");
       return;
     }
-    setLoading(true);
     setError("");
     try {
-      const res = await axios.post("http://127.0.0.1:8000/api/login/", { email, password });
-      
-      // Store user data
-      localStorage.setItem("access", res.data.access);
-      localStorage.setItem("refresh", res.data.refresh || "");
-      localStorage.setItem("role", res.data.role);
-      localStorage.setItem("kyc_status", res.data.kyc_status || "Pending");
-      localStorage.setItem("email", email);
-
-      // Branch navigation based on role from backend
-      setLoading(false);
-      navigate("/dashboard");
+      await login(email, password);
+      // Success is handled by the useEffect redirecting to dashboard
     } catch (err) {
       setError(
         err.response?.data?.detail ||
         err.response?.data?.msg ||
-        err.response?.data?.non_field_errors?.[0] ||
         "Login failed. Please check your credentials."
       );
-      setLoading(false);
     }
   };
+
 
   const currentRoleConfig = roles.find(r => r.id === activeRole);
 
