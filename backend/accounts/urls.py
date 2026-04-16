@@ -32,6 +32,7 @@ urlpatterns = [
     path('renewals/create/', views.create_renewal),
     path('tasks/open/', views.get_open_tasks),
     path('tasks/assign/', views.assign_task),
+    path('tasks/complete-survey/', views.complete_survey),
 
     # New Payment & Invoice paths
     path('make-payment/', views.make_payment),

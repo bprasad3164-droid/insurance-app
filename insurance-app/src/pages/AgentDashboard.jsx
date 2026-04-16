@@ -62,6 +62,18 @@ export default function AgentDashboard() {
         }
     };
 
+    const handleCompleteSurvey = async (id) => {
+        try {
+            await axios.post(`http://127.0.0.1:8000/api/tasks/complete-survey/`, { id, notes: "Site survey completed successfully." }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
+            });
+            alert("Survey Completed! Task sent for Executive Approval.");
+            fetchTasks();
+        } catch (err) {
+            alert("Error completing survey: " + (err.response?.data?.msg || err.message));
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#e0e5ec] p-8 flex flex-col items-center">
             
@@ -149,8 +161,12 @@ export default function AgentDashboard() {
                                 <span className="text-sm font-bold">{new Date(appt.preferred_date).toLocaleString()}</span>
                             </div>
 
-                            <button className="w-full clay p-4 bg-blue-600 text-white font-black uppercase text-xs tracking-[0.2em] shadow-lg hover:bg-blue-700 transition active:scale-95">
-                                Complete Site Survey
+                            <button 
+                                onClick={() => handleCompleteSurvey(appt.id)}
+                                disabled={appt.status === 'Surveyed'}
+                                className={`w-full clay p-4 text-white font-black uppercase text-xs tracking-[0.2em] shadow-lg transition active:scale-95 ${appt.status === 'Surveyed' ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+                            >
+                                {appt.status === 'Surveyed' ? 'Survey Submitted' : 'Complete Site Survey'}
                             </button>
                             
                             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">

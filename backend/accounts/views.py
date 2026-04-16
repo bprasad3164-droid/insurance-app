@@ -136,8 +136,11 @@ def get_policies(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def add_policy(request):
+    if request.user.role != 'admin':
+        return Response({"msg": "Unauthorized"}, status=403)
+        
     Policy.objects.create(
         name=request.data.get('name'),
         description=request.data.get('description'),
@@ -300,18 +303,27 @@ def create_renewal(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_open_tasks(request):
-    """Admin view to see everything needing assignment."""
+    """Admin view to see everything needing assignment or final oversight."""
     if request.user.role != 'admin':
         return Response({"msg": "Unauthorized"}, status=403)
     
+    # Needs Assignment
     pending_appts = Appointment.objects.filter(status='Pending')
     pending_claims = Claim.objects.filter(status='Pending')
-    pending_renewals = RenewalRequest.objects.filter(status='Pending')
+    
+    # Needs Final Administrative Action (Executive Oversight)
+    # 1. Claims verified by Agent
+    executive_claims = Claim.objects.filter(status='Assigned', agent_status='Approved')
+    # 2. Surveys completed by Agent
+    executive_appts = Appointment.objects.filter(status='Surveyed')
     
     return Response({
         "appointments": list(pending_appts.values('id', 'client__username', 'category', 'preferred_date')),
         "claims": list(pending_claims.values('id', 'user__username', 'amount')),
-        "renewals": list(pending_renewals.values('id', 'user_policy__certificate_id'))
+        "executive_queue": [
+            *[{"id": c.id, "type": "Claim", "client": c.user.username, "policy": c.policy.id, "amount": c.amount, "agent_status": c.agent_status, "status": c.status} for c in executive_claims],
+            *[{"id": a.id, "type": "Survey", "client": a.client.username, "policy": "N/A", "amount": 0, "agent_status": "Verified", "status": a.status} for a in executive_appts]
+        ]
     })
 
 @api_view(['POST'])
@@ -343,6 +355,25 @@ def assign_task(request):
         return Response({"msg": f"Task assigned to {agent.username}"})
     except Exception as e:
         return Response({"msg": str(e)}, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def complete_survey(request):
+    """Agent marks a survey as completed."""
+    if request.user.role != 'agent':
+        return Response({"msg": "Unauthorized"}, status=403)
+    
+    appt_id = request.data.get('id')
+    notes = request.data.get('notes', '')
+    
+    try:
+        appt = Appointment.objects.get(id=appt_id, agent=request.user)
+        appt.status = 'Surveyed'
+        appt.notes = notes
+        appt.save()
+        return Response({"msg": "Survey details uploaded. Awaiting final Admin review."})
+    except Appointment.DoesNotExist:
+        return Response({"msg": "Mission not found or unauthorized"}, status=404)
 
 # ================= CLAIMS =================
 

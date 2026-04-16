@@ -17,6 +17,8 @@ export default function AdminDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [newPolicy, setNewPolicy] = useState({ name: "", description: "", premium: "", category: "health" });
   const [assigning, setAssigning] = useState(null); // { type, id }
+  const [executiveQueue, setExecutiveQueue] = useState([]);
+  const [loadingAction, setLoadingAction] = useState(null); // { type, id }
   
   const navigate = useNavigate();
 
@@ -27,13 +29,13 @@ export default function AdminDashboard() {
     try {
         const token = localStorage.getItem("access");
         const headers = { Authorization: `Bearer ${token}` };
-        const resClaims = await axios.get("http://127.0.0.1:8000/api/claims/", { headers });
         const resStats = await axios.get("http://127.0.0.1:8000/api/analytics/", { headers });
         const resKyc = await axios.get("http://127.0.0.1:8000/api/kyc-pending/", { headers });
+        const resTasks = await axios.get("http://127.0.0.1:8000/api/tasks/open/", { headers });
         
-        setClaims(resClaims.data);
         setStats({ ...resStats.data, name: "Insights" });
         setKycs(resKyc.data);
+        setExecutiveQueue(resTasks.data.executive_queue || []);
     } catch (err) { console.error(err); }
   }, []);
 
@@ -69,13 +71,24 @@ export default function AdminDashboard() {
     load();
   }, [fetchData, fetchAgents, fetchOpenTasks]);
 
-  const adminApprove = async (id, status = 'Approved') => {
+  const adminApprove = async (id, status = 'Approved', type = 'Claim') => {
+    setLoadingAction({ type, id });
     try {
-        await axios.post(`http://127.0.0.1:8000/api/approve-admin/${id}/`, { status }, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
-        });
-        fetchData();
-    } catch (e) { alert(e.response?.data?.msg || "Failed to update claim."); }
+        const token = localStorage.getItem("access");
+        if (type === 'Claim') {
+            await axios.post(`http://127.0.0.1:8000/api/approve-admin/${id}/`, { status }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        } else {
+            // For surveys, we can finalize the appointment status
+            await axios.post(`http://127.0.0.1:8000/api/kyc-verify/${id}/`, { status: status === 'Approved' ? 'Verified' : 'Rejected' }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        }
+        await fetchData();
+        await fetchOpenTasks();
+    } catch (e) { alert(e.response?.data?.msg || "Failed to process request."); }
+    finally { setLoadingAction(null); }
   };
 
   const agentApprove = async (id, status) => {
@@ -89,10 +102,17 @@ export default function AdminDashboard() {
 
   const handleAddPolicy = async (e) => {
       e.preventDefault();
-      await axios.post("http://127.0.0.1:8000/api/add-policy/", newPolicy);
-      setShowModal(false);
-      setNewPolicy({ name: "", description: "", premium: "" });
-      alert("New Policy Created Successfully");
+      try {
+        const token = localStorage.getItem("access");
+        await axios.post("http://127.0.0.1:8000/api/add-policy/", newPolicy, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        setShowModal(false);
+        setNewPolicy({ name: "", description: "", premium: "", category: "health" });
+        alert("New Policy Created Successfully");
+      } catch (err) {
+        alert("Failed to create policy: " + (err.response?.data?.msg || err.message));
+      }
   };
 
   return (
@@ -260,40 +280,53 @@ export default function AdminDashboard() {
                     </tr>
                 </thead>
                 <tbody className="text-gray-700 font-bold">
-                    {claims.map(c => (
-                        <tr key={c.id} className="border-b border-gray-50/50 hover:bg-white/40 transition-colors">
-                            <td className="p-6 text-gray-400">#CLM-{c.id}</td>
-                            <td className="p-6">USER_{c.user || c.user_id}</td>
-                            <td className="p-6 text-blue-600">POL_{c.policy || c.policy_id}</td>
-                            <td className="p-6 font-black text-gray-800">₹{c.amount?.toLocaleString() || '0'}</td>
+                    {executiveQueue.map(item => (
+                        <tr key={`${item.type}-${item.id}`} className="border-b border-gray-50/50 hover:bg-white/40 transition-colors">
+                            <td className="p-6 text-gray-400">#{item.type.slice(0,3).toUpperCase()}-{item.id}</td>
+                            <td className="p-6">{item.client}</td>
+                            <td className="p-6 text-blue-600">{item.policy !== "N/A" ? `POL_${item.policy}` : "N/A"}</td>
+                            <td className="p-6 font-black text-gray-800">{item.amount > 0 ? `₹${item.amount.toLocaleString()}` : "-"}</td>
                             <td className="p-6">
-                                <span className={`px-4 py-2 rounded-full text-xs flex items-center w-max gap-2 ${c.agent_status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                    {c.agent_status === 'Approved' ? <CheckCircle2 className="w-3 h-3"/> : <AlertCircle className="w-3 h-3"/>}
-                                    {c.agent_status}
+                                <span className={`px-4 py-2 rounded-full text-xs flex items-center w-max gap-2 ${item.agent_status === 'Approved' || item.agent_status === 'Verified' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                    {item.agent_status === 'Approved' || item.agent_status === 'Verified' ? <CheckCircle2 className="w-3 h-3"/> : <AlertCircle className="w-3 h-3"/>}
+                                    {item.agent_status}
                                 </span>
                             </td>
                             <td className="p-6">
-                                <span className={`px-4 py-2 rounded-full text-xs flex items-center w-max gap-2 ${c.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                                     {c.status === 'Approved' ? <CheckCircle2 className="w-3 h-3"/> : <AlertCircle className="w-3 h-3"/>}
-                                    {c.status}
+                                <span className={`px-4 py-2 rounded-full text-xs flex items-center w-max gap-2 ${item.status === 'Approved' || item.status === 'Verified' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                     {item.status === 'Approved' || item.status === 'Verified' ? <CheckCircle2 className="w-3 h-3"/> : <AlertCircle className="w-3 h-3"/>}
+                                    {item.status}
                                 </span>
                             </td>
                             <td className="p-6">
-                                {role === 'agent' && c.agent_status === 'Pending' && (
+                                {item.status === 'Pending' || item.status === 'Assigned' || item.status === 'Surveyed' ? (
                                     <div className="flex gap-2">
-                                        <button onClick={() => agentApprove(c.id, 'Approved')} className="bg-green-600 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:bg-green-700 transition uppercase tracking-widest">Verify</button>
-                                        <button onClick={() => agentApprove(c.id, 'Rejected')} className="bg-red-500 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:bg-red-600 transition uppercase tracking-widest">Reject</button>
+                                        <button 
+                                            disabled={loadingAction?.id === item.id}
+                                            onClick={() => adminApprove(item.id, 'Approved', item.type)} 
+                                            className="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:bg-blue-700 transition uppercase tracking-widest disabled:opacity-50"
+                                        >
+                                            {loadingAction?.id === item.id ? '...' : 'Settle'}
+                                        </button>
+                                        <button 
+                                            disabled={loadingAction?.id === item.id}
+                                            onClick={() => adminApprove(item.id, 'Rejected', item.type)} 
+                                            className="bg-gray-500 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:bg-gray-600 transition uppercase tracking-widest disabled:opacity-50"
+                                        >
+                                            Deny
+                                        </button>
                                     </div>
-                                )}
-                                {role === 'admin' && c.status === 'Pending' && (
-                                    <div className="flex gap-2">
-                                        <button onClick={() => adminApprove(c.id, 'Approved')} className="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:bg-blue-700 transition uppercase tracking-widest">Settle</button>
-                                        <button onClick={() => adminApprove(c.id, 'Rejected')} className="bg-gray-500 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-lg hover:bg-gray-600 transition uppercase tracking-widest">Deny</button>
-                                    </div>
+                                ) : (
+                                    <span className="text-gray-300 text-[10px] uppercase font-black">Completed</span>
                                 )}
                             </td>
                         </tr>
                     ))}
+                    {executiveQueue.length === 0 && (
+                        <tr>
+                            <td colSpan="7" className="p-12 text-center text-gray-400 italic">No tasks currently require executive action.</td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
         </div>
