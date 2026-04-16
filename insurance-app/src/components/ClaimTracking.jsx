@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, Clock, AlertCircle, ShieldCheck, Tag, IndianRupee } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, ShieldCheck, Tag, IndianRupee, MousePointer2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function ClaimTracking({ claims }) {
+  const navigate = useNavigate();
   if (!claims || claims.length === 0) return null;
 
   return (
@@ -12,7 +14,8 @@ export default function ClaimTracking({ claims }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="clay p-8 relative overflow-hidden group hover:translate-y-[-5px] transition-all"
+            onClick={() => navigate(`/claim-detail/${claim.id}`)}
+            className="clay p-8 relative overflow-hidden group hover:translate-y-[-5px] transition-all cursor-pointer hover:border-blue-400/30 border-2 border-transparent"
         >
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
                 <div className="flex items-center gap-4">
@@ -70,8 +73,13 @@ export default function ClaimTracking({ claims }) {
             </div>
 
             {/* Background Decoration */}
-            <div className="absolute top-0 right-0 -mr-12 -mt-12 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+            <div className="absolute top-0 right-0 -mr-12 -mt-12 opacity-[0.03] group-hover:opacity-[0.08] group-hover:text-blue-600 transition-all duration-500">
                 <ShieldCheck className="w-48 h-48" />
+            </div>
+
+            <div className="absolute bottom-4 right-8 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Open Detailed Hub</span>
+                <MousePointer2 className="w-4 h-4 text-blue-600" />
             </div>
         </motion.div>
       ))}

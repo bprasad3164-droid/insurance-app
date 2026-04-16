@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import ProfileKYC from "./pages/ProfileKYC";
 import BuyPolicy from "./pages/BuyPolicy";
 import MyPolicies from "./pages/MyPolicies";
+import ClaimDetails from "./pages/ClaimDetails";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
@@ -79,6 +80,14 @@ export default function App() {
             element={
                 <ProtectedRoute>
                     <BuyPolicy />
+                </ProtectedRoute>
+            } 
+        />
+        <Route 
+            path="/claim-detail/:id" 
+            element={
+                <ProtectedRoute>
+                    <ClaimDetails />
                 </ProtectedRoute>
             } 
         />

@@ -659,3 +659,140 @@ def download_invoice(request, id):
     except Exception as e:
         return Response({"error": str(e)}, status=404)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_claim_detail(request, id):
+    try:
+        claim = Claim.objects.get(id=id, user=request.user)
+        # Fetch related policy
+        user_policy = UserPolicy.objects.filter(user=request.user, policy=claim.policy).first()
+        
+        # Fetch related payments (linked via policy_id)
+        payments = Payment.objects.filter(user=request.user, policy_id=claim.policy.id)
+        
+        # Fetch related documents
+        documents = Document.objects.filter(claim=claim)
+        
+        return Response({
+            "claim": ClaimSerializer(claim).data,
+            "policy": {
+                "name": claim.policy.name,
+                "category": claim.policy.category,
+                "description": claim.policy.description,
+                "expiry_date": user_policy.expiry_date if user_policy else None,
+                "renewal_date": (user_policy.expiry_date - timedelta(days=30)) if user_policy and user_policy.expiry_date else None,
+            },
+            "payments": [
+                {
+                    "id": p.id,
+                    "amount": p.amount,
+                    "method": p.method,
+                    "timestamp": p.timestamp,
+                    "status": p.status
+                } for p in payments
+            ],
+            "documents": [
+                {
+                    "id": d.id,
+                    "name": d.file.name.split('/')[-1],
+                    "url": d.file.url
+                } for d in documents
+            ]
+        })
+    except Claim.DoesNotExist:
+        return Response({"error": "Claim not found"}, status=404)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny]) # window.open friendly
+def download_claim_report(request, id):
+    try:
+        from .models import Claim, UserPolicy, Payment, Document
+        claim = Claim.objects.get(id=id)
+        user_policy = UserPolicy.objects.filter(user=claim.user, policy=claim.policy).first()
+        payments = Payment.objects.filter(user=claim.user, policy_id=claim.policy.id)
+        
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer)
+        
+        # Header - Brand styling
+        p.setFillColorRGB(0.145, 0.455, 0.941) # #2574f0
+        p.rect(0, 750, 600, 100, fill=1)
+        p.setFillColorRGB(1, 1, 1)
+        p.setFont("Helvetica-Bold", 24)
+        p.drawString(50, 800, "PRO INSURANCE - CLAIM REPORT")
+        
+        # Status Badge
+        p.setFillColorRGB(0.9, 0.9, 0.9)
+        p.rect(450, 790, 100, 30, fill=1)
+        p.setFillColorRGB(0.1, 0.1, 0.1)
+        p.setFont("Helvetica-Bold", 10)
+        p.drawCentredString(500, 802, f"ID: #{claim.id}")
+        
+        # Baseline
+        y = 720
+        p.setFillColorRGB(0, 0, 0)
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "CLAIM OVERVIEW")
+        y -= 25
+        p.setFont("Helvetica", 11)
+        p.drawString(50, y, f"Customer: {claim.user.username}")
+        p.drawString(300, y, f"Status: {claim.status}")
+        y -= 20
+        p.drawString(50, y, f"Type: {claim.policy.category.upper()}")
+        p.drawString(300, y, f"Requested Amount: INR {claim.amount}")
+        
+        # Policy Section
+        y -= 50
+        p.line(50, y+10, 550, y+10)
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "PROTECTION PLAN DETAILS")
+        y -= 25
+        p.setFont("Helvetica", 11)
+        p.drawString(50, y, f"Policy: {claim.policy.name}")
+        y -= 20
+        p.drawString(50, y, f"Expiry Date: {user_policy.expiry_date.strftime('%Y-%m-%d') if user_policy else 'N/A'}")
+        p.drawString(300, y, f"Next Renewal: {(user_policy.expiry_date - timedelta(days=30)).strftime('%Y-%m-%d') if user_policy and user_policy.expiry_date else 'N/A'}")
+        
+        # T&C
+        y -= 40
+        p.setFont("Helvetica-BoldOblique", 10)
+        p.drawString(50, y, "Terms & Conditions:")
+        y -= 15
+        p.setFont("Helvetica-Oblique", 9)
+        tc_text = claim.policy.description[:200] + "..."
+        p.drawString(50, y, tc_text)
+        
+        # Tranactions
+        y -= 60
+        p.line(50, y+10, 550, y+10)
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "TRANSACTION HISTORY")
+        y -= 30
+        p.setFont("Helvetica-Bold", 10)
+        p.drawString(50, y, "Date")
+        p.drawString(150, y, "Method")
+        p.drawString(300, y, "Amount")
+        p.drawString(450, y, "Status")
+        
+        p.setFont("Helvetica", 10)
+        for pmt in payments[:5]:
+            y -= 20
+            p.drawString(50, y, pmt.timestamp.strftime('%Y-%m-%d'))
+            p.drawString(150, y, pmt.method)
+            p.drawString(300, y, f"INR {pmt.amount}")
+            p.drawString(450, y, pmt.status)
+
+        # Footer
+        p.setFont("Helvetica-Oblique", 8)
+        p.drawCentredString(300, 30, "Generated by Pro Insurance Mission Hub. This is a system-generated report.")
+
+        p.showPage()
+        p.save()
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename=f"claim_report_{claim.id}.pdf")
+        
+    except Exception as e:
+        return Response({"error": str(e)}, status=404)
