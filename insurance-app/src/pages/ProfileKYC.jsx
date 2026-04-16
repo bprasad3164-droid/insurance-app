@@ -12,6 +12,7 @@ export default function ProfileKYC() {
   const [loading, setLoading] = useState(false);
   const [policies, setPolicies] = useState([]);
   const [invoiceId, setInvoiceId] = useState(null);
+  const [stats, setStats] = useState({ total_premium: 0, next_renewal: null });
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -29,7 +30,18 @@ export default function ProfileKYC() {
   useEffect(() => {
     fetchProfile();
     fetchUserPolicies();
+    fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    try {
+        const t = localStorage.getItem("access");
+        const res = await axios.get("http://127.0.0.1:8000/api/portfolio-stats/", {
+            headers: { Authorization: `Bearer ${t}` }
+        });
+        setStats(res.data);
+    } catch (err) { console.error("Error fetching stats", err); }
+  };
 
   const fetchProfile = () => {
     setUser({
@@ -232,11 +244,15 @@ export default function ProfileKYC() {
             <div className="grid grid-cols-2 gap-8">
                 <div className="clay p-8 bg-blue-50/50">
                     <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Total Premium Invested</p>
-                    <p className="text-4xl font-black text-blue-800">₹ 85,400</p>
+                    <p className="text-4xl font-black text-blue-800">₹ {stats.total_premium?.toLocaleString() || 0}</p>
                 </div>
                 <div className="clay p-8 bg-green-50/50">
                     <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Next Renewal Date</p>
-                    <p className="text-4xl font-black text-green-800">Oct 24</p>
+                    <p className="text-4xl font-black text-green-800">
+                        {stats.next_renewal 
+                            ? new Date(stats.next_renewal).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
+                            : "N/A"}
+                    </p>
                 </div>
             </div>
 

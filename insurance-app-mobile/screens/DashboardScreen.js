@@ -13,8 +13,8 @@ export default function DashboardScreen({ navigation, route }) {
     try {
       const polyRes = await api.get("/my-policies/");
       const claimRes = await api.get("/claim/my/");
-      setPolicies(polyRes.data);
-      setClaims(claimRes.data);
+      setPolicies(Array.isArray(polyRes.data) ? polyRes.data : []);
+      setClaims(Array.isArray(claimRes.data) ? claimRes.data : []);
     } catch (error) {
       console.error("Dashboard Fetch Error", error);
     } finally {

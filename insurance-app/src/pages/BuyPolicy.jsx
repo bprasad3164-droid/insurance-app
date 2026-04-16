@@ -9,6 +9,8 @@ export default function BuyPolicy() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [policy, setPolicy] = useState(null);
+  const [user, setUser] = useState(null);
+  const [age, setAge] = useState(25);
   const [age, setAge] = useState(25);
   const [salary, setSalary] = useState(50000);
   const [premium, setPremium] = useState(0);
@@ -36,7 +38,14 @@ export default function BuyPolicy() {
 
   useEffect(() => {
     fetchPortfolioStats();
+    fetchUserProfile();
   }, []);
+
+  const fetchUserProfile = async () => {
+    setUser({
+        kyc_status: localStorage.getItem("kyc_status") || "Pending"
+    });
+  };
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -149,13 +158,13 @@ export default function BuyPolicy() {
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Premium Invested</p>
                     <div className="flex items-center gap-2 text-blue-600">
                         <span className="text-2xl font-black">₹</span>
-                        <h2 className="text-4xl font-black tracking-tighter">{portfolioStats.total_premium.toLocaleString()}</h2>
+                        <h2 className="text-4xl font-black tracking-tighter">{portfolioStats?.total_premium?.toLocaleString() || 0}</h2>
                     </div>
                 </div>
                 <div className="clay p-6 bg-white/50 min-w-[200px]">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Next Renewal Date</p>
                     <h2 className="text-4xl font-black text-green-600 tracking-tighter capitalize">
-                        {portfolioStats.next_renewal 
+                        {portfolioStats?.next_renewal 
                             ? new Date(portfolioStats.next_renewal).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
                             : "No Active Policies"}
                     </h2>
@@ -174,17 +183,17 @@ export default function BuyPolicy() {
                 <div className="p-4 rounded-3xl bg-blue-50 text-blue-600 mb-6">
                     <ShieldCheck className="w-12 h-12" />
                 </div>
-                <h1 className="text-4xl font-black text-gray-800 tracking-tight mb-4 uppercase">{policy.name}</h1>
-                <p className="text-gray-500 font-bold mb-8 uppercase tracking-[0.3em] text-[10px]">{policy.category} Protection Plan</p>
+                <h1 className="text-4xl font-black text-gray-800 tracking-tight mb-4 uppercase">{policy?.name || "Premium Shield"}</h1>
+                <p className="text-gray-500 font-bold mb-8 uppercase tracking-[0.3em] text-[10px]">{policy?.category || "Insurance"} Protection Plan</p>
                 
                 <div className="w-full space-y-4">
                     <div className="clay-inset p-5 flex justify-between items-center rounded-2xl">
                         <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Base Premium</span>
-                        <span className="text-gray-800 font-black text-xl">₹{policy.base_premium.toLocaleString()}</span>
+                        <span className="text-gray-800 font-black text-xl">₹{policy?.base_premium?.toLocaleString() || 0}</span>
                     </div>
                     <div className="clay-inset p-5 flex justify-between items-center rounded-2xl">
                         <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Max Coverage</span>
-                        <span className="text-blue-600 font-black text-xl">₹{(policy.coverage || 500000).toLocaleString()}+</span>
+                        <span className="text-blue-600 font-black text-xl">₹{(policy?.coverage || 500000).toLocaleString()}+</span>
                     </div>
                 </div>
                 
@@ -260,31 +269,42 @@ export default function BuyPolicy() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-8 mb-12">
-                                <button 
-                                    onClick={() => { setPaymentMethod('upi'); setShowPayment(true); setPaymentStep('form'); }}
-                                    className="clay p-10 rounded-[2.5rem] font-black group active:scale-95 transition-all flex flex-col items-center gap-6"
-                                >
-                                    <Smartphone className="w-14 h-14 text-blue-600 group-hover:scale-110 transition-transform" />
-                                    <span className="uppercase tracking-[0.2em] text-[10px] text-blue-600 font-black">UPI</span>
-                                </button>
-                                
-                                <button 
-                                    onClick={() => { setPaymentMethod('card'); setShowPayment(true); setPaymentStep('form'); }}
-                                    className="clay p-10 rounded-[2.5rem] font-black group active:scale-95 transition-all flex flex-col items-center gap-6"
-                                >
-                                    <Card className="w-14 h-14 text-purple-600 group-hover:scale-110 transition-transform" />
-                                    <span className="uppercase tracking-[0.1em] text-[8px] text-purple-600 font-black text-center leading-tight">Credit / Debit<br/>Card</span>
-                                </button>
-                                
-                                <button 
-                                    onClick={() => { setPaymentMethod('netbanking'); setShowPayment(true); setPaymentStep('form'); }}
-                                    className="clay p-10 rounded-[2.5rem] font-black group active:scale-95 transition-all flex flex-col items-center gap-6"
-                                >
-                                    <Landmark className="w-14 h-14 text-orange-600 group-hover:scale-110 transition-transform" />
-                                    <span className="uppercase tracking-[0.2em] text-[10px] text-orange-600 font-black text-center">Net Banking</span>
-                                </button>
-                            </div>
+                            {user?.kyc_status !== 'Verified' ? (
+                                <div className="clay-inset p-8 bg-red-50/50 rounded-3xl border-2 border-red-100 flex flex-col items-center text-center">
+                                    <ShieldCheck className="w-12 h-12 text-red-500 mb-4 opacity-50" />
+                                    <h3 className="text-xl font-black text-red-600 uppercase mb-2">KYC Verification Required</h3>
+                                    <p className="text-xs text-gray-500 font-bold mb-6">Internal regulations require identity verification before purchasing new assets.</p>
+                                    <button onClick={()=>navigate("/profile")} className="bg-red-500 text-white px-8 py-3 rounded-xl font-black text-xs shadow-lg hover:bg-red-600 transition uppercase tracking-widest">
+                                        Verify Identity Now
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-3 gap-8 mb-12">
+                                    <button 
+                                        onClick={() => { setPaymentMethod('upi'); setShowPayment(true); setPaymentStep('form'); }}
+                                        className="clay p-10 rounded-[2.5rem] font-black group active:scale-95 transition-all flex flex-col items-center gap-6"
+                                    >
+                                        <Smartphone className="w-14 h-14 text-blue-600 group-hover:scale-110 transition-transform" />
+                                        <span className="uppercase tracking-[0.2em] text-[10px] text-blue-600 font-black">UPI</span>
+                                    </button>
+                                    
+                                    <button 
+                                        onClick={() => { setPaymentMethod('card'); setShowPayment(true); setPaymentStep('form'); }}
+                                        className="clay p-10 rounded-[2.5rem] font-black group active:scale-95 transition-all flex flex-col items-center gap-6"
+                                    >
+                                        <Card className="w-14 h-14 text-purple-600 group-hover:scale-110 transition-transform" />
+                                        <span className="uppercase tracking-[0.1em] text-[8px] text-purple-600 font-black text-center leading-tight">Credit / Debit<br/>Card</span>
+                                    </button>
+                                    
+                                    <button 
+                                        onClick={() => { setPaymentMethod('netbanking'); setShowPayment(true); setPaymentStep('form'); }}
+                                        className="clay p-10 rounded-[2.5rem] font-black group active:scale-95 transition-all flex flex-col items-center gap-6"
+                                    >
+                                        <Landmark className="w-14 h-14 text-orange-600 group-hover:scale-110 transition-transform" />
+                                        <span className="uppercase tracking-[0.2em] text-[10px] text-orange-600 font-black text-center">Net Banking</span>
+                                    </button>
+                                </div>
+                            )}
 
                             <div className="clay-inset p-10 flex justify-between items-center rounded-3xl bg-gray-50/30">
                                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Amount to Remit</span>

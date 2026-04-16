@@ -154,54 +154,66 @@ def add_policy(request):
 @permission_classes([AllowAny])
 def calculate_premium(request):
     try:
-        age_str = request.data.get('age')
-        salary_str = request.data.get('salary')
+        # Harden inputs
+        age_val = request.data.get('age')
+        salary_val = request.data.get('salary')
         policy_id = request.data.get('policy_id')
 
-        if not all([age_str, salary_str, policy_id]):
+        if not all([age_val, salary_val, policy_id]):
             return Response({"msg": "Missing age, salary, or policy_id"}, status=400)
 
-        age = int(age_str)
-        salary = int(salary_str)
+        try:
+            age = int(float(age_val))
+            salary = int(float(salary_val))
+        except (ValueError, TypeError):
+            return Response({"msg": "Invalid age or salary values (must be numbers)"}, status=400)
 
         policy = Policy.objects.get(id=policy_id)
 
+        # Algorithm
         risk_factor = 1.2 if age > 40 else 1.0
-        premium = policy.base_premium * risk_factor + (salary * 0.01)
+        premium = (policy.base_premium * risk_factor) + (salary * 0.01)
 
         return Response({
-            "premium": premium,
+            "premium": round(premium, 2),
             "policy_name": policy.name
         })
     except Policy.DoesNotExist:
-        return Response({"msg": "Policy not found"}, status=404)
-    except (ValueError, TypeError):
-        return Response({"msg": "Invalid age or salary value"}, status=400)
+        return Response({"msg": "Selected policy does not exist"}, status=404)
     except Exception as e:
-        return Response({"msg": str(e)}, status=400)
+        return Response({"msg": "System calculation error", "details": str(e)}, status=500)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def buy_policy(request):
+    # CRITICAL: Enforce KYC Check
+    if request.user.kyc_status != 'Verified':
+        return Response({
+            "msg": "KYC Verification Required", 
+            "details": "Please complete your KYC profile before purchasing insurance."
+        }, status=403)
+
     policy_id = request.data.get('policy_id')
     premium = request.data.get('premium', 0)
+    
     try:
         policy = Policy.objects.get(id=policy_id)
-    except Policy.DoesNotExist:
-        return Response({"msg": "Policy not found"}, status=404)
+        cert_id = f"CERT-{uuid.uuid4().hex[:8].upper()}"
+        expiry = timezone.now() + timedelta(days=365)
         
-    cert_id = f"CERT-{uuid.uuid4().hex[:8].upper()}"
-    expiry = timezone.now() + timedelta(days=365)
-    
-    UserPolicy.objects.create(
-        user=request.user,
-        policy=policy,
-        premium=premium,
-        certificate_id=cert_id,
-        expiry_date=expiry,
-        status='Active'
-    )
-    return Response({"msg": "Purchase Successful", "certificate_id": cert_id, "expiry_date": expiry})
+        UserPolicy.objects.create(
+            user=request.user,
+            policy=policy,
+            premium=float(premium),
+            certificate_id=cert_id,
+            expiry_date=expiry,
+            status='Active'
+        )
+        return Response({"msg": "Purchase Successful", "certificate_id": cert_id, "expiry_date": expiry})
+    except Policy.DoesNotExist:
+        return Response({"msg": "Selected policy no longer available"}, status=404)
+    except Exception as e:
+        return Response({"msg": "Transaction aborted", "details": str(e)}, status=500)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -516,17 +528,23 @@ from .models import Payment, Invoice
 @permission_classes([IsAuthenticated])
 def make_payment(request):
     try:
-        # Mask card if method is card
+        policy_id = request.data.get('policy_id')
+        amount = request.data.get('amount')
         method = request.data.get('method')
+        
+        if not all([policy_id, amount, method]):
+            return Response({"error": "Missing mandatory payment fields"}, status=400)
+
+        # Mask card if method is card
         card_num = request.data.get('card_number')
         masked_card = None
         if method == 'CARD' and card_num:
-            masked_card = f"**** **** **** {card_num[-4:]}"
+            masked_card = f"**** **** **** {str(card_num)[-4:]}"
 
         payment = Payment.objects.create(
             user=request.user,
-            policy_id=request.data.get('policy_id'),
-            amount=request.data.get('amount'),
+            policy_id=policy_id,
+            amount=float(amount),
             method=method,
             vpa=request.data.get('vpa'),
             card_number_masked=masked_card,
@@ -538,7 +556,7 @@ def make_payment(request):
             "status": "success"
         })
     except Exception as e:
-        return Response({"error": str(e)}, status=400)
+        return Response({"error": "Payment processing failure", "details": str(e)}, status=500)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

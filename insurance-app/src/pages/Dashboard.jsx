@@ -74,7 +74,7 @@ export default function Dashboard() {
         <span className="text-blue-600 font-black text-xs uppercase tracking-[0.3em] mb-4 block">Session Active</span>
         <h2 className="text-7xl font-black mb-10 text-gray-800 tracking-tighter leading-none">
           Welcome,<br />
-          <span className="text-blue-600 capitalize">{role}</span>
+          <span className="text-blue-600 capitalize">{role || "Handshake Member"}</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
@@ -134,20 +134,24 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Claim Tracking Sidebar/Section */}
-      {claims.length > 0 && (
-          <div className="w-full max-w-5xl mt-20">
-              <div className="flex items-center gap-4 mb-10">
-                  <div className="clay p-4 rounded-3xl text-blue-600">
-                      <Clock className="w-8 h-8" />
-                  </div>
-                  <div>
-                      <h2 className="text-3xl font-black text-gray-800 tracking-tight uppercase">Settlement Timeline</h2>
-                      <p className="text-[10px] font-black tracking-[0.3em] text-blue-600 uppercase">Real-time status tracking</p>
-                  </div>
+      <div className="w-full max-w-5xl mt-20">
+          <div className="flex items-center gap-4 mb-10">
+              <div className="clay p-4 rounded-3xl text-blue-600">
+                  <Clock className="w-8 h-8" />
               </div>
-              <ClaimTracking claims={claims} />
+              <div>
+                  <h2 className="text-3xl font-black text-gray-800 tracking-tight uppercase">Settlement Timeline</h2>
+                  <p className="text-[10px] font-black tracking-[0.3em] text-blue-600 uppercase">Real-time status tracking</p>
+              </div>
           </div>
-      )}
+          {claims.length > 0 ? (
+              <ClaimTracking claims={claims} />
+          ) : (
+              <div className="clay p-12 text-center bg-gray-50/30">
+                  <p className="text-gray-400 font-bold italic">No active claims currently being tracked.</p>
+              </div>
+          )}
+      </div>
     </div>
   );
 }
