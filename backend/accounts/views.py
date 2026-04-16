@@ -3,10 +3,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, Claim, Policy, Document, UserPolicy, Appointment, RenewalRequest, Payment, Invoice
+from .models import User, Claim, Policy, Document, UserPolicy, Appointment, RenewalRequest, Payment, Invoice, KYC
 from .serializers import PolicySerializer, UserPolicySerializer, ClaimSerializer
 from django.core.mail import send_mail
-from django.http import HttpResponse
 from django.template.loader import get_template
 from django.utils import timezone
 from datetime import timedelta
@@ -73,7 +72,6 @@ def update_kyc(request):
     selfie = request.FILES.get('selfie')
     
     if aadhaar and pan and selfie:
-        from .models import KYC
         kyc, created = KYC.objects.get_or_create(user=user)
         kyc.aadhaar_file = aadhaar
         kyc.pan_file = pan
@@ -91,7 +89,6 @@ def update_kyc(request):
 def get_pending_kyc(request):
     if request.user.role != 'admin':
         return Response({"msg": "Unauthorized"}, status=403)
-    from .models import KYC
     kycs = KYC.objects.filter(status='Pending')
     data = []
     for k in kycs:
