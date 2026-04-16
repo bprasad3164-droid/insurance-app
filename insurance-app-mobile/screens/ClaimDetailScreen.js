@@ -56,11 +56,11 @@ export default function ClaimDetailScreen({ route, navigation }) {
             <View style={styles.dateRow}>
                 <View>
                     <Text style={styles.dateLabel}>RENEWAL</Text>
-                    <Text style={styles.dateValue}>{new Date(policy.renewal_date).toLocaleDateString()}</Text>
+                    <Text style={styles.dateValue}>{policy.renewal_date ? new Date(policy.renewal_date).toLocaleDateString() : 'N/A'}</Text>
                 </View>
                 <View>
                     <Text style={styles.dateLabel}>EXPIRY</Text>
-                    <Text style={styles.dateValue}>{new Date(policy.expiry_date).toLocaleDateString()}</Text>
+                    <Text style={styles.dateValue}>{policy.expiry_date ? new Date(policy.expiry_date).toLocaleDateString() : 'N/A'}</Text>
                 </View>
             </View>
         </View>

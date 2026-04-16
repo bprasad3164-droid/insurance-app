@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, Claim, Policy, Document, UserPolicy, Appointment, RenewalRequest
+from .models import User, Claim, Policy, Document, UserPolicy, Appointment, RenewalRequest, Payment, Invoice
 from .serializers import PolicySerializer, UserPolicySerializer, ClaimSerializer
 from django.core.mail import send_mail
 from django.http import HttpResponse
@@ -16,6 +16,8 @@ import os
 import razorpay
 import io
 import uuid
+from django.http import HttpResponse, FileResponse
+from reportlab.pdfgen import canvas
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_agents(request):
@@ -520,9 +522,6 @@ def send_notification(request):
     return Response({"msg": "Notification sent (check console)"})
 
 # ================= PAYMENTS & INVOICES =================
-from django.http import FileResponse
-from reportlab.pdfgen import canvas
-from .models import Payment, Invoice
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -664,8 +663,8 @@ def download_invoice(request, id):
 def get_claim_detail(request, id):
     try:
         claim = Claim.objects.get(id=id, user=request.user)
-        # Fetch related policy
-        user_policy = UserPolicy.objects.filter(user=request.user, policy=claim.policy).first()
+        # Fetch related policy (get the most recent/active one)
+        user_policy = UserPolicy.objects.filter(user=request.user, policy=claim.policy).order_by('-purchase_date').first()
         
         # Fetch related payments (linked via policy_id)
         payments = Payment.objects.filter(user=request.user, policy_id=claim.policy.id)
@@ -709,7 +708,6 @@ def get_claim_detail(request, id):
 @permission_classes([AllowAny]) # window.open friendly
 def download_claim_report(request, id):
     try:
-        from .models import Claim, UserPolicy, Payment, Document
         claim = Claim.objects.get(id=id)
         user_policy = UserPolicy.objects.filter(user=claim.user, policy=claim.policy).first()
         payments = Payment.objects.filter(user=claim.user, policy_id=claim.policy.id)
