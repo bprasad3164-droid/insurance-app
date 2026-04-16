@@ -6,10 +6,6 @@ export default function PoliciesScreen({ navigation }) {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchPolicies();
-  }, [fetchPolicies]);
-
   const fetchPolicies = useCallback(async () => {
     try {
         const res = await api.get("/policies/");
@@ -20,6 +16,10 @@ export default function PoliciesScreen({ navigation }) {
         setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchPolicies();
+  }, [fetchPolicies]);
 
   const renderItem = ({ item }) => (
     <View style={styles.policyCard}>

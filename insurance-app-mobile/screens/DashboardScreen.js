@@ -9,10 +9,6 @@ export default function DashboardScreen({ navigation, route }) {
   const [refreshing, setRefreshing] = useState(false);
   const role = route.params?.role || "User";
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
   const fetchData = useCallback(async () => {
     try {
       const polyRes = await api.get("/my-policies/");
@@ -26,6 +22,10 @@ export default function DashboardScreen({ navigation, route }) {
       setRefreshing(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const onRefresh = () => {
     setRefreshing(true);

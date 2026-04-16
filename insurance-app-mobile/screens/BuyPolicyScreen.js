@@ -11,10 +11,6 @@ export default function BuyPolicyScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [calculating, setCalculating] = useState(false);
 
-  useEffect(() => {
-    fetchPolicy();
-  }, [fetchPolicy]);
-
   const fetchPolicy = useCallback(async () => {
     try {
       // Assuming existing policies API or a single policy fetch
@@ -44,6 +40,10 @@ export default function BuyPolicyScreen({ route, navigation }) {
       setCalculating(false);
     }
   }, [policyId]);
+
+  useEffect(() => {
+    fetchPolicy();
+  }, [fetchPolicy]);
 
   const handlePurchase = async () => {
     try {

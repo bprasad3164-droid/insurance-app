@@ -18,6 +18,8 @@ export default function ClaimScreen({ navigation }) {
     } finally {
         setLoading(false);
     }
+  }, []);
+
   useEffect(() => {
     fetchPolicies();
   }, [fetchPolicies]);

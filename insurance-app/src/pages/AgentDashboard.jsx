@@ -17,10 +17,6 @@ export default function AgentDashboard() {
     const handleBack = () => navigate("/dashboard");
     const handleLogout = () => logout();
 
-    useEffect(() => {
-        fetchTasks();
-    }, [fetchTasks]);
-
     const fetchTasks = useCallback(async () => {
         setLoading(true);
         try {
@@ -50,6 +46,10 @@ export default function AgentDashboard() {
             setLoading(false);
         }
     }, []);
+
+    useEffect(() => {
+        fetchTasks();
+    }, [fetchTasks]);
 
     const handleVerifyClaim = async (id, status) => {
         try {
