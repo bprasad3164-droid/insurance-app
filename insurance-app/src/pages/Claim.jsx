@@ -8,6 +8,7 @@ export default function Claim() {
   const [policies, setPolicies] = useState([]);
   const [selectedPolicy, setSelectedPolicy] = useState("");
   const [amount, setAmount] = useState("");
+  const [claimType, setClaimType] = useState("Accident");
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -39,6 +40,7 @@ export default function Claim() {
     const formData = new FormData();
     formData.append("policy", selectedPolicy);
     formData.append("amount", amount);
+    formData.append("claim_type", claimType);
     if (file) formData.append("file", file);
 
     try {
@@ -109,6 +111,22 @@ export default function Claim() {
               {policies.map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">Claim Classification</label>
+            <select 
+              className="clay-inset w-full p-5 focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold bg-transparent appearance-none"
+              required
+              value={claimType}
+              onChange={e => setClaimType(e.target.value)}
+            >
+              <option value="Accident">Accident / Collision</option>
+              <option value="Medical">Medical / Surgery</option>
+              <option value="Theft">Theft / Burglary</option>
+              <option value="Damage">Property Damage</option>
+              <option value="Other">Other Service Request</option>
             </select>
           </div>
 

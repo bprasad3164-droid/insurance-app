@@ -96,8 +96,16 @@ class Claim(models.Model):
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
     )
+    CLAIM_TYPE_CHOICES = (
+        ('Accident', 'Accident / Collision'),
+        ('Medical', 'Medical / Surgery'),
+        ('Theft', 'Theft / Burglary'),
+        ('Damage', 'Property Damage'),
+        ('Other', 'Other Service Request'),
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     policy = models.ForeignKey(Policy, on_delete=models.CASCADE)
+    claim_type = models.CharField(max_length=50, choices=CLAIM_TYPE_CHOICES, default='Accident')
     amount = models.FloatField(default=0.0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='claim_tasks')

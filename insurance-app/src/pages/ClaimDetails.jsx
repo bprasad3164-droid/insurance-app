@@ -83,6 +83,9 @@ export default function ClaimDetails() {
                                 <div className="clay px-3 py-1 rounded-full bg-blue-50">
                                     <p className="text-[10px] font-black text-blue-600 uppercase">Track ID: #{claim.id}</p>
                                 </div>
+                                <div className="clay px-3 py-1 rounded-full bg-purple-50">
+                                    <p className="text-[10px] font-black text-purple-600 uppercase">{claim.claim_type || 'General'}</p>
+                                </div>
                             </div>
                             <p className="text-sm text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2">
                                 <Bookmark className="w-4 h-4 text-blue-600" /> Unified Mission Critical Data
@@ -281,7 +284,7 @@ export default function ClaimDetails() {
                             <IndianRupee className="absolute -right-8 -bottom-8 w-48 h-48 opacity-10" />
                             <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 opacity-70">Payout Disbursement</p>
                             <h3 className="text-5xl font-black tracking-tighter mb-2">₹{claim.amount.toLocaleString()}</h3>
-                            <p className="text-xs font-bold opacity-80 mb-8 tracking-wide">Approved settlement for catastrophic incident recovery.</p>
+                            <p className="text-xs font-bold opacity-80 mb-8 tracking-wide">Approved settlement for catastrophic {claim.claim_type?.toLowerCase() || 'incident'} recovery.</p>
                             
                             <div className="pt-8 border-t border-white/10 flex items-center gap-4">
                                 <div className="p-2 bg-white/10 rounded-lg">

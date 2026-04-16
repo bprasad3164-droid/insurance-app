@@ -406,6 +406,7 @@ def create_claim(request):
         claim = Claim.objects.create(
             user=request.user,
             policy=policy,
+            claim_type=request.data.get('claim_type', 'Accident'),
             amount=request.data.get('amount', 0)
         )
         return Response({"msg": "Claim Submitted", "claim_id": claim.id})
@@ -677,7 +678,10 @@ def get_claim_detail(request, id):
         documents = Document.objects.filter(claim=claim)
         
         return Response({
-            "claim": ClaimSerializer(claim).data,
+            "claim": {
+                **ClaimSerializer(claim).data,
+                "claim_type": claim.claim_type
+            },
             "policy": {
                 "name": claim.policy.name,
                 "category": claim.policy.category,
@@ -743,7 +747,7 @@ def download_claim_report(request, id):
         p.drawString(50, y, f"Customer: {claim.user.username}")
         p.drawString(300, y, f"Status: {claim.status}")
         y -= 20
-        p.drawString(50, y, f"Type: {claim.policy.category.upper()}")
+        p.drawString(50, y, f"Claim Type: {claim.claim_type.upper()}")
         p.drawString(300, y, f"Requested Amount: INR {claim.amount}")
         
         # Policy Section
