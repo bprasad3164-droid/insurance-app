@@ -13,9 +13,9 @@ export default function BuyPolicyScreen({ route, navigation }) {
 
   const fetchPolicy = useCallback(async () => {
     try {
-      // Assuming existing policies API or a single policy fetch
       const res = await api.get("/policies/");
-      const found = res.data.find(p => p.id === policyId);
+      const policies = Array.isArray(res.data) ? res.data : [];
+      const found = policies.find(p => p.id === policyId);
       setPolicy(found);
       if (found) calculatePremium(found.id, age, salary);
     } catch (e) {
