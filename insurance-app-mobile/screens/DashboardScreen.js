@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Animated, Easing } from "react-native";
 import api from "../services/api";
 
 export default function DashboardScreen({ navigation, route }) {
@@ -8,6 +8,26 @@ export default function DashboardScreen({ navigation, route }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const role = route.params?.role || "User";
+  const floatAnim = React.useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: 1,
+          duration: 3000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 3000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [floatAnim]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -39,83 +59,102 @@ export default function DashboardScreen({ navigation, route }) {
   );
 
   return (
-    <ScrollView 
-        style={styles.container}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
-      <View style={styles.welcomeSection}>
-        <Text style={styles.welcomeText}>Member Dashboard</Text>
-        <Text style={styles.roleTag}>{role.toUpperCase()} ACCOUNT</Text>
-      </View>
+    <View style={{ flex: 1, backgroundColor: '#e0e5ec' }}>
+      <Animated.View 
+        style={[
+            styles.bgShield,
+            {
+                transform: [{
+                    translateY: floatAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, 15]
+                    })
+                }]
+            }
+        ]}
+      >
+        <Text style={{ fontSize: 200, opacity: 0.05, color: '#3b82f6' }}>🛡️</Text>
+      </Animated.View>
 
-      {/* Quick Stats */}
-      <View style={styles.statsRow}>
-        <View style={styles.statCard}>
-          <Text style={styles.statLabel}>POLICIES</Text>
-          <Text style={styles.statValue}>{policies.length}</Text>
+      <ScrollView 
+          style={styles.container}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <View style={styles.welcomeSection}>
+          <Text style={styles.welcomeText}>Member Dashboard</Text>
+          <Text style={styles.roleTag}>{role.toUpperCase()} ACCOUNT</Text>
         </View>
-        <View style={[styles.statCard, { backgroundColor: '#3b82f6' }]}>
-          <Text style={[styles.statLabel, { color: '#fff' }]}>ACTIVE CLAIMS</Text>
-          <Text style={[styles.statValue, { color: '#fff' }]}>{Array.isArray(claims) ? claims.filter(c => c.status === 'Pending').length : 0}</Text>
+
+        {/* Quick Stats */}
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>POLICIES</Text>
+            <Text style={styles.statValue}>{policies.length}</Text>
+          </View>
+          <View style={[styles.statCard, { backgroundColor: '#3b82f6' }]}>
+            <Text style={[styles.statLabel, { color: '#fff' }]}>ACTIVE CLAIMS</Text>
+            <Text style={[styles.statValue, { color: '#fff' }]}>{Array.isArray(claims) ? claims.filter(c => c.status === 'Pending').length : 0}</Text>
+          </View>
         </View>
-      </View>
 
-      {/* Navigation Cards */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>QUICK ACTIONS</Text>
-        <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate("Policies")}>
-          <Text style={styles.actionTitle}>Browse Marketplace</Text>
-          <Text style={styles.actionSub}>Explore new coverage plans</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate("Claim")}>
-          <Text style={styles.actionTitle}>File New Claim</Text>
-          <Text style={styles.actionSub}>Report a new incident</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Claim Timeline */}
-      {claims.length > 0 && (
+        {/* Navigation Cards */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>SETTLEMENT TIMELINE</Text>
-          {claims.map((claim, idx) => (
-            <TouchableOpacity 
-                key={idx} 
-                style={styles.timelineCard}
-                onPress={() => navigation.navigate("ClaimDetail", { claimId: claim.id })}
-            >
-              <View style={styles.timelineHeader}>
-                <Text style={styles.claimId}>CLAIM #{claim.id}</Text>
-                <Text style={styles.claimAmount}>₹{claim.amount?.toLocaleString()}</Text>
-              </View>
-              
-              <View style={styles.stepsRow}>
-                <View style={styles.step}>
-                  <View style={[styles.dot, { backgroundColor: '#10b981' }]} />
-                  <Text style={styles.stepText}>Raised</Text>
-                </View>
-                <View style={styles.connector} />
-                <View style={styles.step}>
-                  <View style={[styles.dot, { backgroundColor: claim.agent_status === 'Approved' ? '#10b981' : '#f59e0b' }]} />
-                  <Text style={styles.stepText}>Audit</Text>
-                </View>
-                <View style={styles.connector} />
-                <View style={styles.step}>
-                  <View style={[styles.dot, { backgroundColor: claim.status === 'Approved' ? '#10b981' : claim.status === 'Rejected' ? '#ef4444' : '#ccc' }]} />
-                  <Text style={styles.stepText}>Settled</Text>
-                </View>
-              </View>
-            </View>
-          ))}
+          <Text style={styles.sectionTitle}>QUICK ACTIONS</Text>
+          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate("Policies")}>
+            <Text style={styles.actionTitle}>Browse Marketplace</Text>
+            <Text style={styles.actionSub}>Explore new coverage plans</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate("Claim")}>
+            <Text style={styles.actionTitle}>File New Claim</Text>
+            <Text style={styles.actionSub}>Report a new incident</Text>
+          </TouchableOpacity>
         </View>
-      )}
 
-      <View style={{ height: 40 }} />
-    </ScrollView>
+        {/* Claim Timeline */}
+        {claims.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>SETTLEMENT TIMELINE</Text>
+            {claims.map((claim, idx) => (
+              <TouchableOpacity 
+                  key={idx} 
+                  style={styles.timelineCard}
+                  onPress={() => navigation.navigate("ClaimDetail", { claimId: claim.id })}
+              >
+                <View style={styles.timelineHeader}>
+                  <Text style={styles.claimId}>CLAIM #{claim.id}</Text>
+                  <Text style={styles.claimAmount}>₹{claim.amount?.toLocaleString()}</Text>
+                </View>
+                
+                <View style={styles.stepsRow}>
+                  <View style={styles.step}>
+                    <View style={[styles.dot, { backgroundColor: '#10b981' }]} />
+                    <Text style={styles.stepText}>Raised</Text>
+                  </View>
+                  <View style={styles.connector} />
+                  <View style={styles.step}>
+                    <View style={[styles.dot, { backgroundColor: claim.agent_status === 'Approved' ? '#10b981' : '#f59e0b' }]} />
+                    <Text style={styles.stepText}>Audit</Text>
+                  </View>
+                  <View style={styles.connector} />
+                  <View style={styles.step}>
+                    <View style={[styles.dot, { backgroundColor: claim.status === 'Approved' ? '#10b981' : claim.status === 'Rejected' ? '#ef4444' : '#ccc' }]} />
+                    <Text style={styles.stepText}>Settled</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#e0e5ec', padding: 20 },
+  container: { flex: 1, backgroundColor: 'transparent', padding: 20 },
+  bgShield: { position: 'absolute', top: 50, right: -50, zIndex: -1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#e0e5ec' },
   welcomeSection: { marginTop: 20, marginBottom: 30 },
   welcomeText: { fontSize: 28, fontWeight: '900', color: '#1a202c' },

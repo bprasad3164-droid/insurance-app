@@ -16,6 +16,7 @@ import ClaimDetails from "./pages/ClaimDetails";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
+import InsuranceBackground from "./components/InsuranceBackground";
 import useAuthStore from "./store/authStore";
 
 const RoleBasedDashboard = () => {
@@ -34,6 +35,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <InsuranceBackground />
       <Routes>
         <Route path="/" element={<PublicOnlyRoute><Home /></PublicOnlyRoute>} />
         <Route path="/login" element={<Login />} />
