@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Check, XCircle, LogOut, ArrowLeft, Home, FileText, ClipboardList, MapPin, Calendar, Briefcase } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
+import ActivityFeed from "../components/ActivityFeed";
 
 export default function AgentDashboard() {
     const { logout } = useAuthStore();
@@ -93,23 +94,24 @@ export default function AgentDashboard() {
                 </button>
             </header>
 
-            <main className="w-full max-w-6xl">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                    <motion.div whileHover={{ y: -5 }} className="clay p-8 flex flex-col bg-white">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Pending Claims</p>
-                        <span className="text-6xl font-black text-amber-500 tracking-tighter">{stats.pending}</span>
-                    </motion.div>
-                    
-                    <motion.div whileHover={{ y: -5 }} className="clay p-8 flex flex-col bg-white">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Survey Assignments</p>
-                        <span className="text-6xl font-black text-blue-600 tracking-tighter">{stats.surveys}</span>
-                    </motion.div>
-
-                    <div className="clay p-8 flex flex-col bg-blue-600 text-white justify-center shadow-[0_20px_50px_rgba(59,130,246,0.3)]">
-                        <h3 className="font-black text-2xl mb-1 tracking-tight">Active Duty</h3>
-                        <p className="text-blue-200 text-xs font-black uppercase tracking-widest">Digital Field Unit 04</p>
+            <main className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-4 gap-12">
+                <div className="lg:col-span-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                        <motion.div whileHover={{ y: -5 }} className="clay p-8 flex flex-col bg-white">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Pending Claims</p>
+                            <span className="text-6xl font-black text-amber-500 tracking-tighter">{stats.pending}</span>
+                        </motion.div>
+                        
+                        <motion.div whileHover={{ y: -5 }} className="clay p-8 flex flex-col bg-white">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Survey Assignments</p>
+                            <span className="text-6xl font-black text-blue-600 tracking-tighter">{stats.surveys}</span>
+                        </motion.div>
+    
+                        <div className="clay p-8 flex flex-col bg-blue-600 text-white justify-center shadow-[0_20px_50px_rgba(59,130,246,0.3)]">
+                            <h3 className="font-black text-2xl mb-1 tracking-tight">Active Duty</h3>
+                            <p className="text-blue-200 text-xs font-black uppercase tracking-widest">Digital Field Unit 04</p>
+                        </div>
                     </div>
-                </div>
 
 
                 {error && (
@@ -335,6 +337,24 @@ export default function AgentDashboard() {
                     </div>
                 </div>
 
+                </div>
+
+                <aside className="lg:col-span-1">
+                    <div className="sticky top-40 space-y-8">
+                        <div className="clay p-8 bg-white border border-blue-100 shadow-2xl">
+                            <ActivityFeed />
+                        </div>
+                        
+                        <div className="clay p-6 bg-gray-900 text-white">
+                            <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Unit Status</p>
+                            <p className="text-xl font-black tracking-tight mb-4">Online & Syncing</p>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                <span className="text-[9px] font-black text-gray-400 uppercase">Secure Neural Link</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
             </main>
         </div>
     );

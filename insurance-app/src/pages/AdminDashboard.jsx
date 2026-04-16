@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import useAuthStore from "../store/authStore";
 import useWorkflowStore from "../store/workflowStore";
+import ActivityFeed from "../components/ActivityFeed";
 
 export default function AdminDashboard() {
   const { role, logout } = useAuthStore();
@@ -90,9 +91,7 @@ export default function AdminDashboard() {
       e.preventDefault();
       try {
         const token = localStorage.getItem("access");
-        await axios.post("http://127.0.0.1:8000/api/add-policy/", newPolicy, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.post("/add-policy/", newPolicy);
         setShowModal(false);
         setNewPolicy({ name: "", description: "", premium: "", category: "health" });
         alert("New Policy Created Successfully");
@@ -103,22 +102,24 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-clay-bg w-full p-8 flex flex-col items-center">
-      <header className="flex justify-between clay p-6 mb-12 w-full max-w-6xl shadow-xl">
-        <div className="flex items-center gap-6">
-            <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-gray-600">
-                <ArrowLeft className="w-5 h-5" /> Back
-            </button>
-            <div className="flex items-center gap-3">
-                <BarChart3 className="text-blue-600 w-8 h-8" />
-                <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Executive Oversight</h1>
+      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-4 gap-12 items-start">
+        <div className="lg:col-span-3">
+          <header className="flex justify-between clay p-6 mb-12 w-full shadow-xl">
+            <div className="flex items-center gap-6">
+                <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-gray-600">
+                    <ArrowLeft className="w-5 h-5" /> Back
+                </button>
+                <div className="flex items-center gap-3">
+                    <BarChart3 className="text-blue-600 w-8 h-8" />
+                    <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Executive Oversight</h1>
+                </div>
             </div>
-        </div>
-        <div className="flex gap-4 items-center">
-            <button onClick={() => setShowModal(true)} className="bg-green-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 transition shadow-lg"><PlusCircle className="w-5 h-5" /> New Policy</button>
-            <a href="/analytics" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg flex items-center gap-2 text-sm uppercase">Intelligence</a>
-            <button onClick={handleLogout} className="bg-red-500 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-red-600 transition flex items-center gap-2"><LogOut className="w-5 h-5" /> Logout</button>
-        </div>
-      </header>
+            <div className="flex gap-4 items-center">
+                <button onClick={() => setShowModal(true)} className="bg-green-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 transition shadow-lg"><PlusCircle className="w-5 h-5" /> New Policy</button>
+                <a href="/analytics" className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg flex items-center gap-2 text-sm uppercase">Intelligence</a>
+                <button onClick={handleLogout} className="bg-red-500 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-red-600 transition flex items-center gap-2"><LogOut className="w-5 h-5" /> Logout</button>
+            </div>
+          </header>
 
       {/* Operations Hub (Step 1 & 2 Task Assignment) */}
       <div className="clay p-12 w-full max-w-7xl shadow-2xl mb-16 border-t-8 border-blue-600">
@@ -315,8 +316,28 @@ export default function AdminDashboard() {
                     )}
                 </tbody>
             </table>
+          </div>
         </div>
       </div>
+
+      <div className="lg:col-span-1 sticky top-8">
+        <div className="clay p-8 bg-white shadow-3xl border-t-8 border-gray-900">
+          <ActivityFeed />
+        </div>
+        
+        <div className="mt-8 clay p-8 bg-blue-600 text-white shadow-2xl overflow-hidden relative">
+            <div className="relative z-10">
+                <p className="text-[10px] font-black opacity-60 uppercase tracking-widest mb-1">Service Integrity</p>
+                <p className="text-xl font-black mb-4">Core Systems Nominal</p>
+                <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Neural Cluster Active</span>
+                </div>
+            </div>
+            <ShieldCheck className="absolute -bottom-4 -right-4 w-32 h-32 opacity-10" />
+        </div>
+      </div>
+    </div>
 
       <AnimatePresence>
         {showModal && (

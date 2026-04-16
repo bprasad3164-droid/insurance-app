@@ -134,3 +134,23 @@ class Invoice(models.Model):
     payment = models.OneToOneField(Payment, on_delete=models.CASCADE)
     invoice_number = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class Activity(models.Model):
+    ACTION_CHOICES = (
+        ('CLAIM', 'Claim Filed'),
+        ('PAYMENT', 'Payment Made'),
+        ('POLICY', 'Policy Purchased'),
+        ('KYC', 'KYC Updated'),
+        ('ASSIGN', 'Task Assigned'),
+        ('APPROVE', 'Admin Approval'),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
+    action_type = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.action_type} - {self.created_at}"

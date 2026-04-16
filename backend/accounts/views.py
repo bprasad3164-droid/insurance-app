@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, Claim, Policy, Document, UserPolicy, Appointment, RenewalRequest, Payment, Invoice, KYC
-from .serializers import PolicySerializer, UserPolicySerializer, ClaimSerializer
+from .models import User, Claim, Policy, Document, UserPolicy, Appointment, RenewalRequest, Payment, Invoice, KYC, Activity
+from .serializers import PolicySerializer, UserPolicySerializer, ClaimSerializer, ActivitySerializer
 from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.utils import timezone
@@ -210,6 +210,7 @@ def buy_policy(request):
                 expiry_date=expiry,
                 status='Active'
             )
+            log_activity(request.user, 'POLICY', f"Purchased {policy.name}. Protection active until {expiry.year}.")
             return Response({"msg": "Purchase Successful", "certificate_id": cert_id, "expiry_date": expiry})
     except Policy.DoesNotExist:
         return Response({"error": "Selected policy no longer available"}, status=404)
@@ -411,6 +412,7 @@ def create_claim(request):
             claim_type=request.data.get('claim_type', 'Accident'),
             amount=request.data.get('amount', 0)
         )
+        log_activity(request.user, 'CLAIM', f"Submitted a {claim.claim_type} claim for ₹{claim.amount}.")
         return Response({"msg": "Claim Submitted", "claim_id": claim.id})
     except Exception as e:
         return Response({"msg": str(e)}, status=400)
@@ -561,6 +563,7 @@ def make_payment(request):
                 bank_name=request.data.get('bank_name'),
                 status='success'
             )
+            log_activity(request.user, 'PAYMENT', f"Successful payment of ₹{amount} via {method}.")
             return Response({
                 "payment_id": payment.id,
                 "status": "success"
@@ -808,3 +811,21 @@ def download_claim_report(request, id):
         
     except Exception as e:
         return Response({"error": str(e)}, status=404)
+
+# ================= ACTIVITY FEED =================
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_activities(request):
+    if request.user.role == 'admin':
+        activities = Activity.objects.all()[:40]
+    else:
+        activities = Activity.objects.filter(user=request.user)[:20]
+    serializer = ActivitySerializer(activities, many=True)
+    return Response(serializer.data)
+
+def log_activity(user, action_type, description):
+    try:
+        Activity.objects.create(user=user, action_type=action_type, description=description)
+    except:
+        pass

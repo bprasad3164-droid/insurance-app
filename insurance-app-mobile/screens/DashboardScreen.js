@@ -5,6 +5,7 @@ import api from "../services/api";
 export default function DashboardScreen({ navigation, route }) {
   const [policies, setPolicies] = useState([]);
   const [claims, setClaims] = useState([]);
+  const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const role = route.params?.role || "User";
@@ -39,8 +40,10 @@ export default function DashboardScreen({ navigation, route }) {
       } else {
         const polyRes = await api.get("/my-policies/");
         const claimRes = await api.get("/claim/my/");
+        const actRes = await api.get("/activities/");
         setPolicies(Array.isArray(polyRes.data) ? polyRes.data : []);
         setClaims(Array.isArray(claimRes.data) ? claimRes.data : []);
+        setActivities(Array.isArray(actRes.data) ? actRes.data.slice(0, 3) : []);
       }
     } catch (error) {
       console.error("Dashboard Fetch Error", error);
@@ -157,6 +160,24 @@ export default function DashboardScreen({ navigation, route }) {
           )}
         </View>
 
+        {/* Recent Activity */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>RECENT ACTIVITY</Text>
+          <View style={styles.activityFeed}>
+            {activities.length > 0 ? activities.map((act, i) => (
+              <View key={i} style={styles.activityItem}>
+                <View style={[styles.activityDot, { backgroundColor: act.action_type === 'PAYMENT' ? '#10b981' : act.action_type === 'CLAIM' ? '#f59e0b' : '#3b82f6' }]} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.activityDesc}>{act.description}</Text>
+                  <Text style={styles.activityTime}>{new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                </div>
+              </View>
+            )) : (
+              <Text style={{ fontSize: 12, color: '#a0aec0', fontStyle: 'italic' }}>No recent events recorded.</Text>
+            )}
+          </View>
+        </View>
+
         <View style={{ height: 40 }} />
       </ScrollView>
     </View>
@@ -219,5 +240,10 @@ const styles = StyleSheet.create({
   step: { alignItems: 'center' },
   dot: { width: 12, height: 12, borderRadius: 6, marginBottom: 5 },
   stepText: { fontSize: 10, fontWeight: 'bold', color: '#718096' },
-  connector: { flex: 1, height: 2, backgroundColor: '#f1f5f9', marginTop: -15, marginHorizontal: 5 }
+  connector: { flex: 1, height: 2, backgroundColor: '#f1f5f9', marginTop: -15, marginHorizontal: 5 },
+  activityFeed: { backgroundColor: '#e0e5ec', padding: 15, borderRadius: 20, shadowColor: "#a3b1c6", shadowOffset: { width: 9, height: 9 }, shadowOpacity: 1, shadowRadius: 16, elevation: 5 },
+  activityItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  activityDot: { width: 8, height: 8, borderRadius: 4, marginRight: 12 },
+  activityDesc: { fontSize: 13, fontWeight: 'bold', color: '#4a5568' },
+  activityTime: { fontSize: 9, fontWeight: 'bold', color: '#a0aec0', marginTop: 2 }
 });
