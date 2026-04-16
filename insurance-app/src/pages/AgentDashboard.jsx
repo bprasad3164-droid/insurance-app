@@ -158,12 +158,37 @@ export default function AgentDashboard() {
                                 </div>
                                 <div className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${appt.status === 'Completed' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
                                     {appt.status}
+                                </div>
+                            </div>
+
+                            <div className="space-y-4 mb-8">
+                                <p className="text-sm font-bold text-gray-600 leading-relaxed italic">
+                                    " {appt.notes || "No additional field notes provided."} "
+                                </p>
+                                <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                                    <Calendar className="w-3 h-3" /> Preferred: {new Date(appt.preferred_date).toLocaleString()}
+                                </div>
+                            </div>
+
+                            {appt.status === 'Assigned' && (
+                                <button 
+                                    onClick={() => handleCompleteSurvey(appt.id)}
+                                    className="w-full clay p-4 rounded-xl font-black text-xs text-blue-600 hover:bg-blue-600 hover:text-white transition uppercase tracking-widest"
+                                >
+                                    Verify Site & Complete
+                                </button>
+                            )}
+
                             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                                 <ShieldCheck className="w-20 h-20" />
                             </div>
                         </motion.div>
-                    ))}
-                    {appointments.length === 0 && <p className="text-gray-400 font-bold text-sm italic col-span-2">No pending survey missions.</p>}
+                    )) : (
+                        <div className="col-span-2 clay p-20 text-center opacity-30">
+                            <MapPin className="w-16 h-16 mx-auto mb-4" />
+                            <p className="font-black text-xs uppercase tracking-[0.5em]">No Deployment Orders</p>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-3 mb-8">
