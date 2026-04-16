@@ -11,7 +11,6 @@ export default function BuyPolicy() {
   const [policy, setPolicy] = useState(null);
   const [user, setUser] = useState(null);
   const [age, setAge] = useState(25);
-  const [age, setAge] = useState(25);
   const [salary, setSalary] = useState(50000);
   const [premium, setPremium] = useState(0);
   const [calculating, setCalculating] = useState(false);
