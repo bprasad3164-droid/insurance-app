@@ -753,7 +753,7 @@ def download_claim_report(request, id):
         p.setFont("Helvetica", 11)
         p.drawString(50, y, f"Policy: {claim.policy.name}")
         y -= 20
-        p.drawString(50, y, f"Expiry Date: {user_policy.expiry_date.strftime('%Y-%m-%d') if user_policy else 'N/A'}")
+        p.drawString(50, y, f"Expiry Date: {user_policy.expiry_date.strftime('%Y-%m-%d') if user_policy and user_policy.expiry_date else 'N/A'}")
         p.drawString(300, y, f"Next Renewal: {(user_policy.expiry_date - timedelta(days=30)).strftime('%Y-%m-%d') if user_policy and user_policy.expiry_date else 'N/A'}")
         
         # T&C
