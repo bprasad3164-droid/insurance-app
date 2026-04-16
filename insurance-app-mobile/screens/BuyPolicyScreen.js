@@ -54,7 +54,8 @@ export default function BuyPolicyScreen({ route, navigation }) {
       alert("Policy Purchased Successfully!");
       navigation.navigate("Dashboard");
     } catch (e) {
-      alert("Purchase failed");
+      const msg = e.response?.data?.details || e.response?.data?.msg || "Purchase failed";
+      alert("Error: " + msg);
     }
   };
 
