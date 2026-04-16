@@ -170,7 +170,7 @@ export default function DashboardScreen({ navigation, route }) {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.activityDesc}>{act.description}</Text>
                   <Text style={styles.activityTime}>{new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-                </div>
+                </View>
               </View>
             )) : (
               <Text style={{ fontSize: 12, color: '#a0aec0', fontStyle: 'italic' }}>No recent events recorded.</Text>
