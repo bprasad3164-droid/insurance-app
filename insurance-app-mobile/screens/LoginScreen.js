@@ -76,10 +76,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     width: '100%',
     alignItems: 'center',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowColor: "#a3b1c6",
+    shadowOffset: { width: 9, height: 9 },
+    shadowOpacity: 1,
+    shadowRadius: 16,
     elevation: 8
   },
   buttonText: {

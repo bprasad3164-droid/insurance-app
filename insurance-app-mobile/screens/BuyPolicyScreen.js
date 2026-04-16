@@ -131,13 +131,15 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#e0e5ec', padding: 20 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#e0e5ec' },
   card: { 
-    backgroundColor: '#fff', 
+    backgroundColor: '#e0e5ec', 
     padding: 25, 
     borderRadius: 30, 
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    elevation: 4
+    shadowColor: "#a3b1c6",
+    shadowOffset: { width: 9, height: 9 },
+    shadowOpacity: 1,
+    shadowRadius: 16,
+    elevation: 8
   },
   policyTitle: { fontSize: 24, fontWeight: '900', color: '#1a202c', marginBottom: 10 },
   policyDesc: { fontSize: 14, color: '#718096', lineHeight: 22, marginBottom: 20 },

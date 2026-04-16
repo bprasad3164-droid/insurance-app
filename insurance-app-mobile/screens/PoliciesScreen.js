@@ -74,15 +74,15 @@ const styles = StyleSheet.create({
     paddingBottom: 20
   },
   policyCard: {
-    backgroundColor: '#fff',
+    backgroundColor: '#e0e5ec',
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 3
+    shadowColor: "#a3b1c6",
+    shadowOffset: { width: 9, height: 9 },
+    shadowOpacity: 1,
+    shadowRadius: 16,
+    elevation: 5
   },
   policyName: {
     fontSize: 20,

@@ -93,13 +93,14 @@ const styles = StyleSheet.create({
   },
   form: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: '#e0e5ec',
     borderRadius: 25,
     padding: 25,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 4
+    shadowColor: "#a3b1c6",
+    shadowOffset: { width: 9, height: 9 },
+    shadowOpacity: 1,
+    shadowRadius: 16,
+    elevation: 8
   },
   label: {
     fontSize: 14,

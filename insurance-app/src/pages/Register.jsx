@@ -43,7 +43,7 @@ export default function Register() {
           <div className="relative">
             <Mail className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
             <input
-              className="w-full p-4 pl-12 rounded-2xl bg-white/50 border border-white/20 shadow-inner focus:ring-4 focus:ring-blue-400 outline-none font-bold"
+              className="clay-inset w-full p-4 pl-12 rounded-2xl focus:ring-4 focus:ring-blue-400 outline-none font-bold"
               placeholder="Email Address"
               type="email"
               required
@@ -54,7 +54,7 @@ export default function Register() {
           <div className="relative group">
             <Lock className="absolute left-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
             <input
-              className="w-full p-4 pl-12 pr-12 rounded-2xl bg-white/50 border border-white/20 shadow-inner focus:ring-4 focus:ring-blue-400 outline-none font-bold"
+              className="clay-inset w-full p-4 pl-12 pr-12 rounded-2xl focus:ring-4 focus:ring-blue-400 outline-none font-bold"
               type={showPassword ? "text" : "password"}
               placeholder="Strong Password"
               required
@@ -72,7 +72,7 @@ export default function Register() {
           <div className="relative">
             <UserCheck className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
             <select
-              className="w-full p-4 pl-12 rounded-2xl bg-white/50 border border-white/20 shadow-inner focus:ring-4 focus:ring-blue-400 outline-none font-bold appearance-none"
+              className="clay-inset w-full p-4 pl-12 rounded-2xl focus:ring-4 focus:ring-blue-400 outline-none font-bold appearance-none bg-transparent"
               value={role}
               onChange={e => setRole(e.target.value)}
             >
