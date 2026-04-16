@@ -11,7 +11,7 @@ export default function PublicOnlyRoute({ children }) {
 
   // Admin or agent: redirect to their own dashboard
   if (token && (role === "admin" || role === "agent")) {
-    return <Navigate to="/admin-dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Everyone else (guests + customers): allow through

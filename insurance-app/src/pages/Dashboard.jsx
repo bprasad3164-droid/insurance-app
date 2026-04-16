@@ -91,7 +91,7 @@ export default function Dashboard() {
           </motion.a>
 
           <motion.a
-            href={role === "admin" || role === "agent" ? "/admin-dashboard" : "/claim"}
+            href={role === "admin" || role === "agent" ? "/dashboard" : "/claim"}
             whileHover={{ scale: 1.05 }}
             className="clay p-8 bg-white/50 border border-white flex items-center justify-between group"
           >
