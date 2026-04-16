@@ -481,7 +481,7 @@ export default function Home() {
             <span style={{ fontWeight: 900, fontSize: 18 }}>Pro<span style={{ color: "#818cf8" }}>Insurance</span></span>
           </div>
           <p style={{ color: "rgba(255,255,255,.3)", fontSize: 13, fontWeight: 500 }}>
-            © 2026 Pro Insurance Digital Ledger. IRDAI Licensed. All rights reserved.
+            © 2026 Pro Insurance. All rights reserved.
           </p>
           <div style={{ marginTop: 16, display: "flex", justifyContent: "center", gap: 24, flexWrap: "wrap" }}>
             {["Privacy Policy", "Terms of Use", "Grievance", "Contact"].map(link => (

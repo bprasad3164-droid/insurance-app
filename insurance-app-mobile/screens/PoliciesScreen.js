@@ -27,7 +27,7 @@ export default function PoliciesScreen({ navigation }) {
       <Text style={styles.policyDesc}>{item.description}</Text>
       <View style={styles.footer}>
           <View>
-            <Text style={styles.premiumText}>₹ {item.premium.toLocaleString()}</Text>
+            <Text style={styles.premiumText}>₹ {(item.base_premium || 0).toLocaleString()}</Text>
             <Text style={styles.perYear}>BASE PREMIUM</Text>
           </View>
           <TouchableOpacity 

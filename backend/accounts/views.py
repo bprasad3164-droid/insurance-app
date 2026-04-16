@@ -30,10 +30,15 @@ def get_agents(request):
 @permission_classes([AllowAny])
 def register(request):
     try:
+        email = request.data.get('email')
+        password = request.data.get('password')
+        if not email or not password:
+            return Response({"msg": "Email and password are required"}, status=400)
+            
         user = User.objects.create_user(
-            username=request.data['email'],
-            email=request.data['email'],
-            password=request.data['password'],
+            username=email,
+            email=email,
+            password=password,
             role=request.data.get('role', 'user')
         )
         return Response({"msg": "Registration Successful"})
@@ -146,9 +151,15 @@ def add_policy(request):
 @permission_classes([AllowAny])
 def calculate_premium(request):
     try:
-        age = int(request.data['age'])
-        salary = int(request.data['salary'])
-        policy_id = request.data['policy_id']
+        age_str = request.data.get('age')
+        salary_str = request.data.get('salary')
+        policy_id = request.data.get('policy_id')
+
+        if not all([age_str, salary_str, policy_id]):
+            return Response({"msg": "Missing age, salary, or policy_id"}, status=400)
+
+        age = int(age_str)
+        salary = int(salary_str)
 
         policy = Policy.objects.get(id=policy_id)
 
@@ -159,6 +170,10 @@ def calculate_premium(request):
             "premium": premium,
             "policy_name": policy.name
         })
+    except Policy.DoesNotExist:
+        return Response({"msg": "Policy not found"}, status=404)
+    except (ValueError, TypeError):
+        return Response({"msg": "Invalid age or salary value"}, status=400)
     except Exception as e:
         return Response({"msg": str(e)}, status=400)
 
@@ -241,9 +256,13 @@ def download_certificate(request, cert_id):
 @permission_classes([IsAuthenticated])
 def create_appointment(request):
     try:
+        preferred_date = request.data.get('preferred_date')
+        if not preferred_date:
+            return Response({"msg": "Preferred date is required"}, status=400)
+            
         appt = Appointment.objects.create(
             client=request.user,
-            preferred_date=request.data['preferred_date'],
+            preferred_date=preferred_date,
             category=request.data.get('category', 'health'),
             notes=request.data.get('notes', '')
         )
@@ -264,9 +283,15 @@ def my_appointments(request):
 @permission_classes([IsAuthenticated])
 def create_renewal(request):
     try:
-        user_policy = UserPolicy.objects.get(id=request.data['policy_id'], user=request.user)
+        policy_id = request.data.get('policy_id')
+        if not policy_id:
+            return Response({"msg": "Policy ID is required"}, status=400)
+            
+        user_policy = UserPolicy.objects.get(id=policy_id, user=request.user)
         renewal = RenewalRequest.objects.create(user_policy=user_policy)
         return Response({"msg": "Renewal Request Submitted", "id": renewal.id})
+    except UserPolicy.DoesNotExist:
+        return Response({"msg": "Policy not found"}, status=404)
     except Exception as e:
         return Response({"msg": str(e)}, status=400)
 
