@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { Check, XCircle, LogOut, ArrowLeft, Home, FileText, ClipboardList, MapPin, Calendar, Briefcase } from "lucide-react";
@@ -19,9 +19,9 @@ export default function AgentDashboard() {
 
     useEffect(() => {
         fetchTasks();
-    }, []);
+    }, [fetchTasks]);
 
-    const fetchTasks = async () => {
+    const fetchTasks = useCallback(async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("access");
@@ -49,7 +49,7 @@ export default function AgentDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     const handleVerifyClaim = async (id, status) => {
         try {

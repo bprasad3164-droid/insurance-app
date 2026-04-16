@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut, Check, FileText, UserPlus, Briefcase } from "lucide-react";
@@ -23,7 +23,7 @@ export default function AdminDashboard() {
   const handleBack = () => navigate("/dashboard");
   const handleLogout = () => logout();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
         const token = localStorage.getItem("access");
         const headers = { Authorization: `Bearer ${token}` };
@@ -35,9 +35,9 @@ export default function AdminDashboard() {
         setStats({ ...resStats.data, name: "Insights" });
         setKycs(resKyc.data);
     } catch (err) { console.error(err); }
-  };
+  }, []);
 
-  const fetchAgents = async () => {
+  const fetchAgents = useCallback(async () => {
     try {
         const token = localStorage.getItem("access");
         const res = await axios.get("http://127.0.0.1:8000/api/agents/", {
@@ -45,7 +45,7 @@ export default function AdminDashboard() {
         });
         setAgents(res.data);
     } catch (err) { console.error("Error fetching agents", err); }
-  };
+  }, []);
 
   const handleAssign = async (agentId) => {
       await assignTask({ type: assigning.type, id: assigning.id, agent_id: agentId });
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
         await fetchAgents();
     };
     load();
-  }, []);
+  }, [fetchData, fetchAgents, fetchOpenTasks]);
 
   const adminApprove = async (id, status = 'Approved') => {
     try {

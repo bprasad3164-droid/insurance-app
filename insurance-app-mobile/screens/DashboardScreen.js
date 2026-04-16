@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
 import api from "../services/api";
 
@@ -11,9 +11,9 @@ export default function DashboardScreen({ navigation, route }) {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const polyRes = await api.get("/my-policies/");
       const claimRes = await api.get("/claim/my/");
@@ -25,7 +25,7 @@ export default function DashboardScreen({ navigation, route }) {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, []);
 
   const onRefresh = () => {
     setRefreshing(true);

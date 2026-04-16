@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from accounts.models import User, Policy
+from accounts.models import User, Policy, UserPolicy
 
 
 class Command(BaseCommand):
@@ -8,9 +8,9 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # ── Standardized Users ──────────────────────────────────────────────
         users = [
-            {"email": "admin@test.com",  "password": "admin123",  "role": "admin"},
-            {"email": "agent@test.com",  "password": "agent123",  "role": "agent"},
-            {"email": "user@test.com",   "password": "user123",   "role": "user"},
+            {"email": "admin@proinsurance.com", "password": "Admin@123", "role": "admin"},
+            {"email": "agent@proinsurance.com", "password": "Agent@123", "role": "agent"},
+            {"email": "user@proinsurance.com",  "password": "User@1234", "role": "user"},
         ]
 
         for u in users:

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, TextInput } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import api from "../services/api";
@@ -9,11 +9,7 @@ export default function ClaimScreen({ navigation }) {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchPolicies();
-  }, []);
-
-  const fetchPolicies = async () => {
+  const fetchPolicies = useCallback(async () => {
     try {
         const res = await api.get("/policies/");
         setPolicies(res.data);
@@ -22,7 +18,9 @@ export default function ClaimScreen({ navigation }) {
     } finally {
         setLoading(false);
     }
-  };
+  useEffect(() => {
+    fetchPolicies();
+  }, [fetchPolicies]);
 
   const submitClaim = async () => {
     if (!selectedPolicy) return alert("Select a policy");

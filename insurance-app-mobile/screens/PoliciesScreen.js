@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
+import { useEffect, useState, useCallback } from "react";
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from "react-native";
 import api from "../services/api";
 
 export default function PoliciesScreen({ navigation }) {
@@ -8,9 +8,9 @@ export default function PoliciesScreen({ navigation }) {
 
   useEffect(() => {
     fetchPolicies();
-  }, []);
+  }, [fetchPolicies]);
 
-  const fetchPolicies = async () => {
+  const fetchPolicies = useCallback(async () => {
     try {
         const res = await api.get("/policies/");
         setPolicies(res.data);
@@ -19,7 +19,7 @@ export default function PoliciesScreen({ navigation }) {
     } finally {
         setLoading(false);
     }
-  };
+  }, []);
 
   const renderItem = ({ item }) => (
     <View style={styles.policyCard}>

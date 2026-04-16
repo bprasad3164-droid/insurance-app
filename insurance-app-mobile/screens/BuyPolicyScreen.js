@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
 import api from "../services/api";
 
@@ -13,9 +13,9 @@ export default function BuyPolicyScreen({ route, navigation }) {
 
   useEffect(() => {
     fetchPolicy();
-  }, []);
+  }, [fetchPolicy]);
 
-  const fetchPolicy = async () => {
+  const fetchPolicy = useCallback(async () => {
     try {
       // Assuming existing policies API or a single policy fetch
       const res = await api.get("/policies/");
@@ -27,9 +27,9 @@ export default function BuyPolicyScreen({ route, navigation }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [policyId, age, salary, calculatePremium]);
 
-  const calculatePremium = async (pId, currentAge, currentSalary) => {
+  const calculatePremium = useCallback(async (pId, currentAge, currentSalary) => {
     setCalculating(true);
     try {
       const res = await api.post("/calculate/", {
@@ -43,7 +43,7 @@ export default function BuyPolicyScreen({ route, navigation }) {
     } finally {
       setCalculating(false);
     }
-  };
+  }, [policyId]);
 
   const handlePurchase = async () => {
     try {
