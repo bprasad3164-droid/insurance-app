@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, Animated, Easing } from "react-native";
 import api from "../services/api";
 
 export default function BuyPolicyScreen({ route, navigation }) {
@@ -10,6 +10,26 @@ export default function BuyPolicyScreen({ route, navigation }) {
   const [premium, setPremium] = useState(null);
   const [loading, setLoading] = useState(true);
   const [calculating, setCalculating] = useState(false);
+  const floatAnim = React.useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: 1,
+          duration: 3500,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 3500,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [floatAnim]);
 
   const fetchPolicy = useCallback(async () => {
     try {
@@ -66,11 +86,28 @@ export default function BuyPolicyScreen({ route, navigation }) {
   );
 
   return (
-    <KeyboardAvoidingView 
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-    >
-        <ScrollView style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: '#e0e5ec' }}>
+        <Animated.View 
+            style={[
+                styles.bgShield,
+                {
+                    transform: [{
+                        translateY: floatAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, 20]
+                        })
+                    }]
+                }
+            ]}
+        >
+            <Text style={{ fontSize: 250, opacity: 0.05, color: '#3b82f6' }}>🛡️</Text>
+        </Animated.View>
+
+        <KeyboardAvoidingView 
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+        >
+            <ScrollView style={styles.container}>
         <View style={styles.card}>
             <Text style={styles.policyTitle}>{policy?.name}</Text>
             <Text style={styles.policyDesc}>{policy?.description}</Text>
@@ -124,12 +161,14 @@ export default function BuyPolicyScreen({ route, navigation }) {
         
         <View style={{ height: 40 }} />
         </ScrollView>
-    </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#e0e5ec', padding: 20 },
+  container: { flex: 1, backgroundColor: 'transparent', padding: 20 },
+  bgShield: { position: 'absolute', bottom: -50, left: -50, zIndex: -1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#e0e5ec' },
   card: { 
     backgroundColor: '#e0e5ec', 

@@ -7,6 +7,7 @@ export default function ClaimScreen({ navigation }) {
   const [policies, setPolicies] = useState([]);
   const [selectedPolicy, setSelectedPolicy] = useState("");
   const [amount, setAmount] = useState("");
+  const [claimType, setClaimType] = useState("Accident");
   const [loading, setLoading] = useState(true);
 
   const fetchPolicies = useCallback(async () => {
@@ -30,7 +31,8 @@ export default function ClaimScreen({ navigation }) {
     try {
         await api.post("/claim/", {
             policy: selectedPolicy,
-            amount: amount
+            amount: amount,
+            claim_type: claimType
         });
         alert("Claim Submitted Successfully!");
         navigation.goBack();
@@ -60,14 +62,28 @@ export default function ClaimScreen({ navigation }) {
                   </Picker>
               </View>
 
-              <Text style={styles.label}>Claim Amount (INR)</Text>
-              <TextInput 
-                style={styles.input}
-                placeholder="e.g. 50000"
-                keyboardType="numeric"
-                value={amount}
-                onChangeText={setAmount}
-              />
+               <Text style={styles.label}>Claim Classification</Text>
+               <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={claimType}
+                    onValueChange={(itemValue) => setClaimType(itemValue)}
+                  >
+                    <Picker.Item label="Accident / Collision" value="Accident" />
+                    <Picker.Item label="Medical / Surgery" value="Medical" />
+                    <Picker.Item label="Theft / Burglary" value="Theft" />
+                    <Picker.Item label="Property Damage" value="Damage" />
+                    <Picker.Item label="Other Service Request" value="Other" />
+                  </Picker>
+               </View>
+
+               <Text style={styles.label}>Claim Amount (INR)</Text>
+               <TextInput 
+                 style={styles.input}
+                 placeholder="e.g. 50000"
+                 keyboardType="numeric"
+                 value={amount}
+                 onChangeText={setAmount}
+               />
 
               <TouchableOpacity style={styles.submitButton} onPress={submitClaim}>
                   <Text style={styles.submitText}>Submit Claim</Text>

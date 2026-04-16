@@ -39,10 +39,10 @@ export default function ClaimDetailScreen({ route, navigation }) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.headerCard}>
-        <Text style={styles.claimId}>CLAIM #{claim.id}</Text>
-        <Text style={styles.amount}>₹{claim.amount?.toLocaleString()}</Text>
+        <Text style={styles.claimId}>CLAIM #{claim.id} | {claim.claim_type?.toUpperCase() || 'GENERAL'}</Text>
+        <Text style={styles.amount}>₹{claim.amount?.toLocaleString() || '0'}</Text>
         <View style={[styles.statusBadge, { backgroundColor: claim.status === 'Approved' ? '#10b981' : '#f59e0b' }]}>
-            <Text style={styles.statusText}>{claim.status.toUpperCase()}</Text>
+            <Text style={styles.statusText}>{(claim.status || 'Pending').toUpperCase()}</Text>
         </View>
       </View>
 

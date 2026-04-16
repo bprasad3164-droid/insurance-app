@@ -31,17 +31,24 @@ export default function DashboardScreen({ navigation, route }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const polyRes = await api.get("/my-policies/");
-      const claimRes = await api.get("/claim/my/");
-      setPolicies(Array.isArray(polyRes.data) ? polyRes.data : []);
-      setClaims(Array.isArray(claimRes.data) ? claimRes.data : []);
+      if (role === 'agent') {
+        const claimRes = await api.get("/claims/all/");
+        const apptRes = await api.get("/my-appointments/");
+        setClaims(Array.isArray(claimRes.data) ? claimRes.data : []);
+        setPolicies(Array.isArray(apptRes.data) ? apptRes.data : []); // Using 'policies' state to store appts for agents
+      } else {
+        const polyRes = await api.get("/my-policies/");
+        const claimRes = await api.get("/claim/my/");
+        setPolicies(Array.isArray(polyRes.data) ? polyRes.data : []);
+        setClaims(Array.isArray(claimRes.data) ? claimRes.data : []);
+      }
     } catch (error) {
       console.error("Dashboard Fetch Error", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [role]);
 
   useEffect(() => {
     fetchData();
@@ -81,70 +88,74 @@ export default function DashboardScreen({ navigation, route }) {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeText}>Member Dashboard</Text>
+          <Text style={styles.welcomeText}>{role === 'agent' ? "Mission Hub" : "Member Dashboard"}</Text>
           <Text style={styles.roleTag}>{role.toUpperCase()} ACCOUNT</Text>
         </View>
 
         {/* Quick Stats */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>POLICIES</Text>
+            <Text style={styles.statLabel}>{role === 'agent' ? "PENDING SURVEYS" : "POLICIES"}</Text>
             <Text style={styles.statValue}>{policies.length}</Text>
           </View>
-          <View style={[styles.statCard, { backgroundColor: '#3b82f6' }]}>
-            <Text style={[styles.statLabel, { color: '#fff' }]}>ACTIVE CLAIMS</Text>
-            <Text style={[styles.statValue, { color: '#fff' }]}>{Array.isArray(claims) ? claims.filter(c => c.status === 'Pending').length : 0}</Text>
+          <View style={[styles.statCard, { backgroundColor: role === 'agent' ? '#10b981' : '#3b82f6' }]}>
+            <Text style={[styles.statLabel, { color: '#fff' }]}>{role === 'agent' ? "CLAIMS ASSIGNED" : "ACTIVE CLAIMS"}</Text>
+            <Text style={[styles.statValue, { color: '#fff' }]}>{claims.length}</Text>
           </View>
         </View>
 
-        {/* Navigation Cards */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>QUICK ACTIONS</Text>
-          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate("Policies")}>
-            <Text style={styles.actionTitle}>Browse Marketplace</Text>
-            <Text style={styles.actionSub}>Explore new coverage plans</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate("Claim")}>
-            <Text style={styles.actionTitle}>File New Claim</Text>
-            <Text style={styles.actionSub}>Report a new incident</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Claim Timeline */}
-        {claims.length > 0 && (
+        {/* Navigation Cards (Only for Users) */}
+        {role !== 'agent' && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>SETTLEMENT TIMELINE</Text>
-            {claims.map((claim, idx) => (
-              <TouchableOpacity 
-                  key={idx} 
-                  style={styles.timelineCard}
-                  onPress={() => navigation.navigate("ClaimDetail", { claimId: claim.id })}
-              >
-                <View style={styles.timelineHeader}>
-                  <Text style={styles.claimId}>CLAIM #{claim.id}</Text>
-                  <Text style={styles.claimAmount}>₹{claim.amount?.toLocaleString()}</Text>
-                </View>
-                
-                <View style={styles.stepsRow}>
-                  <View style={styles.step}>
-                    <View style={[styles.dot, { backgroundColor: '#10b981' }]} />
-                    <Text style={styles.stepText}>Raised</Text>
-                  </View>
-                  <View style={styles.connector} />
-                  <View style={styles.step}>
-                    <View style={[styles.dot, { backgroundColor: claim.agent_status === 'Approved' ? '#10b981' : '#f59e0b' }]} />
-                    <Text style={styles.stepText}>Audit</Text>
-                  </View>
-                  <View style={styles.connector} />
-                  <View style={styles.step}>
-                    <View style={[styles.dot, { backgroundColor: claim.status === 'Approved' ? '#10b981' : claim.status === 'Rejected' ? '#ef4444' : '#ccc' }]} />
-                    <Text style={styles.stepText}>Settled</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+            <Text style={styles.sectionTitle}>QUICK ACTIONS</Text>
+            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate("Policies")}>
+              <Text style={styles.actionTitle}>Browse Marketplace</Text>
+              <Text style={styles.actionSub}>Explore new coverage plans</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate("Claim")}>
+              <Text style={styles.actionTitle}>File New Claim</Text>
+              <Text style={styles.actionSub}>Report a new incident</Text>
+            </TouchableOpacity>
           </View>
         )}
+
+        {/* Missions / Claim Timeline */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{role === 'agent' ? "FIELD ASSIGNMENTS" : "SETTLEMENT TIMELINE"}</Text>
+          {claims.length > 0 ? claims.map((claim, idx) => (
+            <TouchableOpacity 
+                key={idx} 
+                style={[styles.timelineCard, role === 'agent' && { borderLeftWidth: 5, borderLeftColor: '#10b981' }]}
+                onPress={() => navigation.navigate("ClaimDetail", { claimId: claim.id })}
+            >
+              <View style={styles.timelineHeader}>
+                <Text style={styles.claimId}>CLAIM #{claim.id} {role === 'agent' && `(${claim.claim_type || 'General'})`}</Text>
+                <Text style={styles.claimAmount}>₹{claim.amount?.toLocaleString()}</Text>
+              </View>
+              
+              <View style={styles.stepsRow}>
+                <View style={styles.step}>
+                  <View style={[styles.dot, { backgroundColor: '#10b981' }]} />
+                  <Text style={styles.stepText}>Raised</Text>
+                </View>
+                <View style={styles.connector} />
+                <View style={styles.step}>
+                  <View style={[styles.dot, { backgroundColor: claim.agent_status === 'Approved' ? '#10b981' : '#f59e0b' }]} />
+                  <Text style={styles.stepText}>Audit</Text>
+                </View>
+                <View style={styles.connector} />
+                <View style={styles.step}>
+                  <View style={[styles.dot, { backgroundColor: claim.status === 'Approved' ? '#10b981' : claim.status === 'Rejected' ? '#ef4444' : '#ccc' }]} />
+                  <Text style={styles.stepText}>Settled</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )) : (
+            <Text style={{ textAlign: 'center', color: '#718096', fontStyle: 'italic', marginTop: 20 }}>
+              {role === 'agent' ? "No active field missions assigned." : "No active claims in progress."}
+            </Text>
+          )}
+        </View>
 
         <View style={{ height: 40 }} />
       </ScrollView>
