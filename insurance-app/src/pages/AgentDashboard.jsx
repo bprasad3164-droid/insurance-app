@@ -60,9 +60,7 @@ export default function AgentDashboard() {
 
     const handleCompleteSurvey = async (id) => {
         try {
-            await axios.post(`http://127.0.0.1:8000/api/tasks/complete-survey/`, { id, notes: "Site survey completed successfully." }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
-            });
+            await api.post(`/tasks/complete-survey/`, { id, notes: "Site survey completed successfully." });
             alert("Survey Completed! Task sent for Executive Approval.");
             fetchTasks();
         } catch (err) {

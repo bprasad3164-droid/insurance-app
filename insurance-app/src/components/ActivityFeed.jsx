@@ -85,18 +85,6 @@ export default function ActivityFeed() {
                 </AnimatePresence>
             </div>
 
-            <style jsx>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 4px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #cbd5e0;
-                    border-radius: 10px;
-                }
-            `}</style>
         </div>
     );
 }
