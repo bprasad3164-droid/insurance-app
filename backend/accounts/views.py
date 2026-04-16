@@ -675,14 +675,14 @@ def download_invoice(request, id):
 @permission_classes([IsAuthenticated])
 def get_claim_detail(request, id):
     try:
-        claim = Claim.objects.get(id=id, user=request.user)
-        # Fetch related policy (get the most recent/active one)
-        user_policy = UserPolicy.objects.filter(user=request.user, policy=claim.policy).order_by('-purchase_date').first()
+        claim = Claim.objects.get(id=id)
+        # Authorization: Admin/Agent can see all; Users only see their own
+        if request.user.role == 'user' and claim.user != request.user:
+            return Response({"msg": "Unauthorized"}, status=403)
         
-        # Fetch related payments (linked via policy_id)
-        payments = Payment.objects.filter(user=request.user, policy_id=claim.policy.id)
-        
-        # Fetch related documents
+        # Use claim.user instead of request.user to fix data visibility for Admin/Agent
+        user_policy = UserPolicy.objects.filter(user=claim.user, policy=claim.policy).order_by('-purchase_date').first()
+        payments = Payment.objects.filter(user=claim.user, policy_id=claim.policy.id).order_by('-timestamp')
         documents = Document.objects.filter(claim=claim)
         
         return Response({
@@ -725,8 +725,12 @@ def get_claim_detail(request, id):
 def download_claim_report(request, id):
     try:
         claim = Claim.objects.get(id=id)
-        user_policy = UserPolicy.objects.filter(user=claim.user, policy=claim.policy).first()
-        payments = Payment.objects.filter(user=claim.user, policy_id=claim.policy.id)
+        # Auth check moved to view logic
+        if request.user.role == 'user' and claim.user != request.user:
+            return HttpResponse("Unauthorized", status=403)
+            
+        user_policy = UserPolicy.objects.filter(user=claim.user, policy=claim.policy).order_by('-purchase_date').first()
+        payments = Payment.objects.filter(user=claim.user, policy_id=claim.policy.id).order_by('-timestamp')
         
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
