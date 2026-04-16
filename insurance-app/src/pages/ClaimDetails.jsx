@@ -28,8 +28,20 @@ export default function ClaimDetails() {
         fetchDetail();
     }, [id]);
 
-    const handleDownloadReport = () => {
-        window.open(`http://127.0.0.1:8000/api/claim/report/${id}/`, '_blank');
+    const handleDownloadReport = async () => {
+        try {
+            const response = await api.get(`/claim/report/${id}/`, { responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Claim_Report_${id}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+        } catch (err) {
+            console.error("Download failed", err);
+            alert("Failed to generate PDF. Please try again.");
+        }
     };
 
     if (loading) return (
