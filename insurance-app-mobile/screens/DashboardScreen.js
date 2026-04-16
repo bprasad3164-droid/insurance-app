@@ -78,7 +78,11 @@ export default function DashboardScreen({ navigation, route }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>SETTLEMENT TIMELINE</Text>
           {claims.map((claim, idx) => (
-            <View key={idx} style={styles.timelineCard}>
+            <TouchableOpacity 
+                key={idx} 
+                style={styles.timelineCard}
+                onPress={() => navigation.navigate("ClaimDetail", { claimId: claim.id })}
+            >
               <View style={styles.timelineHeader}>
                 <Text style={styles.claimId}>CLAIM #{claim.id}</Text>
                 <Text style={styles.claimAmount}>₹{claim.amount?.toLocaleString()}</Text>
