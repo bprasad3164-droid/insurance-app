@@ -138,37 +138,26 @@ export default function AgentDashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-                    {appointments.map((appt, idx) => (
+                    {Array.isArray(appointments) && appointments.length > 0 ? appointments.map((appt, idx) => (
                         <motion.div 
                             key={appt.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 }}
-                            className="clay p-8 bg-white border border-blue-50 relative overflow-hidden group"
+                            className="clay p-8 relative overflow-hidden group hover:translate-y-[-5px] transition-all bg-white/40"
                         >
                             <div className="flex justify-between items-start mb-6">
-                                <div>
-                                    <h4 className="text-xl font-black text-gray-800">{appt.category} Survey</h4>
-                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest italic">Client: {appt.client__username}</p>
+                                <div className="flex items-center gap-4">
+                                    <div className="clay-inset p-3 rounded-2xl text-green-600">
+                                        <MapPin className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-black text-gray-800 tracking-tight uppercase">Survey Request</h3>
+                                        <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">Policy Type: {appt.category}</p>
+                                    </div>
                                 </div>
-                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${appt.status === 'Assigned' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'}`}>
+                                <div className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${appt.status === 'Completed' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
                                     {appt.status}
-                                </span>
-                            </div>
-                            
-                            <div className="flex items-center gap-4 text-gray-500 mb-8">
-                                <MapPin className="w-4 h-4 text-blue-500" />
-                                <span className="text-sm font-bold">{new Date(appt.preferred_date).toLocaleString()}</span>
-                            </div>
-
-                            <button 
-                                onClick={() => handleCompleteSurvey(appt.id)}
-                                disabled={appt.status === 'Surveyed'}
-                                className={`w-full clay p-4 text-white font-black uppercase text-xs tracking-[0.2em] shadow-lg transition active:scale-95 ${appt.status === 'Surveyed' ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
-                            >
-                                {appt.status === 'Surveyed' ? 'Survey Submitted' : 'Complete Site Survey'}
-                            </button>
-                            
                             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                                 <ShieldCheck className="w-20 h-20" />
                             </div>

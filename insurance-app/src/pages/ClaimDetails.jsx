@@ -62,7 +62,7 @@ export default function ClaimDetails() {
         </div>
     );
 
-    const { claim, policy, payments, documents } = data;
+    const { claim = {}, policy = {}, payments = [], documents = [] } = data;
 
     return (
         <div className="min-h-screen bg-[#e0e5ec] p-6 lg:p-12">
@@ -259,14 +259,14 @@ export default function ClaimDetails() {
                                         <Calendar className="w-4 h-4 text-orange-500" />
                                         <span className="text-[10px] font-black text-gray-400 uppercase">Renewal Pulse</span>
                                     </div>
-                                    <span className="text-xs font-black text-gray-800">{policy.renewal_date ? new Date(policy.renewal_date).toLocaleDateString() : 'N/A'}</span>
+                                    <span className="text-xs font-black text-gray-800">{policy?.renewal_date ? new Date(policy.renewal_date).toLocaleDateString() : 'N/A'}</span>
                                 </div>
                                 <div className="clay-inset p-5 rounded-3xl flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <AlertCircle className="w-4 h-4 text-red-500" />
                                         <span className="text-[10px] font-black text-gray-400 uppercase">Final Expiry</span>
                                     </div>
-                                    <span className="text-xs font-black text-gray-800">{policy.expiry_date ? new Date(policy.expiry_date).toLocaleDateString() : 'N/A'}</span>
+                                    <span className="text-xs font-black text-gray-800">{policy?.expiry_date ? new Date(policy.expiry_date).toLocaleDateString() : 'N/A'}</span>
                                 </div>
                             </div>
 

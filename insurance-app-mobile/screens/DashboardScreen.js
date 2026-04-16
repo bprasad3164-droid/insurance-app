@@ -56,7 +56,7 @@ export default function DashboardScreen({ navigation, route }) {
         </View>
         <View style={[styles.statCard, { backgroundColor: '#3b82f6' }]}>
           <Text style={[styles.statLabel, { color: '#fff' }]}>ACTIVE CLAIMS</Text>
-          <Text style={[styles.statValue, { color: '#fff' }]}>{claims.filter(c => c.status === 'Pending').length}</Text>
+          <Text style={[styles.statValue, { color: '#fff' }]}>{Array.isArray(claims) ? claims.filter(c => c.status === 'Pending').length : 0}</Text>
         </View>
       </View>
 

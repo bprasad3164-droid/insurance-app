@@ -34,7 +34,7 @@ export default function ClaimDetailScreen({ route, navigation }) {
     </View>
   );
 
-  const { claim, policy, payments, documents } = data;
+  const { claim = {}, policy = {}, payments = [], documents = [] } = data || {};
 
   return (
     <ScrollView style={styles.container}>
@@ -56,11 +56,11 @@ export default function ClaimDetailScreen({ route, navigation }) {
             <View style={styles.dateRow}>
                 <View>
                     <Text style={styles.dateLabel}>RENEWAL</Text>
-                    <Text style={styles.dateValue}>{policy.renewal_date ? new Date(policy.renewal_date).toLocaleDateString() : 'N/A'}</Text>
+                    <Text style={styles.dateValue}>{policy?.renewal_date ? new Date(policy.renewal_date).toLocaleDateString() : 'N/A'}</Text>
                 </View>
                 <View>
                     <Text style={styles.dateLabel}>EXPIRY</Text>
-                    <Text style={styles.dateValue}>{policy.expiry_date ? new Date(policy.expiry_date).toLocaleDateString() : 'N/A'}</Text>
+                    <Text style={styles.dateValue}>{policy?.expiry_date ? new Date(policy.expiry_date).toLocaleDateString() : 'N/A'}</Text>
                 </View>
             </View>
         </View>

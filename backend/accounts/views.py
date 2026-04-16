@@ -246,23 +246,28 @@ def get_user_policies(request):
 def download_certificate(request, cert_id):
     try:
         user_policy = UserPolicy.objects.get(certificate_id=cert_id)
-        template = get_template('certificate_template.html')
-        context = {
-            'user': user_policy.user,
-            'policy': user_policy.policy,
-            'cert_id': cert_id,
-            'date': user_policy.purchase_date
-        }
-        html = template.render(context)
-        result = io.BytesIO()
-        pdf = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), result)
-        if not pdf.err:
-            response = HttpResponse(result.getvalue(), content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="certificate_{cert_id}.pdf"'
-            return response
-        return Response({"msg": "PDF generation error"}, status=500)
+        try:
+            template = get_template('certificate_template.html')
+            context = {
+                'user': user_policy.user,
+                'policy': user_policy.policy,
+                'cert_id': cert_id,
+                'date': user_policy.purchase_date
+            }
+            html = template.render(context)
+            result = io.BytesIO()
+            pdf = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), result)
+            if not pdf.err:
+                response = HttpResponse(result.getvalue(), content_type='application/pdf')
+                response['Content-Disposition'] = f'attachment; filename="certificate_{cert_id}.pdf"'
+                return response
+            return Response({"msg": "PDF generation aborted - Internal rendering conflict"}, status=500)
+        except Exception as e:
+            return Response({"msg": "Template rendering failed", "details": str(e)}, status=500)
     except UserPolicy.DoesNotExist:
-        return Response({"msg": "Certificate not found"}, status=404)
+        return Response({"msg": "Certificate ID not found in registry"}, status=404)
+    except Exception as e:
+        return Response({"msg": "System error", "details": str(e)}, status=500)
 
 # ================= WORKFLOW: STEP 1 (BOOKING) =================
 
