@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -20,9 +20,8 @@ export default function Analytics() {
     const token = localStorage.getItem("access");
     if (!token) return navigate("/login");
 
-    axios.get("http://127.0.0.1:8000/api/analytics/", {
-        headers: { Authorization: `Bearer ${token}` }
-    }).then(res => {
+    api.get("/analytics/")
+    .then(res => {
       const pendingClaims = res.data.claims - res.data.approved;
       setStats({ ...res.data, pending: pendingClaims });
       const chartData = [

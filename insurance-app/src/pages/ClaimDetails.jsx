@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api, { API_URL } from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
     ArrowLeft, ShieldCheck, Tag, IndianRupee, Clock, CheckCircle2, 
@@ -21,10 +21,7 @@ export default function ClaimDetails() {
 
     const fetchDetails = async () => {
         try {
-            const token = localStorage.getItem("access");
-            const res = await axios.get(`http://127.0.0.1:8000/api/claim-detail/${id}/`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get(`/claim-detail/${id}/`);
             setData(res.data);
         } catch (error) {
             console.error("Fetch Details Error", error);
@@ -36,7 +33,7 @@ export default function ClaimDetails() {
     const handleDownload = async () => {
         setDownloading(true);
         try {
-            window.open(`http://127.0.0.1:8000/api/claim/report/${id}/`, "_blank");
+            window.open(`${API_URL}/claim/report/${id}/`, "_blank");
         } catch (error) {
             alert("Error generating report");
         } finally {

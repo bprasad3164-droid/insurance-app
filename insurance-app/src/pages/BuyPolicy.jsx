@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calculator, CreditCard, ArrowLeft, ShieldCheck, Zap, User, IndianRupee, Home, Smartphone, Globe, Check, SmartphoneIcon as UPI, Wallet, CreditCardIcon as Card, Landmark, Loader2, X } from "lucide-react";
 
@@ -25,10 +25,7 @@ export default function BuyPolicy() {
 
   const fetchPortfolioStats = async () => {
     try {
-        const t = localStorage.getItem("access");
-        const res = await axios.get("http://127.0.0.1:8000/api/portfolio-stats/", {
-            headers: { Authorization: `Bearer ${t}` }
-        });
+        const res = await api.get("/portfolio-stats/");
         setPortfolioStats(res.data);
     } catch (err) {
         console.error("Error fetching portfolio stats", err);
@@ -59,10 +56,9 @@ export default function BuyPolicy() {
   };
 
   useEffect(() => {
-    // Fetch policy details to show on the calculator
     const fetchPolicy = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/policies/");
+        const res = await api.get("/policies/");
         const found = res.data.find(p => p.id === parseInt(id));
         if (found) setPolicy(found);
       } catch (err) {
@@ -75,7 +71,7 @@ export default function BuyPolicy() {
   const handleCalculate = async () => {
     setCalculating(true);
     try {
-      const res = await axios.post("http://127.0.0.1:8000/api/calculate/", {
+      const res = await api.post("/calculate/", {
         age,
         salary,
         policy_id: id
@@ -93,24 +89,21 @@ export default function BuyPolicy() {
     setPaymentStep('processing');
     
     try {
-        const token = localStorage.getItem("access");
-        const headers = { Authorization: `Bearer ${token}` };
-
         // 1. Create Payment Record (Manual) with Metadata
-        const payRes = await axios.post("http://127.0.0.1:8000/api/make-payment/", {
+        const payRes = await api.post("/make-payment/", {
             policy_id: id,
             amount: premium,
             method: paymentMethod.toUpperCase(),
             vpa: paymentMethod === 'upi' ? vpa : null,
             card_number: paymentMethod === 'card' ? cardNumber : null,
             bank_name: paymentMethod === 'netbanking' ? selectedBank : null
-        }, { headers });
+        });
 
         // 2. Buy the Policy
-        await axios.post("http://127.0.0.1:8000/api/buy-policy/", {
+        await api.post("/buy-policy/", {
             policy_id: id,
             premium: premium
-        }, { headers });
+        });
 
         // Refresh stats after success
         await fetchPortfolioStats();

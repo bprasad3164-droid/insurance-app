@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { motion } from "framer-motion";
 import { Check, XCircle, LogOut, ArrowLeft, Home, FileText, ClipboardList, MapPin, Calendar, Briefcase } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -20,23 +20,20 @@ export default function AgentDashboard() {
     const fetchTasks = useCallback(async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem("access");
-            const headers = { Authorization: `Bearer ${token}` };
-            
             // 1. Fetch Claims assigned to this agent
-            const resClaims = await axios.get("http://127.0.0.1:8000/api/claims/", { headers });
+            const resClaims = await api.get("/claims/");
             const claimsData = Array.isArray(resClaims.data) ? resClaims.data : [];
             setClaims(claimsData);
 
-            // 2. Fetch Appointments (In a real app, this would be a specific agent-appointment endpoint)
-            // For now, we simulate or use the same as claims if filtered by agent in backend
-            const resAppts = await axios.get("http://127.0.0.1:8000/api/appointments/my/", { headers });
-            setAppointments(resAppts.data);
+            // 2. Fetch Appointments
+            const resAppts = await api.get("/appointments/my/");
+            const apptsData = Array.isArray(resAppts.data) ? resAppts.data : [];
+            setAppointments(apptsData);
             
             setStats({
                 pending: claimsData.filter(c => c.agent_status === "Pending").length,
                 verified: claimsData.filter(c => c.agent_status === "Approved").length,
-                surveys: resAppts.data.length
+                surveys: apptsData.length
             });
             setError(null);
         } catch (err) {
@@ -53,9 +50,7 @@ export default function AgentDashboard() {
 
     const handleVerifyClaim = async (id, status) => {
         try {
-            await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`, { status }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
-            });
+            await api.post(`/approve-agent/${id}/`, { status });
             fetchTasks();
         } catch (err) {
             alert("Error updating claim: " + (err.response?.data?.msg || err.message));

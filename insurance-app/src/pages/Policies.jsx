@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, Zap, CreditCard, Heart, Car, Activity, AlignLeft, ArrowLeft, X, Scale, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -91,13 +91,10 @@ export default function Policies() {
   const loadPlans = async () => {
     setLoading(true);
     try {
-      const url =
-        filter === "all"
-          ? "http://127.0.0.1:8000/api/policies/"
-          : `http://127.0.0.1:8000/api/policies/?category=${filter}`;
-      const res = await axios.get(url, { timeout: 5000 });
+      const url = filter === "all" ? "/policies/" : `/policies/?category=${filter}`;
+      const res = await api.get(url, { timeout: 5000 });
       if (res.data && res.data.length > 0) {
-        setPlans(res.data);
+        setPlans(Array.isArray(res.data) ? res.data : []);
         setUsingFallback(false);
       } else {
         applyFallback();

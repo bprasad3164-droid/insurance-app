@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import axios from 'axios';
+import api from '../api/api';
 
 const useAuthStore = create((set) => ({
     user: null,
@@ -11,7 +11,7 @@ const useAuthStore = create((set) => ({
     login: async (email, password) => {
         set({ loading: true });
         try {
-            const res = await axios.post('http://127.0.0.1:8000/api/login/', { email, password });
+            const res = await api.post('/login/', { email, password });
             const { access, refresh, role, kyc_status } = res.data;
             
             localStorage.setItem('access', access);

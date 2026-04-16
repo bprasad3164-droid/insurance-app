@@ -24,7 +24,7 @@ export default function ClaimDetailScreen({ route, navigation }) {
   }, [fetchDetails]);
 
   const handleDownload = () => {
-    const url = `http://127.0.0.1:8000/api/claim/report/${claimId}/`;
+    const url = `${api.defaults.baseURL}/claim/report/${claimId}/`;
     Linking.openURL(url).catch(err => Alert.alert("Error", "Could not open browser for download"));
   };
 
@@ -68,8 +68,8 @@ export default function ClaimDetailScreen({ route, navigation }) {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>EVIDENCE SUBMITTED</Text>
-        {documents.map((doc, idx) => (
-            <TouchableOpacity key={idx} style={styles.docItem} onPress={() => Linking.openURL(`http://127.0.0.1:8000${doc.url}`)}>
+        {Array.isArray(documents) && documents.map((doc, idx) => (
+            <TouchableOpacity key={idx} style={styles.docItem} onPress={() => Linking.openURL(`${api.defaults.baseURL.replace('/api', '')}${doc.url}`)}>
                 <Text style={styles.docName}>{doc.name}</Text>
                 <Text style={styles.viewLink}>View File</Text>
             </TouchableOpacity>
@@ -78,13 +78,13 @@ export default function ClaimDetailScreen({ route, navigation }) {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>PAYMENT HISTORY</Text>
-        {payments.map((pmt, idx) => (
+        {Array.isArray(payments) && payments.map((pmt, idx) => (
             <View key={idx} style={styles.pmtRow}>
                 <View>
                     <Text style={styles.pmtMethod}>{pmt.method}</Text>
-                    <Text style={styles.pmtDate}>{new Date(pmt.timestamp).toLocaleDateString()}</Text>
+                    <Text style={styles.pmtDate}>{pmt.timestamp ? new Date(pmt.timestamp).toLocaleDateString() : 'N/A'}</Text>
                 </View>
-                <Text style={styles.pmtAmount}>₹{pmt.amount.toLocaleString()}</Text>
+                <Text style={styles.pmtAmount}>₹{pmt.amount?.toLocaleString() || '0'}</Text>
             </View>
         ))}
       </View>

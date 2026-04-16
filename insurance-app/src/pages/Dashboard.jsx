@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ShieldCheck, FileText, BarChart3, LogOut, ChevronRight, User, Clock, Activity, ArrowLeft } from "lucide-react";
-import axios from "axios";
+import api from "../api/api";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import ClaimTracking from "../components/ClaimTracking";
@@ -12,11 +12,8 @@ export default function Dashboard() {
 
   const fetchMyClaims = async () => {
     try {
-        const token = localStorage.getItem("access");
-        const res = await axios.get("http://127.0.0.1:8000/api/claim/my/", {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        setClaims(res.data);
+        const res = await api.get("/claim/my/");
+        setClaims(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error(err); }
   };
 

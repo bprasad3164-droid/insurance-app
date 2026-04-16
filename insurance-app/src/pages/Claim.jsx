@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileUp, Send, CheckCircle, ShieldCheck, ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +25,7 @@ export default function Claim() {
   const handleHome = () => navigate("/dashboard");
 
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/policies/").then(res => setPolicies(res.data));
+    api.get("/policies/").then(res => setPolicies(res.data));
   }, []);
 
   const handleFileChange = (e) => {
@@ -44,11 +44,9 @@ export default function Claim() {
     if (file) formData.append("file", file);
 
     try {
-      const token = localStorage.getItem("access");
-      await axios.post("http://127.0.0.1:8000/api/claim/", formData, {
+      await api.post("/claim/", formData, {
         headers: { 
-          "Content-Type": "multipart/form-data",
-          "Authorization": `Bearer ${token}`
+          "Content-Type": "multipart/form-data"
         }
       });
       setSuccess(true);

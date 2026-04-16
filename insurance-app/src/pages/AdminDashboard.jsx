@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut, Check, FileText, UserPlus, Briefcase } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,25 +27,20 @@ export default function AdminDashboard() {
 
   const fetchData = useCallback(async () => {
     try {
-        const token = localStorage.getItem("access");
-        const headers = { Authorization: `Bearer ${token}` };
-        const resStats = await axios.get("http://127.0.0.1:8000/api/analytics/", { headers });
-        const resKyc = await axios.get("http://127.0.0.1:8000/api/kyc-pending/", { headers });
-        const resTasks = await axios.get("http://127.0.0.1:8000/api/tasks/open/", { headers });
+        const resStats = await api.get("/analytics/");
+        const resKyc = await api.get("/kyc-pending/");
+        const resTasks = await api.get("/tasks/open/");
         
         setStats({ ...resStats.data, name: "Insights" });
-        setKycs(resKyc.data);
+        setKycs(Array.isArray(resKyc.data) ? resKyc.data : []);
         setExecutiveQueue(resTasks.data.executive_queue || []);
     } catch (err) { console.error(err); }
   }, []);
 
   const fetchAgents = useCallback(async () => {
     try {
-        const token = localStorage.getItem("access");
-        const res = await axios.get("http://127.0.0.1:8000/api/agents/", {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        setAgents(res.data);
+        const res = await api.get("/agents/");
+        setAgents(Array.isArray(res.data) ? res.data : []);
     } catch (err) { console.error("Error fetching agents", err); }
   }, []);
 
@@ -56,9 +51,7 @@ export default function AdminDashboard() {
   };
 
   const adminApproveKYC = async (id, status = 'Verified') => {
-      await axios.post(`http://127.0.0.1:8000/api/kyc-verify/${id}/`, { status }, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
-      });
+      await api.post(`/kyc-verify/${id}/`, { status });
       fetchData();
   };
 
@@ -74,30 +67,23 @@ export default function AdminDashboard() {
   const adminApprove = async (id, status = 'Approved', type = 'Claim') => {
     setLoadingAction({ type, id });
     try {
-        const token = localStorage.getItem("access");
         if (type === 'Claim') {
-            await axios.post(`http://127.0.0.1:8000/api/approve-admin/${id}/`, { status }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.post(`/approve-admin/${id}/`, { status });
         } else {
             // For surveys, we can finalize the appointment status
-            await axios.post(`http://127.0.0.1:8000/api/kyc-verify/${id}/`, { status: status === 'Approved' ? 'Verified' : 'Rejected' }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.post(`/kyc-verify/${id}/`, { status: status === 'Approved' ? 'Verified' : 'Rejected' });
         }
         await fetchData();
         await fetchOpenTasks();
-    } catch (e) { alert(e.response?.data?.msg || "Failed to process request."); }
+    } catch (e) { alert(e.response?.data?.error || e.response?.data?.msg || "Failed to process request."); }
     finally { setLoadingAction(null); }
   };
 
   const agentApprove = async (id, status) => {
     try {
-        await axios.post(`http://127.0.0.1:8000/api/approve-agent/${id}/`, { status }, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("access")}` }
-        });
+        await api.post(`/approve-agent/${id}/`, { status });
         fetchData();
-    } catch (e) { alert(e.response?.data?.msg || "Failed to update claim."); }
+    } catch (e) { alert(e.response?.data?.error || e.response?.data?.msg || "Failed to update claim."); }
   };
 
   const handleAddPolicy = async (e) => {

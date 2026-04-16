@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
+import api, { API_URL } from "../api/api";
 import { motion } from "framer-motion";
 import { ShieldCheck, Download, Calendar, Activity, CheckCircle2, ArrowRight, ArrowLeft, User, Hash, IndianRupee, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -24,10 +24,8 @@ export default function MyPolicies() {
         return;
     }
     try {
-      const res = await axios.get("http://127.0.0.1:8000/api/my-policies/", {
-          headers: { Authorization: `Bearer ${token}` }
-      });
-      setData(res.data);
+      const res = await api.get("/my-policies/");
+      setData(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error fetching policies", err);
     } finally {
@@ -41,16 +39,12 @@ export default function MyPolicies() {
 
   const handleDownload = (certId) => {
     if (!certId) return alert("Certificate ID missing for this policy.");
-    window.location.href = `http://127.0.0.1:8000/api/download-cert/${certId}/`;
+    window.location.href = `${API_URL}/download-cert/${certId}/`;
   };
 
   const handleRenewal = async (policyId) => {
-    const token = localStorage.getItem("access");
     try {
-        await axios.post("http://127.0.0.1:8000/api/renewals/create/", 
-            { policy_id: policyId },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await api.post("/renewals/create/", { policy_id: policyId });
         alert("Renewal request submitted successfully. An agent will be assigned to verify your profile.");
     } catch (err) {
         alert("Renewal request failed: " + (err.response?.data?.msg || err.message));

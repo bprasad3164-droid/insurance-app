@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { motion } from "framer-motion";
 import { UserCheck, ShieldOff, ShieldCheck, UploadCloud, ChevronLeft, CreditCard, ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -35,10 +35,7 @@ export default function ProfileKYC() {
 
   const fetchStats = async () => {
     try {
-        const t = localStorage.getItem("access");
-        const res = await axios.get("http://127.0.0.1:8000/api/portfolio-stats/", {
-            headers: { Authorization: `Bearer ${t}` }
-        });
+        const res = await api.get("/portfolio-stats/");
         setStats(res.data);
     } catch (err) { console.error("Error fetching stats", err); }
   };
@@ -53,11 +50,8 @@ export default function ProfileKYC() {
 
   const fetchUserPolicies = async () => {
       try {
-          const token = localStorage.getItem("access");
-          const res = await axios.get("http://127.0.0.1:8000/api/my-policies/", {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setPolicies(res.data);
+          const res = await api.get("/my-policies/");
+          setPolicies(Array.isArray(res.data) ? res.data : []);
       } catch (err) { console.log(err); }
   };
 
@@ -69,10 +63,8 @@ export default function ProfileKYC() {
     formData.append("pan", pan);
     formData.append("selfie", selfie);
     try {
-      const token = localStorage.getItem("access");
-      await axios.post("http://127.0.0.1:8000/api/kyc-update/", formData, {
+      await api.post("/kyc-update/", formData, {
         headers: { 
-            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data" 
         }
       });
@@ -87,14 +79,11 @@ export default function ProfileKYC() {
 
   const downloadCert = async (certId) => {
       const token = localStorage.getItem("access");
-      window.open(`http://127.0.0.1:8000/api/download-cert/${certId}/?access_token=${token}`);
+      window.open(`${API_URL}/download-cert/${certId}/?access_token=${token}`);
   };
 
   const pay = async (method) => {
     try {
-      const token = localStorage.getItem("access");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      
       let amount = 500;
       let policy_id = policies[0]?.id || 1;
 
@@ -114,20 +103,20 @@ export default function ProfileKYC() {
       }
 
       // STEP 2: Call backend
-      const res = await axios.post("http://127.0.0.1:8000/api/make-payment/", {
+      const res = await api.post("/make-payment/", {
         policy_id,
         amount,
         method
-      }, config);
+      });
 
       if (!res.data.payment_id) {
         throw new Error("Payment not created");
       }
 
       // STEP 3: Invoice
-      const invoiceRes = await axios.post("http://127.0.0.1:8000/api/invoice/create/", {
+      const invoiceRes = await api.post("/invoice/create/", {
         payment_id: res.data.payment_id
-      }, config);
+      });
 
       setInvoiceId(invoiceRes.data.invoice_id);
       alert("Payment Success ✅");

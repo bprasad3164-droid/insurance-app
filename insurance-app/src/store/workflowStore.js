@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import axios from 'axios';
+import api from '../api/api';
 
 const useWorkflowStore = create((set, get) => ({
     appointments: [],
@@ -9,34 +9,22 @@ const useWorkflowStore = create((set, get) => ({
     loading: false,
 
     fetchMyAppointments: async () => {
-        const token = localStorage.getItem('access');
-        const res = await axios.get('http://127.0.0.1:8000/api/appointments/my/', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await api.get('/appointments/my/');
         set({ appointments: res.data });
     },
 
     bookAppointment: async (data) => {
-        const token = localStorage.getItem('access');
-        await axios.post('http://127.0.0.1:8000/api/appointments/create/', data, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.post('/appointments/create/', data);
         get().fetchMyAppointments();
     },
 
     fetchOpenTasks: async () => {
-        const token = localStorage.getItem('access');
-        const res = await axios.get('http://127.0.0.1:8000/api/tasks/open/', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await api.get('/tasks/open/');
         set({ openTasks: res.data });
     },
 
     assignTask: async (assignData) => {
-        const token = localStorage.getItem('access');
-        await axios.post('http://127.0.0.1:8000/api/tasks/assign/', assignData, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.post('/tasks/assign/', assignData);
         get().fetchOpenTasks();
     }
 }));

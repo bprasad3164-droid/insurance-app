@@ -9,6 +9,7 @@ from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.utils import timezone
 from datetime import timedelta
+from django.db import transaction, models
 from django.db.models import Sum
 from xhtml2pdf import pisa
 import os
@@ -196,23 +197,24 @@ def buy_policy(request):
     premium = request.data.get('premium', 0)
     
     try:
-        policy = Policy.objects.get(id=policy_id)
-        cert_id = f"CERT-{uuid.uuid4().hex[:8].upper()}"
-        expiry = timezone.now() + timedelta(days=365)
-        
-        UserPolicy.objects.create(
-            user=request.user,
-            policy=policy,
-            premium=float(premium),
-            certificate_id=cert_id,
-            expiry_date=expiry,
-            status='Active'
-        )
-        return Response({"msg": "Purchase Successful", "certificate_id": cert_id, "expiry_date": expiry})
+        with transaction.atomic():
+            policy = Policy.objects.get(id=policy_id)
+            cert_id = f"CERT-{uuid.uuid4().hex[:8].upper()}"
+            expiry = timezone.now() + timedelta(days=365)
+            
+            UserPolicy.objects.create(
+                user=request.user,
+                policy=policy,
+                premium=float(premium),
+                certificate_id=cert_id,
+                expiry_date=expiry,
+                status='Active'
+            )
+            return Response({"msg": "Purchase Successful", "certificate_id": cert_id, "expiry_date": expiry})
     except Policy.DoesNotExist:
-        return Response({"msg": "Selected policy no longer available"}, status=404)
+        return Response({"error": "Selected policy no longer available"}, status=404)
     except Exception as e:
-        return Response({"msg": "Transaction aborted", "details": str(e)}, status=500)
+        return Response({"error": "Transaction aborted", "details": str(e)}, status=500)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -454,25 +456,28 @@ def admin_approve(request, id):
     if request.user.role != 'admin':
         return Response({"msg": "Unauthorized"}, status=403)
     try:
-        claim = Claim.objects.get(id=id)
-        if claim.agent_status != 'Approved':
-            return Response({"msg": "Agent approval required first"}, status=400)
-        
-        status = request.data.get('status', 'Approved')
-        claim.status = status
-        claim.save()
-        
-        if status == 'Approved':
-            send_mail(
-                "Claim Approved",
-                f"Your claim #{id} for policy {claim.policy.name} has been fully approved.",
-                "admin@proinsurance.com",
-                [claim.user.email]
-            )
-        
-        return Response({"msg": f"Admin {status} and Notification Processed"})
+        with transaction.atomic():
+            claim = Claim.objects.get(id=id)
+            if claim.agent_status != 'Approved':
+                return Response({"error": "Agent approval required first"}, status=400)
+            
+            status = request.data.get('status', 'Approved')
+            claim.status = status
+            claim.save()
+            
+            if status == 'Approved':
+                send_mail(
+                    "Claim Approved",
+                    f"Your claim #{id} for policy {claim.policy.name} has been fully approved.",
+                    "admin@proinsurance.com",
+                    [claim.user.email]
+                )
+            
+            return Response({"msg": f"Admin {status} and Notification Processed"})
     except Claim.DoesNotExist:
-        return Response({"msg": "Claim not found"}, status=404)
+        return Response({"error": "Claim not found"}, status=404)
+    except Exception as e:
+        return Response({"error": "Administrative update failed", "details": str(e)}, status=500)
 
 # ================= PAYMENTS =================
 
@@ -532,33 +537,34 @@ def send_notification(request):
 @permission_classes([IsAuthenticated])
 def make_payment(request):
     try:
-        policy_id = request.data.get('policy_id')
-        amount = request.data.get('amount')
-        method = request.data.get('method')
-        
-        if not all([policy_id, amount, method]):
-            return Response({"error": "Missing mandatory payment fields"}, status=400)
+        with transaction.atomic():
+            policy_id = request.data.get('policy_id')
+            amount = request.data.get('amount')
+            method = request.data.get('method')
+            
+            if not all([policy_id, amount, method]):
+                return Response({"error": "Missing mandatory payment fields"}, status=400)
 
-        # Mask card if method is card
-        card_num = request.data.get('card_number')
-        masked_card = None
-        if method == 'CARD' and card_num:
-            masked_card = f"**** **** **** {str(card_num)[-4:]}"
+            # Mask card if method is card
+            card_num = request.data.get('card_number')
+            masked_card = None
+            if method == 'CARD' and card_num:
+                masked_card = f"**** **** **** {str(card_num)[-4:]}"
 
-        payment = Payment.objects.create(
-            user=request.user,
-            policy_id=policy_id,
-            amount=float(amount),
-            method=method,
-            vpa=request.data.get('vpa'),
-            card_number_masked=masked_card,
-            bank_name=request.data.get('bank_name'),
-            status='success'
-        )
-        return Response({
-            "payment_id": payment.id,
-            "status": "success"
-        })
+            payment = Payment.objects.create(
+                user=request.user,
+                policy_id=policy_id,
+                amount=float(amount),
+                method=method,
+                vpa=request.data.get('vpa'),
+                card_number_masked=masked_card,
+                bank_name=request.data.get('bank_name'),
+                status='success'
+            )
+            return Response({
+                "payment_id": payment.id,
+                "status": "success"
+            })
     except Exception as e:
         return Response({"error": "Payment processing failure", "details": str(e)}, status=500)
 

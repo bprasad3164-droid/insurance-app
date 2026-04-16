@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { UserPlus, Mail, Lock, UserCheck, Eye, EyeOff } from "lucide-react";
@@ -16,7 +16,7 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://127.0.0.1:8000/api/register/", { email, password, role });
+      await api.post("/register/", { email, password, role });
       alert("Registration Successful! Please login.");
       navigate("/login");
     } catch (err) {
