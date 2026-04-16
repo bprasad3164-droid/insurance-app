@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../api/api";
 import { motion } from "framer-motion";
-import { Check, XCircle, LogOut, ArrowLeft, Home, FileText, ClipboardList, MapPin, Calendar, Briefcase } from "lucide-react";
+import { Check, XCircle, LogOut, ArrowLeft, Home, FileText, ClipboardList, MapPin, Calendar, Briefcase, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import ActivityFeed from "../components/ActivityFeed";

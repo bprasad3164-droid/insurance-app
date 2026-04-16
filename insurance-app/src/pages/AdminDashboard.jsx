@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut, Check, FileText, UserPlus, Briefcase } from "lucide-react";
+import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut, Check, FileText, UserPlus, Briefcase, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import useAuthStore from "../store/authStore";
