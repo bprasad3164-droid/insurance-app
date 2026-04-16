@@ -53,7 +53,7 @@ export default function ClaimScreen({ navigation }) {
                     selectedValue={selectedPolicy}
                     onValueChange={(itemValue) => setSelectedPolicy(itemValue)}
                   >
-                    <option label="Choose a policy..." value="" />
+                    <Picker.Item label="Choose a policy..." value="" />
                     {policies.map(p => (
                         <Picker.Item key={p.id} label={p.name} value={p.id} />
                     ))}

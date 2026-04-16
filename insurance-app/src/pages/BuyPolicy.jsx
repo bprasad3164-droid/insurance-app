@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calculator, CreditCard, ArrowLeft, ShieldCheck, Zap, User, IndianRupee, Home, Smartphone, Globe, Check, SmartphoneIcon as UPI, Wallet, CreditCardIcon as Card, Landmark, Loader2, X } from "lucide-react";
-import useAuthStore from "../store/authStore";
 
 
 export default function BuyPolicy() {
@@ -13,7 +12,6 @@ export default function BuyPolicy() {
   const [age, setAge] = useState(25);
   const [salary, setSalary] = useState(50000);
   const [premium, setPremium] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [success, setSuccess] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
@@ -23,7 +21,6 @@ export default function BuyPolicy() {
   const [cardNumber, setCardNumber] = useState("");
   const [selectedBank, setSelectedBank] = useState("");
   const [portfolioStats, setPortfolioStats] = useState({ total_premium: 0, next_renewal: null });
-  const { token } = useAuthStore();
 
   const fetchPortfolioStats = async () => {
     try {
@@ -84,19 +81,7 @@ export default function BuyPolicy() {
   };
 
 
-  const handleBuy = () => {
-    if (premium === 0) return alert("Please calculate premium first");
-    if (!token) {
-        alert("Session expired. Please login again.");
-        navigate("/login");
-        return;
-    }
-    setShowPayment(true);
-    setPaymentStep('select');
-  };
-
   const handleFinalPayment = async () => {
-    setLoading(true);
     setPaymentStep('processing');
     
     try {
@@ -130,8 +115,6 @@ export default function BuyPolicy() {
     } catch (err) {
         alert("Transaction Failed: " + (err.response?.data?.error || err.message));
         setPaymentStep('form');
-    } finally {
-        setLoading(false);
     }
   };
 

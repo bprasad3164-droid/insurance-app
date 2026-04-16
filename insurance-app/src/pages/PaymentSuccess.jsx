@@ -18,7 +18,6 @@ export default function PaymentSuccess() {
     const [paymentDetails, setPaymentDetails] = useState(null);
 
     const paymentId = searchParams.get("payment_id");
-    const policyId = searchParams.get("policy_id");
 
     useEffect(() => {
         const finalizePayment = async () => {
