@@ -237,6 +237,13 @@ export default function AgentDashboard() {
                                             </td>
                                             <td className="p-6">
                                                 <div className="flex justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                                     <button 
+                                                        onClick={() => navigate(`/claim-detail/${claim.id}`)} 
+                                                        className="clay p-3 bg-blue-50 text-blue-600 rounded-xl shadow-lg hover:bg-blue-100 transition active:scale-95" 
+                                                        title="Deep Dive Details"
+                                                    >
+                                                        <FileText className="w-4 h-4" />
+                                                    </button>
                                                     <button 
                                                         onClick={() => handleVerifyClaim(claim.id, 'Approved')} 
                                                         className="clay p-3 bg-green-500 text-white rounded-xl shadow-lg hover:bg-green-600 transition active:scale-95" 

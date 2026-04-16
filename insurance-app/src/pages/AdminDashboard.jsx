@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "../api/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut, Check, FileText, UserPlus, Briefcase, ShieldCheck } from "lucide-react";
+import { PlusCircle, BarChart3, ListChecks, CheckCircle2, AlertCircle, X, ArrowLeft, LogOut, Check, FileText, UserPlus, Briefcase, ShieldCheck, MousePointer2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import useAuthStore from "../store/authStore";
@@ -268,8 +268,20 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody className="text-gray-700 font-bold">
                     {executiveQueue.map(item => (
-                        <tr key={`${item.type}-${item.id}`} className="border-b border-gray-50/50 hover:bg-white/40 transition-colors">
-                            <td className="p-6 text-gray-400">#{item.type.slice(0,3).toUpperCase()}-{item.id}</td>
+                        <tr key={`${item.type}-${item.id}`} className="border-b border-gray-50/50 hover:bg-white/40 transition-colors group">
+                            <td className="p-6">
+                                {item.type === 'claim' ? (
+                                    <button 
+                                        onClick={() => navigate(`/claim-detail/${item.id}`)}
+                                        className="text-blue-600 hover:underline font-black flex items-center gap-1"
+                                    >
+                                        #{item.type.slice(0,3).toUpperCase()}-{item.id}
+                                        <MousePointer2 className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </button>
+                                ) : (
+                                    <span className="text-gray-400">#{item.type.slice(0,3).toUpperCase()}-{item.id}</span>
+                                )}
+                            </td>
                             <td className="p-6">{item.client}</td>
                             <td className="p-6 text-blue-600">{item.policy !== "N/A" ? `POL_${item.policy}` : "N/A"}</td>
                             <td className="p-6 font-black text-gray-800">{item.amount > 0 ? `₹${item.amount.toLocaleString()}` : "-"}</td>

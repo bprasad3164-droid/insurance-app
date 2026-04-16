@@ -499,7 +499,6 @@ def create_payment(request):
     except Exception as e:
         return Response({"msg": str(e)}, status=500)
 
-
 # ================= ANALYTICS =================
 
 @api_view(['GET'])

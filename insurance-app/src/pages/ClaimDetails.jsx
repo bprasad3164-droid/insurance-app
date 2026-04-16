@@ -1,302 +1,207 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import api, { API_URL } from "../api/api";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import api from '../api/api';
+import { motion } from 'framer-motion';
 import { 
-    ArrowLeft, ShieldCheck, Tag, IndianRupee, Clock, CheckCircle2, 
-    AlertCircle, FileText, Download, Calendar, ExternalLink, 
-    CreditCard, History, ChevronRight, Bookmark, Info
-} from "lucide-react";
+    ArrowLeft, Download, Shield, Clock, HardDrive, 
+    CreditCard, Calendar, AlertCircle, CheckCircle2,
+    FileText, User, MapPin
+} from 'lucide-react';
 
 export default function ClaimDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
-        fetchDetails();
+        const fetchDetail = async () => {
+            try {
+                const res = await api.get(`/claim-detail/${id}/`);
+                setData(res.data);
+            } catch (err) {
+                console.error("Error fetching claim details", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchDetail();
     }, [id]);
 
-    const fetchDetails = async () => {
-        try {
-            const res = await api.get(`/claim-detail/${id}/`);
-            setData(res.data);
-        } catch (error) {
-            console.error("Fetch Details Error", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDownload = async () => {
-        setDownloading(true);
-        try {
-            window.open(`${API_URL}/claim/report/${id}/`, "_blank");
-        } catch (error) {
-            alert("Error generating report");
-        } finally {
-            setTimeout(() => setDownloading(false), 2000);
-        }
+    const handleDownloadReport = () => {
+        window.open(`http://127.0.0.1:8000/api/claim/report/${id}/`, '_blank');
     };
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-[#e0e5ec]">
-            <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"
-            />
+        <div className="min-h-screen bg-clay-bg flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <p className="font-black text-gray-400 uppercase tracking-widest text-xs">Retrieving Claim Data...</p>
+            </div>
         </div>
     );
 
-    if (!data) return (
-        <div className="min-h-screen flex items-center justify-center bg-[#e0e5ec] flex-col gap-4">
-            <AlertCircle className="w-16 h-16 text-red-500" />
-            <p className="font-black text-gray-400 uppercase tracking-widest">Claim Registry Not Found</p>
-            <button onClick={() => navigate(-1)} className="clay px-8 py-3 rounded-2xl font-black text-blue-600 uppercase text-xs">Return to Dashboard</button>
-        </div>
-    );
+    if (!data) return <div className="p-20 text-center font-black text-red-500">Claim data unavailable.</div>;
 
-    const { claim = {}, policy = {}, payments = [], documents = [] } = data;
+    const { claim, policy, payments, documents } = data;
 
     return (
-        <div className="min-h-screen bg-[#e0e5ec] p-6 lg:p-12">
-            <div className="max-w-7xl mx-auto">
-                
-                {/* Header Navigation */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
-                    <div className="flex items-center gap-6">
+        <div className="min-h-screen bg-clay-bg p-8 flex flex-col items-center">
+            <div className="w-full max-w-6xl">
+                <header className="flex justify-between items-center mb-12">
+                    <button onClick={() => navigate(-1)} className="clay px-6 py-3 flex items-center gap-2 font-black text-gray-600 hover:text-blue-600 transition">
+                        <ArrowLeft className="w-5 h-5" /> Back to Terminal
+                    </button>
+                    <div className="flex gap-4">
                         <button 
-                            onClick={() => navigate(-1)}
-                            className="clay p-4 rounded-2xl hover:text-blue-600 transition-colors active:scale-90"
+                            onClick={handleDownloadReport}
+                            className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition flex items-center gap-2"
                         >
-                            <ArrowLeft className="w-6 h-6" />
+                            <Download className="w-5 h-5" /> Download PDF Report
                         </button>
-                        <div>
-                            <div className="flex items-center gap-3 mb-1">
-                                <h1 className="text-4xl font-black text-gray-800 tracking-tighter uppercase">Claim Hub</h1>
-                                <div className="clay px-3 py-1 rounded-full bg-blue-50">
-                                    <p className="text-[10px] font-black text-blue-600 uppercase">Track ID: #{claim.id}</p>
+                    </div>
+                </header>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+                    {/* Left Panel: Status & Overview */}
+                    <div className="lg:col-span-1 space-y-8">
+                        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="clay p-8 bg-white shadow-2xl overflow-hidden relative border-t-8 border-blue-600">
+                             <div className="flex justify-between items-start mb-6">
+                                <div>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Case ID</p>
+                                    <h1 className="text-3xl font-black text-gray-800">#{claim.id}</h1>
                                 </div>
-                                <div className="clay px-3 py-1 rounded-full bg-purple-50">
-                                    <p className="text-[10px] font-black text-purple-600 uppercase">{claim.claim_type || 'General'}</p>
+                                <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase ${claim.status === 'Approved' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                                    {claim.status}
+                                </span>
+                             </div>
+                             
+                             <div className="space-y-4">
+                                <div className="flex items-center gap-3 p-3 clay-inset bg-gray-50/50">
+                                    <AlertCircle className="w-5 h-5 text-blue-600" />
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase">Case Type</p>
+                                        <p className="text-sm font-black text-gray-700">{claim.claim_type}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 p-3 clay-inset bg-gray-50/50">
+                                    <CreditCard className="w-5 h-5 text-emerald-600" />
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase">Claim Amount</p>
+                                        <p className="text-sm font-black text-gray-700">₹{claim.amount.toLocaleString()}</p>
+                                    </div>
+                                </div>
+                             </div>
+                        </motion.div>
+
+                        <div className="clay p-8 bg-gray-900 text-white shadow-2xl relative overflow-hidden">
+                            <Shield className="absolute -bottom-4 -right-4 w-32 h-32 opacity-10" />
+                            <div className="relative z-10">
+                                <h3 className="text-lg font-black mb-4 flex items-center gap-2">
+                                    <HardDrive className="w-5 h-5 text-blue-400" /> Data Integrity
+                                </h3>
+                                <div className="space-y-2 text-[10px] font-bold text-gray-400">
+                                    <p>CREATED: {new Date(claim.created_at).toLocaleString()}</p>
+                                    <p>ENCRYPTION: AES-256 Enabled</p>
+                                    <p>AUDIT TRAIL: Active</p>
                                 </div>
                             </div>
-                            <p className="text-sm text-gray-500 font-bold uppercase tracking-widest flex items-center gap-2">
-                                <Bookmark className="w-4 h-4 text-blue-600" /> Unified Mission Critical Data
-                            </p>
                         </div>
                     </div>
 
-                    <button 
-                        onClick={handleDownload}
-                        disabled={downloading}
-                        className="clay px-8 py-5 rounded-[2rem] bg-blue-600 text-white font-black uppercase tracking-widest text-xs flex items-center gap-3 group transition-all hover:bg-blue-700 active:scale-95 disabled:opacity-50"
-                    >
-                        {downloading ? (
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin rounded-full" />
-                        ) : (
-                            <Download className="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
-                        )}
-                        <span>{downloading ? "Processing..." : "Download PDF Audit"}</span>
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-                    
-                    {/* Left Column: Tracking & Evidence */}
-                    <div className="lg:col-span-8 space-y-10">
-                        
-                        {/* Status Central */}
-                        <div className="clay p-10 rounded-[3rem]">
-                            <div className="flex items-center gap-4 mb-12">
-                                <div className="clay-inset p-3 rounded-2xl text-blue-600">
-                                    <ShieldCheck className="w-6 h-6" />
+                    {/* Middle: Details & Timeline */}
+                    <div className="lg:col-span-2 space-y-8">
+                        {/* Timeline */}
+                        <div className="clay p-10 bg-white shadow-2xl">
+                            <h3 className="text-xl font-black text-gray-800 mb-10 flex items-center gap-3">
+                                <Clock className="w-6 h-6 text-blue-600" /> Settlement Timeline
+                            </h3>
+                            <div className="relative border-l-4 border-blue-50 ml-6 space-y-12">
+                                <div className="relative pl-10">
+                                    <div className="absolute -left-[14px] top-0 w-6 h-6 bg-emerald-500 rounded-full border-4 border-white shadow-lg" />
+                                    <p className="text-sm font-black text-gray-800">Claim Requested</p>
+                                    <p className="text-xs text-gray-400 font-bold">{new Date(claim.created_at).toLocaleDateString()}</p>
                                 </div>
-                                <h3 className="text-xl font-black text-gray-800 tracking-tight uppercase">Settlement Real-time Timeline</h3>
-                            </div>
-
-                            <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-0 px-4">
-                                {/* Connection Line */}
-                                <div className="hidden md:block absolute top-[22px] left-0 right-0 h-1 bg-gray-200 -z-10 mx-10" />
-                                
-                                {/* Step 1 */}
-                                <div className="flex flex-col items-center gap-4 w-full md:w-auto">
-                                    <div className="clay p-4 rounded-full bg-green-500 text-white shadow-lg ring-[10px] ring-white">
-                                        <CheckCircle2 className="w-6 h-6" />
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-xs font-black text-gray-800 uppercase">Case Raised</p>
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase">Initial Intake</p>
-                                    </div>
+                                <div className="relative pl-10">
+                                    <div className={`absolute -left-[14px] top-0 w-6 h-6 ${claim.agent_status !== 'Pending' ? 'bg-emerald-500' : 'bg-gray-200'} rounded-full border-4 border-white shadow-lg`} />
+                                    <p className="text-sm font-black text-gray-800">Field Audit & Verification</p>
+                                    <p className="text-xs text-gray-400 font-bold">{claim.agent_status === 'Pending' ? 'In Progress' : 'Completed'}</p>
                                 </div>
-
-                                {/* Step 2 */}
-                                <div className="flex flex-col items-center gap-4 w-full md:w-auto">
-                                    <div className={`clay p-4 rounded-full shadow-lg ring-[10px] ring-white ${claim.agent_status === 'Approved' ? 'bg-green-500 text-white' : 'bg-orange-500 text-white animate-pulse'}`}>
-                                        {claim.agent_status === 'Approved' ? <CheckCircle2 className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-xs font-black text-gray-800 uppercase">Agent Audit</p>
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase">{claim.agent_status === 'Approved' ? 'Verified' : 'Manual Review'}</p>
-                                    </div>
-                                </div>
-
-                                {/* Step 3 */}
-                                <div className="flex flex-col items-center gap-4 w-full md:w-auto">
-                                    <div className={`clay p-4 rounded-full shadow-lg ring-[10px] ring-white ${claim.status === 'Approved' ? 'bg-blue-600 text-white' : claim.status === 'Rejected' ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-400'}`}>
-                                        {claim.status === 'Approved' ? <ShieldCheck className="w-6 h-6" /> : claim.status === 'Rejected' ? <AlertCircle className="w-6 h-6" /> : <Info className="w-6 h-6" />}
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-xs font-black text-gray-800 uppercase">Settlement</p>
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase">{claim.status === 'Approved' ? 'Disbursed' : 'Awaiting Finality'}</p>
-                                    </div>
+                                <div className="relative pl-10">
+                                    <div className={`absolute -left-[14px] top-0 w-6 h-6 ${claim.status === 'Approved' ? 'bg-emerald-500' : 'bg-gray-200'} rounded-full border-4 border-white shadow-lg`} />
+                                    <p className="text-sm font-black text-gray-800">Executive Finalization</p>
+                                    <p className="text-xs text-gray-400 font-bold">{claim.status === 'Approved' ? 'Settled' : 'Pending Review'}</p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Submitted Evidence */}
-                        <div className="clay p-10 rounded-[3rem]">
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="clay-inset p-3 rounded-2xl text-blue-600">
-                                    <FileText className="w-6 h-6" />
+                        {/* Policy Context */}
+                        <div className="clay p-10 bg-white shadow-2xl">
+                            <h3 className="text-xl font-black text-gray-800 mb-6 flex items-center gap-3">
+                                <Shield className="w-6 h-6 text-blue-600" /> Linked Policy Insight
+                            </h3>
+                            <div className="grid grid-cols-2 gap-6 mb-8">
+                                <div className="p-4 clay-inset">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Protection Plan</p>
+                                    <p className="text-sm font-black text-blue-600">{policy.name}</p>
                                 </div>
-                                <h3 className="text-xl font-black text-gray-800 tracking-tight uppercase">Submitted Evidence</h3>
+                                <div className="p-4 clay-inset">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Expiry Date</p>
+                                    <p className="text-sm font-black text-rose-600">{policy.expiry_date ? new Date(policy.expiry_date).toLocaleDateString() : 'N/A'}</p>
+                                </div>
                             </div>
+                            <p className="text-xs text-gray-500 font-bold leading-relaxed bg-gray-50 p-4 rounded-xl border-l-4 border-blue-400 italic">
+                                "{policy.description}"
+                            </p>
+                        </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {documents.length > 0 ? documents.map((doc, idx) => (
-                                    <a 
-                                        key={doc.id}
-                                        href={`http://127.0.0.1:8000${doc.url}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="clay-inset p-6 rounded-3xl group flex items-center justify-between hover:bg-white/50 transition-all border border-transparent hover:border-blue-400/30"
-                                    >
+                        {/* Transaction History */}
+                        <div className="clay p-10 bg-white shadow-2xl">
+                            <h3 className="text-xl font-black text-gray-800 mb-8 flex items-center gap-3">
+                                <CreditCard className="w-6 h-6 text-emerald-600" /> Premium Payment Ledger
+                            </h3>
+                            <div className="space-y-4">
+                                {payments.length > 0 ? payments.map((pmt, idx) => (
+                                    <div key={idx} className="flex justify-between items-center p-5 clay-inset hover:bg-white transition">
                                         <div className="flex items-center gap-4">
-                                            <div className="p-3 bg-blue-100 rounded-xl text-blue-600 group-hover:scale-110 transition-transform">
-                                                <FileText className="w-5 h-5" />
+                                            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                                                <CheckCircle2 className="w-4 h-4" />
                                             </div>
                                             <div>
-                                                <p className="text-xs font-black text-gray-700 uppercase truncate max-w-[150px]">{doc.name}</p>
-                                                <p className="text-[10px] text-gray-400 font-bold">Audit Documentation</p>
+                                                <p className="text-xs font-black text-gray-800">{pmt.method} Payment</p>
+                                                <p className="text-[10px] text-gray-400 font-bold">{new Date(pmt.timestamp).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <ExternalLink className="w-4 h-4 text-blue-600 opacity-50 group-hover:opacity-100" />
-                                    </a>
-                                )) : (
-                                    <div className="col-span-2 text-center py-10 opacity-30">
-                                        <p className="font-black text-xs uppercase tracking-widest">No Electronic Documents Found</p>
+                                        <p className="text-sm font-black text-gray-800">₹{pmt.amount.toLocaleString()}</p>
                                     </div>
+                                )) : (
+                                    <p className="text-center py-8 text-gray-400 font-black text-xs italic">No transaction records found for this policy cluster.</p>
                                 )}
                             </div>
                         </div>
 
-                        {/* Transaction History */}
-                        <div className="clay p-10 rounded-[3rem]">
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="clay-inset p-3 rounded-2xl text-purple-600">
-                                    <History className="w-6 h-6" />
-                                </div>
-                                <h3 className="text-xl font-black text-gray-800 tracking-tight uppercase">Payment Audit Trail</h3>
-                            </div>
-
-                            <div className="overflow-x-auto">
-                                <table className="w-full">
-                                    <thead>
-                                        <tr className="border-b border-gray-200">
-                                            <th className="text-left pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Descriptor</th>
-                                            <th className="text-left pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Method</th>
-                                            <th className="text-right pb-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Settlement</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {payments.map((pmt) => (
-                                            <tr key={pmt.id} className="group">
-                                                <td className="py-5">
-                                                    <p className="text-xs font-black text-gray-800 uppercase">Premium Installment</p>
-                                                    <p className="text-[10px] text-gray-400 font-bold">{new Date(pmt.timestamp).toDateString()}</p>
-                                                </td>
-                                                <td className="py-5">
-                                                    <div className="flex items-center gap-2">
-                                                        <CreditCard className="w-3 h-3 text-blue-500" />
-                                                        <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{pmt.method}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="py-5 text-right">
-                                                    <p className="text-sm font-black text-gray-800">₹{pmt.amount.toLocaleString()}</p>
-                                                    <span className="text-[8px] font-bold text-green-500 uppercase tracking-tighter">SUCCESSFUL DATA</span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Policy Insight */}
-                    <div className="lg:col-span-4 space-y-10">
-                        
-                        {/* Policy Metadata Card */}
-                        <div className="clay p-10 rounded-[3rem] bg-gradient-to-br from-[#e0e5ec] to-white/30 border-2 border-white/50">
-                            <Tag className="w-12 h-12 text-blue-600 mb-8 opacity-20" />
-                            <h2 className="text-2xl font-black text-gray-800 tracking-tight uppercase mb-2">{policy.name}</h2>
-                            <div className="flex items-center gap-2 mb-8">
-                                <div className="w-2 h-2 rounded-full bg-blue-500" />
-                                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{policy.category} Insurance Plan</p>
-                            </div>
-
-                            <p className="text-xs text-gray-500 leading-relaxed font-bold mb-10 overflow-hidden line-clamp-6">
-                                {policy.description}
-                            </p>
-
-                            <div className="space-y-6 mb-10">
-                                <div className="clay-inset p-5 rounded-3xl flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Calendar className="w-4 h-4 text-orange-500" />
-                                        <span className="text-[10px] font-black text-gray-400 uppercase">Renewal Pulse</span>
+                        {/* Evidence Hub */}
+                        <div className="clay p-10 bg-white shadow-2xl">
+                             <h3 className="text-xl font-black text-gray-800 mb-8 flex items-center gap-3">
+                                <HardDrive className="w-6 h-6 text-indigo-600" /> Evidence Repository
+                            </h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {documents.length > 0 ? documents.map((doc, idx) => (
+                                    <a key={idx} href={`http://127.0.0.1:8000${doc.url}`} target="_blank" rel="noreferrer" className="clay p-4 flex flex-col items-center gap-2 hover:bg-indigo-50 transition border border-indigo-100">
+                                        <FileText className="w-8 h-8 text-indigo-400" />
+                                        <p className="text-[10px] font-black text-gray-600 truncate w-full text-center">{doc.name}</p>
+                                    </a>
+                                )) : (
+                                    <div className="col-span-full py-10 text-center clay-inset bg-gray-50/50">
+                                        <HardDrive className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                                        <p className="text-xs text-gray-400 font-black italic">No case evidence uploaded.</p>
                                     </div>
-                                    <span className="text-xs font-black text-gray-800">{policy?.renewal_date ? new Date(policy.renewal_date).toLocaleDateString() : 'N/A'}</span>
-                                </div>
-                                <div className="clay-inset p-5 rounded-3xl flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <AlertCircle className="w-4 h-4 text-red-500" />
-                                        <span className="text-[10px] font-black text-gray-400 uppercase">Final Expiry</span>
-                                    </div>
-                                    <span className="text-xs font-black text-gray-800">{policy?.expiry_date ? new Date(policy.expiry_date).toLocaleDateString() : 'N/A'}</span>
-                                </div>
-                            </div>
-
-                            <button className="w-full clay p-5 rounded-2xl flex items-center justify-center gap-3 group">
-                                <span className="text-xs font-black text-gray-800 uppercase tracking-widest">Full T&C Audit</span>
-                                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </button>
-                        </div>
-
-                        {/* Claim Financial Summary */}
-                        <div className="clay p-10 rounded-[3rem] bg-blue-600 text-white relative overflow-hidden">
-                            <IndianRupee className="absolute -right-8 -bottom-8 w-48 h-48 opacity-10" />
-                            <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 opacity-70">Payout Disbursement</p>
-                            <h3 className="text-5xl font-black tracking-tighter mb-2">₹{claim.amount.toLocaleString()}</h3>
-                            <p className="text-xs font-bold opacity-80 mb-8 tracking-wide">Approved settlement for catastrophic {claim.claim_type?.toLowerCase() || 'incident'} recovery.</p>
-                            
-                            <div className="pt-8 border-t border-white/10 flex items-center gap-4">
-                                <div className="p-2 bg-white/10 rounded-lg">
-                                    <Clock className="w-4 h-4" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest">Filing Timestamp</p>
-                                    <p className="text-xs font-bold">{new Date(claim.created_at).toLocaleString()}</p>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="h-20" />
         </div>
     );
 }
