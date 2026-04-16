@@ -292,8 +292,10 @@ def create_appointment(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def my_appointments(request):
-    appts = Appointment.objects.filter(client=request.user)
-    # Basic data return for now
+    if request.user.role == 'agent':
+        appts = Appointment.objects.filter(agent=request.user)
+    else:
+        appts = Appointment.objects.filter(client=request.user)
     return Response(list(appts.values()))
 
 # ================= WORKFLOW: STEP 3 (RENEWAL) =================
