@@ -46,7 +46,7 @@ export default function ActivityFeed() {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <h3 className="text-sm font-black text-black uppercase tracking-widest flex items-center gap-2">
                     <Clock className="w-4 h-4" /> Live Stream
                 </h3>
                 <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
@@ -71,7 +71,7 @@ export default function ActivityFeed() {
                                     <p className="text-xs font-bold text-gray-800 leading-snug">
                                         {act.description}
                                     </p>
-                                    <p className="text-[10px] font-black text-gray-400 mt-1 uppercase">
+                                    <p className="text-[10px] font-black text-black mt-1 uppercase">
                                         {new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
                                 </div>
@@ -79,7 +79,7 @@ export default function ActivityFeed() {
                         );
                     }) : (
                         <div className="text-center py-10">
-                            <p className="text-xs font-bold text-gray-400 italic">Static Quiet...</p>
+                            <p className="text-xs font-bold text-black italic">Static Quiet...</p>
                         </div>
                     )}
                 </AnimatePresence>
