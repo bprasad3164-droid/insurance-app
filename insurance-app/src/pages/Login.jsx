@@ -59,7 +59,7 @@ export default function Login() {
     }
     setError("");
     try {
-      await login(email, password);
+      await login(email, password, activeRole);
       // Success is handled by the useEffect redirecting to dashboard
     } catch (err) {
       setError(

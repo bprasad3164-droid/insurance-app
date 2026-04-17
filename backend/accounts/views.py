@@ -54,8 +54,15 @@ def register(request):
 def login_with_token(request):
     email = request.data.get('email')
     password = request.data.get('password')
+    required_role = request.data.get('role') # Portal requested
+
     user = authenticate(username=email, password=password)
     if user:
+        if required_role and user.role != required_role:
+            return Response({
+                "msg": f"Access Denied: Your account does not have {required_role} privileges."
+            }, status=403)
+
         refresh = RefreshToken.for_user(user)
         return Response({
             "access": str(refresh.access_token),

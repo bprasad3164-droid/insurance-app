@@ -11,6 +11,9 @@ class Command(BaseCommand):
             {"email": "admin@proinsurance.com", "password": "Admin@123", "role": "admin"},
             {"email": "agent@proinsurance.com", "password": "Agent@123", "role": "agent"},
             {"email": "user@proinsurance.com",  "password": "User@1234", "role": "user"},
+            {"email": "admin@test.com", "password": "Admin@123", "role": "admin"},
+            {"email": "agent@test.com", "password": "Agent@123", "role": "agent"},
+            {"email": "user@test.com",  "password": "User@123", "role": "user"},
         ]
 
         for u in users:

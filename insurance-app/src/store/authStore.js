@@ -8,10 +8,10 @@ const useAuthStore = create((set) => ({
     isAuthenticated: !!localStorage.getItem('access'),
     loading: false,
 
-    login: async (email, password) => {
+    login: async (email, password, role) => {
         set({ loading: true });
         try {
-            const res = await api.post('/login/', { email, password });
+            const res = await api.post('/login/', { email, password, role });
             const { access, refresh, role, kyc_status } = res.data;
             
             localStorage.setItem('access', access);
