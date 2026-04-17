@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CheckCircle, Download, ArrowRight, ShieldCheck, Smartphone, CreditCard, Landmark, IndianRupee, FileText, Calendar, Clock } from "lucide-react";
-import axios from "axios";
+import api, { API_URL } from "../api/api";
 
 const METHOD_CONFIG = {
     UPI: { icon: Smartphone, label: "UPI Transfer", color: "text-blue-600", bg: "bg-blue-50" },
@@ -27,16 +27,15 @@ export default function PaymentSuccess() {
 
                 // 1. Get payment details
                 try {
-                    const detailRes = await axios.get(`http://127.0.0.1:8000/api/payment-detail/${paymentId}/`, { headers });
+                    const detailRes = await api.get(`/payment-detail/${paymentId}/`);
                     setPaymentDetails(detailRes.data);
                 } catch (e) {
                     console.warn("Could not fetch payment details", e);
                 }
 
                 // 2. Generate Invoice
-                const res = await axios.post("http://127.0.0.1:8000/api/invoice/create/", 
-                    { payment_id: paymentId },
-                    { headers }
+                const res = await api.post("/invoice/create/", 
+                    { payment_id: paymentId }
                 );
                 setInvoiceId(res.data.invoice_id);
                 setLoading(false);
@@ -51,7 +50,7 @@ export default function PaymentSuccess() {
 
     const downloadInvoice = () => {
         if (invoiceId) {
-            window.open(`http://127.0.0.1:8000/api/invoice/download/${invoiceId}/`, "_blank");
+            window.open(`${API_URL}/invoice/download/${invoiceId}/`, "_blank");
         }
     };
 

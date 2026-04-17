@@ -275,7 +275,7 @@ export default function ProfileKYC() {
                             <p className="text-blue-100 text-xs font-bold">Your invoice is ready for download.</p>
                         </div>
                         <button
-                            onClick={() => window.open(`http://127.0.0.1:8000/api/invoice/download/${invoiceId}/`)}
+                            onClick={() => window.open(`http://localhost:8000/api/invoice/download/${invoiceId}/`)}
                             className="bg-white text-blue-600 px-6 py-3 rounded-xl font-black text-xs shadow-xl hover:bg-gray-100 transition tracking-widest uppercase flex items-center gap-2"
                         >
                             <UploadCloud className="w-4 h-4 rotate-180" /> Download Invoice

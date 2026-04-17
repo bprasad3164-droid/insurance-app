@@ -221,7 +221,7 @@ export default function ClaimDetails() {
                             </h3>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {documents.length > 0 ? documents.map((doc, idx) => (
-                                    <a key={idx} href={`http://127.0.0.1:8000${doc.url}`} target="_blank" rel="noreferrer" className="clay p-4 flex flex-col items-center gap-2 hover:bg-indigo-50 transition border border-indigo-100">
+                                    <a key={idx} href={`http://localhost:8000${doc.url}`} target="_blank" rel="noreferrer" className="clay p-4 flex flex-col items-center gap-2 hover:bg-indigo-50 transition border border-indigo-100">
                                         <FileText className="w-8 h-8 text-indigo-400" />
                                         <p className="text-[10px] font-black text-gray-600 truncate w-full text-center">{doc.name}</p>
                                     </a>

@@ -233,9 +233,9 @@ export default function AdminDashboard() {
                             <span className="bg-amber-100 text-amber-600 px-3 py-1 rounded-lg text-[10px] uppercase font-black">Under Review</span>
                         </div>
                         <div className="flex gap-2">
-                             <a href={`http://127.0.0.1:8000${kyc.aadhaar}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 hover:underline">Aadhaar</a> • 
-                             <a href={`http://127.0.0.1:8000${kyc.pan}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 hover:underline">PAN</a> • 
-                             <a href={`http://127.0.0.1:8000${kyc.selfie}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 hover:underline">Selfie</a>
+                             <a href={`http://localhost:8000${kyc.aadhaar}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 hover:underline">Aadhaar</a> • 
+                             <a href={`http://localhost:8000${kyc.pan}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 hover:underline">PAN</a> • 
+                             <a href={`http://localhost:8000${kyc.selfie}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-500 hover:underline">Selfie</a>
                         </div>
                         <div className="flex gap-2 mt-auto pt-4">
                             <button onClick={() => adminApproveKYC(kyc.id, 'Verified')} className="flex-1 bg-green-500 text-white p-3 rounded-xl hover:bg-green-600 font-black text-xs uppercase shadow-lg transition">Verify</button>
