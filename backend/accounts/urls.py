@@ -46,4 +46,10 @@ urlpatterns = [
     path('claim/report/<int:id>/', views.download_claim_report),
     path('claim/upload-evidence/<int:id>/', views.upload_document),
     path('activities/', views.get_activities),
+    
+    # Admin Management
+    path('users/', views.get_all_users),
+    path('users/<int:id>/', views.manage_user),
+    path('claims/detailed/', views.get_all_claims_detailed),
+    path('claims/<int:id>/', views.manage_claim),
 ]

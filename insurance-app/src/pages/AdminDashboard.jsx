@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   const [assigning, setAssigning] = useState(null); // { type, id }
   const [executiveQueue, setExecutiveQueue] = useState([]);
   const [loadingAction, setLoadingAction] = useState(null); // { type, id }
+  const [detailView, setDetailView] = useState(null); // { type, title, data }
   
   const navigate = useNavigate();
 
@@ -97,6 +98,52 @@ export default function AdminDashboard() {
         alert("New Policy Created Successfully");
       } catch (err) {
         alert("Failed to create policy: " + (err.response?.data?.msg || err.message));
+      }
+  };
+
+  const openDetails = async (type) => {
+    try {
+        let res;
+        if (type === 'users') {
+            res = await api.get('/users/');
+            setDetailView({ type: 'users', title: 'System Capacity (Users)', data: res.data });
+        } else if (type === 'resolved') {
+            res = await api.get('/claims/detailed/?status=Approved');
+            setDetailView({ type: 'claims', title: 'Resolved Claims', data: res.data });
+        } else if (type === 'revenue') {
+            res = await api.get('/activities/');
+            setDetailView({ type: 'activity', title: 'Revenue & Activity Streams', data: res.data });
+        }
+    } catch (err) { console.error(err); }
+  };
+
+  const handleDelete = async (id, type) => {
+      if (!window.confirm(`Are you sure you want to PERMANENTLY delete this ${type === 'users' ? 'user' : 'record'}?`)) return;
+      try {
+          const url = type === 'users' ? `/users/${id}/` : `/claims/${id}/`;
+          await api.delete(url);
+          alert("Record deleted successfully.");
+          openDetails(detailView.type === 'users' ? 'users' : 'resolved');
+          fetchData();
+      } catch (err) { alert("Delete failed: " + (err.response?.data?.msg || err.message)); }
+  };
+
+  const handleHide = async (id, type) => {
+      try {
+          const url = type === 'users' ? `/users/${id}/` : `/claims/${id}/`;
+          await api.post(url, { action: 'hide' });
+          alert("Record hidden/deactivated.");
+          openDetails(detailView.type === 'users' ? 'users' : 'resolved');
+          fetchData();
+      } catch (err) { alert("Action failed."); }
+  };
+
+  const sendLink = (id, method) => {
+      const msg = `Your insurance document is ready: http://localhost:8000/api/invoice/download/${id}/`;
+      if (method === 'whatsapp') {
+          window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+      } else {
+          window.open(`mailto:?subject=Insurance Document&body=${encodeURIComponent(msg)}`);
       }
   };
 
@@ -190,12 +237,19 @@ export default function AdminDashboard() {
       </AnimatePresence>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 w-full max-w-7xl mb-16">
-        <motion.div whileHover={{ scale: 1.02 }} className="clay p-12 text-center shadow-2xl bg-white/20 flex flex-col justify-center">
+        <motion.div 
+            whileHover={{ scale: 1.02 }} 
+            onClick={() => openDetails('users')}
+            className="clay p-12 text-center shadow-2xl bg-white/20 flex flex-col justify-center cursor-pointer border-t-4 border-transparent hover:border-blue-500 transition-all"
+        >
           <h3 className="text-black font-black mb-2 uppercase tracking-widest text-sm">System Capacity (Users)</h3>
           <p className="text-7xl font-black text-gray-800">{stats.users}</p>
         </motion.div>
         
-        <div className="clay p-8 shadow-2xl bg-white border border-gray-100 flex flex-col items-center justify-center">
+        <div 
+            onClick={() => openDetails('revenue')}
+            className="clay p-8 shadow-2xl bg-white border border-gray-100 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+        >
             <h3 className="text-black font-black mb-6 uppercase tracking-widest text-xs w-full text-left">Revenue & Activity Streams</h3>
             <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={[stats]}>
@@ -208,8 +262,12 @@ export default function AdminDashboard() {
                 </BarChart>
             </ResponsiveContainer>
         </div>
-
-        <motion.div whileHover={{ scale: 1.02 }} className="clay p-12 text-center shadow-2xl bg-green-50/50 border-b-8 border-green-500 flex flex-col justify-center">
+ 
+        <motion.div 
+            whileHover={{ scale: 1.02 }} 
+            onClick={() => openDetails('resolved')}
+            className="clay p-12 text-center shadow-2xl bg-green-50/50 border-b-8 border-green-500 flex flex-col justify-center cursor-pointer hover:bg-green-100/50 transition-all"
+        >
           <h3 className="text-black font-black mb-2 uppercase tracking-widest text-sm">Resolved Claims</h3>
           <p className="text-7xl font-black text-green-600">{stats.approved}</p>
         </motion.div>
@@ -337,13 +395,13 @@ export default function AdminDashboard() {
           <ActivityFeed />
         </div>
         
-        <div className="mt-8 clay p-8 bg-blue-600 text-white shadow-2xl overflow-hidden relative">
+        <div className="mt-8 clay p-8 bg-black text-white shadow-2xl overflow-hidden relative border-t-4 border-green-500">
             <div className="relative z-10">
                 <p className="text-[10px] font-black opacity-60 uppercase tracking-widest mb-1">Service Integrity</p>
-                <p className="text-xl font-black mb-4">Core Systems Nominal</p>
+                <p className="text-xl font-black mb-4 text-white">Core Systems Nominal</p>
                 <div className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Neural Cluster Active</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-green-400">Neural Cluster Active</span>
                 </div>
             </div>
             <ShieldCheck className="absolute -bottom-4 -right-4 w-32 h-32 opacity-10" />
@@ -413,6 +471,87 @@ export default function AdminDashboard() {
                             Global Release
                         </button>
                     </form>
+                </motion.div>
+            </div>
+        )}
+
+        {detailView && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-6 glass backdrop-blur-md">
+                <motion.div 
+                    initial={{ opacity: 0, y: 100 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 100 }}
+                    className="clay bg-[#e0e5ec] p-12 w-full max-w-6xl shadow-4xl overflow-hidden flex flex-col max-h-[90vh]"
+                >
+                    <div className="flex justify-between items-center mb-10">
+                        <div>
+                            <h3 className="text-4xl font-black text-gray-800 uppercase tracking-tighter">{detailView.title}</h3>
+                            <p className="text-[10px] font-black text-black uppercase tracking-widest opacity-60 mt-1">Administrative Intelligence View</p>
+                        </div>
+                        <button onClick={() => setDetailView(null)} className="clay p-4 hover:bg-white transition-all group">
+                            <X className="w-6 h-6 text-gray-400 group-hover:text-red-500" />
+                        </button>
+                    </div>
+
+                    <div className="overflow-y-auto pr-4 flex-1 custom-scrollbar">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {detailView.data.map((item, idx) => (
+                                <motion.div 
+                                    key={idx} 
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: idx * 0.05 }}
+                                    className="clay bg-white/50 p-6 flex flex-col group relative overflow-hidden"
+                                >
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="w-12 h-12 rounded-2xl clay flex items-center justify-center bg-white">
+                                            {detailView.type === 'users' ? <UserPlus className="w-6 h-6 text-blue-500"/> : <ShieldCheck className="w-6 h-6 text-emerald-500"/>}
+                                        </div>
+                                        <div className="flex gap-1">
+                                            <button onClick={() => handleHide(item.id, detailView.type)} className="p-2 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-amber-500" title="Hide/Deactivate">
+                                                <MousePointer2 className="w-4 h-4" />
+                                            </button>
+                                            <button onClick={() => handleDelete(item.id, detailView.type)} className="p-2 hover:bg-white rounded-lg transition-colors text-gray-400 hover:text-red-500" title="Delete Permanently">
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1 mb-8">
+                                        <h4 className="text-lg font-black text-gray-800 truncate">{item.username || item.user || item.description}</h4>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item.email || item.action_type || item.type}</p>
+                                    </div>
+
+                                    {detailView.type !== 'activity' && (
+                                        <div className="mt-auto pt-6 border-t border-gray-200/50 flex flex-col gap-3">
+                                            <div className="flex gap-2">
+                                                <button onClick={() => window.open(`http://localhost:8000/api/invoice/download/${item.id}/`)} className="flex-1 clay-mini p-3 flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:bg-white transition-colors">
+                                                    <PlusCircle className="w-3 h-3 rotate-180"/> Download
+                                                </button>
+                                                <button onClick={() => navigate(detailView.type === 'users' ? `/profile` : `/claim-detail/${item.id}`)} className="flex-1 clay-mini p-3 flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest hover:bg-white transition-colors text-blue-600">
+                                                    <MousePointer2 className="w-3 h-3"/> View
+                                                </button>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => sendLink(item.id, 'email')} className="flex-1 clay-mini p-2 flex items-center justify-center gap-2 font-black text-[9px] uppercase tracking-widest hover:bg-blue-50 transition-colors text-indigo-600">
+                                                    Email
+                                                </button>
+                                                <button onClick={() => sendLink(item.id, 'whatsapp')} className="flex-1 clay-mini p-2 flex items-center justify-center gap-2 font-black text-[9px] uppercase tracking-widest hover:bg-green-50 transition-colors text-emerald-600">
+                                                    WhatsApp
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {detailView.type === 'activity' && (
+                                        <div className="mt-auto pt-4 text-[10px] font-black text-gray-400 uppercase">
+                                            {new Date(item.created_at).toLocaleString()}
+                                        </div>
+                                    )}
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
                 </motion.div>
             </div>
         )}
