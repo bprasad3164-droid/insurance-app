@@ -54,7 +54,7 @@ def register(request):
 def login_with_token(request):
     email = request.data.get('email')
     password = request.data.get('password')
-    required_role = request.data.get('role') # Portal requested
+    required_role = request.data.get('role')
 
     user = authenticate(username=email, password=password)
     if user:
