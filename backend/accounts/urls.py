@@ -23,6 +23,7 @@ urlpatterns = [
     path('approve-agent/<int:id>/', views.agent_approve),
     path('approve-admin/<int:id>/', views.admin_approve),
     path('payment/', views.create_payment),
+    path('payment/verify/', views.verify_payment),
     path('analytics/', views.analytics),
     path('notify/', views.send_notification),
     

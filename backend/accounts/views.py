@@ -484,20 +484,94 @@ def admin_approve(request, id):
 # ================= PAYMENTS =================
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def create_payment(request):
     try:
-        key_id = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_KEY')
-        key_secret = os.environ.get('RAZORPAY_KEY_SECRET', 'rzp_test_SECRET')
+        policy_id = request.data.get('policy_id')
+        amount = request.data.get('amount')
+        if not policy_id or not amount:
+            return Response({"error": "Policy ID and amount required"}, status=400)
+
+        key_id = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_5uO7eYq2rX6M7z') # Use test keys
+        key_secret = os.environ.get('RAZORPAY_KEY_SECRET', 'XyZ789abcDEF01234567890')
         client = razorpay.Client(auth=(key_id, key_secret))
-        payment = client.order.create({
-            "amount": int(request.data.get('amount', 5000)) * 100,
+        
+        # Create Razorpay Order
+        razorpay_order = client.order.create({
+            "amount": int(float(amount)) * 100,
             "currency": "INR",
             "payment_capture": 1
         })
-        return Response(payment)
+        
+        # Create initial pending payment record
+        Payment.objects.create(
+            user=request.user,
+            policy_id=policy_id,
+            amount=float(amount),
+            method='RAZORPAY',
+            status='Pending',
+            razorpay_order_id=razorpay_order['id']
+        )
+        
+        return Response({
+            "order_id": razorpay_order['id'],
+            "amount": razorpay_order['amount'],
+            "currency": razorpay_order['currency'],
+        })
     except Exception as e:
-        return Response({"msg": str(e)}, status=500)
+        return Response({"error": str(e)}, status=500)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def verify_payment(request):
+    try:
+        data = request.data
+        order_id = data.get('order_id')
+        payment_id = data.get('payment_id')
+        signature = data.get('signature')
+
+        key_id = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_5uO7eYq2rX6M7z')
+        key_secret = os.environ.get('RAZORPAY_KEY_SECRET', 'XyZ789abcDEF01234567890')
+        client = razorpay.Client(auth=(key_id, key_secret))
+
+        # Verify Signature
+        params_dict = {
+            'razorpay_order_id': order_id,
+            'razorpay_payment_id': payment_id,
+            'razorpay_signature': signature
+        }
+        
+        client.utility.verify_payment_signature(params_dict)
+
+        # Update Payment Record
+        with transaction.atomic():
+            payment = Payment.objects.get(razorpay_order_id=order_id)
+            payment.razorpay_payment_id = payment_id
+            payment.razorpay_signature = signature
+            payment.status = 'success'
+            payment.save()
+
+            # Now Buy/Activate the policy
+            policy = Policy.objects.get(id=payment.policy_id)
+            cert_id = f"CERT-{uuid.uuid4().hex[:8].upper()}"
+            expiry = timezone.now() + timedelta(days=365)
+            
+            UserPolicy.objects.create(
+                user=payment.user,
+                policy=policy,
+                premium=payment.amount,
+                certificate_id=cert_id,
+                expiry_date=expiry,
+                status='Active'
+            )
+            
+            log_activity(payment.user, 'PAYMENT', f"Verified payment of ₹{payment.amount}. Policy {policy.name} active.")
+            
+        return Response({"status": "success", "msg": "Payment verified and policy activated"})
+    except razorpay.errors.SignatureVerificationError:
+        return Response({"status": "failed", "error": "Invalid payment signature"}, status=400)
+    except Exception as e:
+        return Response({"status": "error", "details": str(e)}, status=500)
 
 # ================= ANALYTICS =================
 
@@ -575,7 +649,10 @@ def make_payment(request):
 def generate_invoice(request):
     try:
         payment_id = request.data.get('payment_id')
-        payment = Payment.objects.filter(id=payment_id).first()
+        if str(payment_id).startswith('pay_'):
+            payment = Payment.objects.filter(razorpay_payment_id=payment_id).first()
+        else:
+            payment = Payment.objects.filter(id=payment_id).first()
 
         if not payment:
             return Response({"error": "Payment not found"}, status=404)
@@ -596,7 +673,10 @@ def generate_invoice(request):
 @permission_classes([IsAuthenticated])
 def get_payment_detail(request, id):
     try:
-        payment = Payment.objects.get(id=id)
+        if str(id).startswith('pay_'):
+            payment = Payment.objects.get(razorpay_payment_id=id)
+        else:
+            payment = Payment.objects.get(id=id)
         return Response({
             "id": payment.id,
             "amount": payment.amount,

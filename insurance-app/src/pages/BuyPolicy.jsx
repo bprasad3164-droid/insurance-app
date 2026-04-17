@@ -89,32 +89,64 @@ export default function BuyPolicy() {
     setPaymentStep('processing');
     
     try {
-        // 1. Create Payment Record (Manual) with Metadata
-        const payRes = await api.post("/make-payment/", {
+        // 1. Create Razorpay Order from Backend
+        const orderRes = await api.post("/payment/", {
             policy_id: id,
-            amount: premium,
-            method: paymentMethod.toUpperCase(),
-            vpa: paymentMethod === 'upi' ? vpa : null,
-            card_number: paymentMethod === 'card' ? cardNumber : null,
-            bank_name: paymentMethod === 'netbanking' ? selectedBank : null
+            amount: premium
         });
 
-        // 2. Buy the Policy
-        await api.post("/buy-policy/", {
-            policy_id: id,
-            premium: premium
-        });
+        const { order_id, amount, currency } = orderRes.data;
 
-        // Refresh stats after success
-        await fetchPortfolioStats();
+        // 2. Open Razorpay Checkout
+        const options = {
+            key: "rzp_test_5uO7eYq2rX6M7z", // Replace with your actual Key ID
+            amount: amount,
+            currency: currency,
+            name: "Pro Insurance",
+            description: `Purchase for ${policy.name}`,
+            order_id: order_id,
+            handler: async (response) => {
+                try {
+                    // 3. Verify Payment
+                    const verifyRes = await api.post("/payment/verify/", {
+                        order_id: response.razorpay_order_id,
+                        payment_id: response.razorpay_payment_id,
+                        signature: response.razorpay_signature
+                    });
 
-        setSuccess(true);
-        setTimeout(() => {
-            navigate(`/payment-success?payment_id=${payRes.data.payment_id}&policy_id=${id}`);
-        }, 2000);
+                    if (verifyRes.data.status === 'success') {
+                        setSuccess(true);
+                        setTimeout(() => {
+                            // Backend verification already created the UserPolicy
+                            navigate(`/payment-success?payment_id=${response.razorpay_payment_id}&policy_id=${id}`);
+                        }, 2000);
+                    } else {
+                        throw new Error("Verification failed");
+                    }
+                } catch (err) {
+                    alert("Verification Failed: " + (err.response?.data?.error || err.message));
+                    setPaymentStep('form');
+                }
+            },
+            prefill: {
+                name: localStorage.getItem("username") || "Member Token",
+                email: "customer@proinsurance.com",
+            },
+            theme: {
+                color: "#2563eb",
+            },
+            modal: {
+                ondismiss: () => {
+                    setPaymentStep('form');
+                }
+            }
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
 
     } catch (err) {
-        alert("Transaction Failed: " + (err.response?.data?.error || err.message));
+        alert("Transaction Initialization Failed: " + (err.response?.data?.error || err.message));
         setPaymentStep('form');
     }
   };

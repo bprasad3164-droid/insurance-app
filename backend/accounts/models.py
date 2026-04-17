@@ -127,7 +127,10 @@ class Payment(models.Model):
     vpa = models.CharField(max_length=100, null=True, blank=True)
     card_number_masked = models.CharField(max_length=20, null=True, blank=True)
     bank_name = models.CharField(max_length=100, null=True, blank=True)
-    status = models.CharField(max_length=20, default='success')
+    status = models.CharField(max_length=20, default='Pending') # Pending, success, failed
+    razorpay_order_id = models.CharField(max_length=100, null=True, blank=True)
+    razorpay_payment_id = models.CharField(max_length=100, null=True, blank=True)
+    razorpay_signature = models.CharField(max_length=255, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
 class Invoice(models.Model):
