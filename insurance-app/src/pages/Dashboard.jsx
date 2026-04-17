@@ -106,13 +106,13 @@ export default function Dashboard() {
             <motion.a
               href="/profile"
               whileHover={{ scale: 1.05 }}
-              className="clay p-8 bg-blue-600 text-white flex items-center justify-between group shadow-xl"
+              className="clay p-8 bg-white/50 border border-white flex items-center justify-between group"
             >
               <div className="text-left">
-                <p className="text-xs font-black opacity-60 uppercase tracking-widest">Member Center</p>
-                <p className="text-2xl font-black tracking-tight">KYC & Certs</p>
+                <p className="text-xs font-black text-black uppercase tracking-widest">Member Center</p>
+                <p className="text-2xl font-black text-gray-800 tracking-tight">KYC & Certs</p>
               </div>
-              <ChevronRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
+              <ChevronRight className="w-8 h-8 text-blue-600 group-hover:translate-x-2 transition-transform" />
             </motion.a>
           </div>
   
