@@ -55,18 +55,41 @@ export default function BuyPolicy() {
     navigate("/dashboard");
   };
 
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const fetchPolicy = async () => {
       try {
         const res = await api.get("/policies/");
         const found = res.data.find(p => p.id === parseInt(id));
-        if (found) setPolicy(found);
+        if (found) {
+          setPolicy(found);
+        } else {
+          setError("Policy not found");
+        }
       } catch (err) {
         console.error("Error fetching policy", err);
+        if (err.response?.status === 401) {
+          setError("Session expired. Please log in again.");
+        } else {
+          setError("Failed to load policy. Please check your connection.");
+        }
       }
     };
     fetchPolicy();
   }, [id]);
+
+  if (error) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#e0e5ec] p-6 text-center">
+      <h2 className="text-2xl font-bold text-red-600 mb-4">{error}</h2>
+      <button 
+        onClick={() => navigate('/login')}
+        className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-neomorph hover:bg-blue-700 transition-colors"
+      >
+        Go to Login
+      </button>
+    </div>
+  );
 
   const handleCalculate = async () => {
     setCalculating(true);
