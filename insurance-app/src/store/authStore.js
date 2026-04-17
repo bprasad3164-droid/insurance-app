@@ -12,15 +12,15 @@ const useAuthStore = create((set) => ({
         set({ loading: true });
         try {
             const res = await api.post('/login/', { email, password, role });
-            const { access, refresh, role, kyc_status } = res.data;
+            const { access, refresh, role: userRole, kyc_status } = res.data;
             
             localStorage.setItem('access', access);
             localStorage.setItem('refresh', refresh);
-            localStorage.setItem('role', role);
+            localStorage.setItem('role', userRole);
 
             set({
                 token: access,
-                role: role,
+                role: userRole,
                 isAuthenticated: true,
                 user: { email, kyc_status },
                 loading: false

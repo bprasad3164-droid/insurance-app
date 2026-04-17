@@ -57,10 +57,21 @@ def login_with_token(request):
     password = request.data.get('password')
     required_role = request.data.get('role')
 
-    print(f"DEBUG: Login check for {email} (Role: {required_role})", flush=True)
+    print(f"DEBUG: Login Request for {email} (Portal Selection: {required_role})", flush=True)
+
+    if not email or not password:
+        return Response({"msg": "Email and password are required"}, status=400)
 
     user = authenticate(username=email, password=password)
+    
     if user:
+        # Check if the user's role matches the portal they are trying to log into
+        if required_role and user.role != required_role:
+            print(f"DEBUG: ROLE MISMATCH for {email}. DB Role: {user.role}, Requested: {required_role}", flush=True)
+            return Response({
+                "msg": f"Role Mismatch: This account is registered as '{user.role.upper()}'. Please select the correct portal."
+            }, status=403)
+
         print(f"DEBUG: AUTH SUCCESS for {email}", flush=True)
         refresh = RefreshToken.for_user(user)
         return Response({
@@ -70,8 +81,15 @@ def login_with_token(request):
             "kyc_status": user.kyc_status,
             "msg": "Login Success"
         })
-    print(f"DEBUG: Auth Failed for {email}", flush=True)
-    return Response({"msg": "Invalid Credentials"}, status=401)
+    
+    # Check if user exists but auth failed
+    temp_user = User.objects.filter(email=email).first()
+    if temp_user:
+        print(f"DEBUG: User exists but password failed for {email}", flush=True)
+    else:
+        print(f"DEBUG: User not found for {email}", flush=True)
+
+    return Response({"msg": "Invalid Credentials. Please check your email and password."}, status=401)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

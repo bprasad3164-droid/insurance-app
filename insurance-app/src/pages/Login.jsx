@@ -53,21 +53,29 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
-    console.log("LOGIN ATTEMPT FRONTEND:", email, activeRole);
+    
     if (!email || !password) {
       setError("Please enter your email and password.");
       return;
     }
+
     setError("");
+    console.log(`DEBUG: Attempting login for ${email} as ${activeRole}`);
+
     try {
       await login(email, password, activeRole);
-      // Success is handled by the useEffect redirecting to dashboard
+      console.log("DEBUG: Login Success!");
     } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-        err.response?.data?.msg ||
-        "Login failed. Please check your credentials."
-      );
+      console.error("DEBUG: Login Failed", err);
+      
+      const backendError = err.response?.data?.msg || err.response?.data?.detail;
+      if (backendError) {
+        setError(backendError);
+      } else if (err.message === "Network Error") {
+        setError("Cannot connect to server. Ensure backend is running at http://localhost:8000");
+      } else {
+        setError(err.message || "An unexpected error occurred during login.");
+      }
     }
   };
 
@@ -188,8 +196,7 @@ export default function Login() {
                   </div>
 
                   <button
-                    type="button"
-                    onClick={handleLogin}
+                    type="submit"
                     disabled={loading}
                     className="w-full text-white font-black p-5 mt-4 rounded-2xl transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 group overflow-hidden relative"
                     style={{ background: loading ? "#bdc3c7" : currentRoleConfig.color }}
