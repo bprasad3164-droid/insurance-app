@@ -53,6 +53,7 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
+    console.log("LOGIN ATTEMPT FRONTEND:", email, activeRole);
     if (!email || !password) {
       setError("Please enter your email and password.");
       return;
@@ -187,7 +188,8 @@ export default function Login() {
                   </div>
 
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleLogin}
                     disabled={loading}
                     className="w-full text-white font-black p-5 mt-4 rounded-2xl transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 group overflow-hidden relative"
                     style={{ background: loading ? "#bdc3c7" : currentRoleConfig.color }}

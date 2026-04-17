@@ -56,13 +56,11 @@ def login_with_token(request):
     password = request.data.get('password')
     required_role = request.data.get('role')
 
+    print(f"DEBUG: Login check for {email} (Role: {required_role})", flush=True)
+
     user = authenticate(username=email, password=password)
     if user:
-        if required_role and user.role != required_role:
-            return Response({
-                "msg": f"Access Denied: Your account does not have {required_role} privileges."
-            }, status=403)
-
+        print(f"DEBUG: AUTH SUCCESS for {email}", flush=True)
         refresh = RefreshToken.for_user(user)
         return Response({
             "access": str(refresh.access_token),
@@ -71,6 +69,7 @@ def login_with_token(request):
             "kyc_status": user.kyc_status,
             "msg": "Login Success"
         })
+    print(f"DEBUG: Auth Failed for {email}", flush=True)
     return Response({"msg": "Invalid Credentials"}, status=401)
 
 @api_view(['POST'])
