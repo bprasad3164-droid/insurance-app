@@ -28,6 +28,28 @@ export default function ClaimDetails() {
         fetchDetail();
     }, [id]);
 
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await api.post(`/claim/upload-evidence/${id}/`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setData(prev => ({
+                ...prev,
+                documents: [...prev.documents, res.data.document]
+            }));
+            alert("Evidence Securely Uploaded");
+        } catch (err) {
+            console.error("Upload failed", err);
+            alert("Upload failed. Verify file integrity and try again.");
+        }
+    };
+
     const handleDownloadReport = async () => {
         try {
             const response = await api.get(`/claim/report/${id}/`, { responseType: 'blob' });
@@ -209,6 +231,11 @@ export default function ClaimDetails() {
                                         <p className="text-xs text-gray-400 font-black italic">No case evidence uploaded.</p>
                                     </div>
                                 )}
+                                <label className="clay p-4 flex flex-col items-center justify-center gap-2 hover:bg-blue-50 transition border-2 border-dashed border-blue-200 cursor-pointer">
+                                    <Download className="w-8 h-8 text-blue-400 rotate-180" />
+                                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Add Evidence</p>
+                                    <input type="file" className="hidden" onChange={handleFileUpload} />
+                                </label>
                             </div>
                         </div>
                     </div>

@@ -947,6 +947,36 @@ def download_claim_report(request, id):
 
 # ================= ACTIVITY FEED =================
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_document(request, id):
+    try:
+        claim = Claim.objects.get(id=id)
+        file = request.FILES.get('file')
+        if not file:
+            return Response({"error": "No file provided"}, status=400)
+            
+        doc = Document.objects.create(
+            file=file,
+            claim=claim,
+            user=request.user if request.user.role == 'user' else claim.user
+        )
+        
+        log_activity(request.user, 'CLAIM', f"Evidence uploaded for Case #{id}: {file.name}")
+        
+        return Response({
+            "msg": "Evidence Uploaded Successfully",
+            "document": {
+                "id": doc.id,
+                "name": doc.file.name.split('/')[-1],
+                "url": doc.file.url
+            }
+        })
+    except Claim.DoesNotExist:
+        return Response({"error": "Claim not found"}, status=404)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_activities(request):

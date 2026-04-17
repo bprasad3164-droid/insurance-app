@@ -44,5 +44,6 @@ urlpatterns = [
     # Claim Reporting & Details
     path('claim-detail/<int:id>/', views.get_claim_detail),
     path('claim/report/<int:id>/', views.download_claim_report),
+    path('claim/upload-evidence/<int:id>/', views.upload_document),
     path('activities/', views.get_activities),
 ]
