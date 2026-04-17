@@ -202,14 +202,14 @@ export default function BuyPolicy() {
             {/* Header Stats From Screenshot */}
             <div className="flex gap-6">
                 <div className="clay p-6 bg-white/50 min-w-[240px]">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Premium Invested</p>
+                    <p className="text-[10px] font-black text-black uppercase tracking-widest mb-1">Total Premium Invested</p>
                     <div className="flex items-center gap-2 text-blue-600">
                         <span className="text-2xl font-black">₹</span>
                         <h2 className="text-4xl font-black tracking-tighter">{portfolioStats?.total_premium?.toLocaleString() || 0}</h2>
                     </div>
                 </div>
                 <div className="clay p-6 bg-white/50 min-w-[200px]">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Next Renewal Date</p>
+                    <p className="text-[10px] font-black text-black uppercase tracking-widest mb-1">Next Renewal Date</p>
                     <h2 className="text-4xl font-black text-green-600 tracking-tighter capitalize">
                         {portfolioStats?.next_renewal 
                             ? new Date(portfolioStats.next_renewal).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
@@ -231,22 +231,22 @@ export default function BuyPolicy() {
                     <ShieldCheck className="w-12 h-12" />
                 </div>
                 <h1 className="text-4xl font-black text-gray-800 tracking-tight mb-4 uppercase">{policy?.name || "Premium Shield"}</h1>
-                <p className="text-gray-500 font-bold mb-8 uppercase tracking-[0.3em] text-[10px]">{policy?.category || "Insurance"} Protection Plan</p>
+                <p className="text-black font-bold mb-8 uppercase tracking-[0.3em] text-[10px]">{policy?.category || "Insurance"} Protection Plan</p>
                 
                 <div className="w-full space-y-4">
                     <div className="clay-inset p-5 flex justify-between items-center rounded-2xl">
-                        <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Base Premium</span>
+                        <span className="text-black font-bold text-xs uppercase tracking-widest">Base Premium</span>
                         <span className="text-gray-800 font-black text-xl">₹{policy?.base_premium?.toLocaleString() || 0}</span>
                     </div>
                     <div className="clay-inset p-5 flex justify-between items-center rounded-2xl">
-                        <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">Max Coverage</span>
+                        <span className="text-black font-bold text-xs uppercase tracking-widest">Max Coverage</span>
                         <span className="text-blue-600 font-black text-xl">₹{(policy?.coverage || 500000).toLocaleString()}+</span>
                     </div>
                 </div>
                 
                 <div className="mt-10 p-6 clay-inset bg-blue-50/30 rounded-3xl flex items-start gap-4 text-left border-none">
                     <Zap className="w-6 h-6 text-blue-600 flex-shrink-0" />
-                    <p className="text-xs text-gray-500 font-bold leading-relaxed">
+                    <p className="text-xs text-black font-bold leading-relaxed">
                         This plan utilizes <span className="text-blue-600 font-black uppercase">Direct Handshake</span> technology. Your premium is calculated based on AI-assessed risk factors.
                     </p>
                 </div>
@@ -267,7 +267,7 @@ export default function BuyPolicy() {
                     <div className="space-y-10">
                         <div>
                             <div className="flex justify-between mb-4">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Applicant Age</label>
+                                <label className="text-[10px] font-black text-black uppercase tracking-[0.2em]">Applicant Age</label>
                                 <span className="font-black text-blue-600">{age} Years</span>
                             </div>
                             <input 
@@ -279,7 +279,7 @@ export default function BuyPolicy() {
 
                         <div>
                             <div className="flex justify-between mb-4">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Monthly Liquidity</label>
+                                <label className="text-[10px] font-black text-black uppercase tracking-[0.2em]">Monthly Liquidity</label>
                                 <span className="font-black text-blue-600">₹{salary.toLocaleString()}</span>
                             </div>
                             <input 
@@ -320,7 +320,7 @@ export default function BuyPolicy() {
                                 <div className="clay-inset p-8 bg-red-50/50 rounded-3xl border-2 border-red-100 flex flex-col items-center text-center">
                                     <ShieldCheck className="w-12 h-12 text-red-500 mb-4 opacity-50" />
                                     <h3 className="text-xl font-black text-red-600 uppercase mb-2">KYC Verification Required</h3>
-                                    <p className="text-xs text-gray-500 font-bold mb-6">Internal regulations require identity verification before purchasing new assets.</p>
+                                    <p className="text-xs text-black font-bold mb-6">Internal regulations require identity verification before purchasing new assets.</p>
                                     <button onClick={()=>navigate("/profile")} className="bg-red-500 text-white px-8 py-3 rounded-xl font-black text-xs shadow-lg hover:bg-red-600 transition uppercase tracking-widest">
                                         Verify Identity Now
                                     </button>
@@ -354,7 +354,7 @@ export default function BuyPolicy() {
                             )}
 
                             <div className="clay-inset p-10 flex justify-between items-center rounded-3xl bg-gray-50/30">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Amount to Remit</span>
+                                <span className="text-[10px] font-black text-black uppercase tracking-[0.3em]">Amount to Remit</span>
                                 <span className="text-4xl font-black text-gray-800 tracking-tighter">₹{premium.toLocaleString()}</span>
                             </div>
                         </motion.div>
@@ -408,7 +408,7 @@ export default function BuyPolicy() {
 
                                 <div className="space-y-6">
                                     <div className="clay-inset p-6 rounded-3xl">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Merchant VPA Handle</label>
+                                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-4 block">Merchant VPA Handle</label>
                                         <input 
                                             placeholder="proinsure@axis" 
                                             disabled
@@ -417,7 +417,7 @@ export default function BuyPolicy() {
                                     </div>
                                     
                                     <div>
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Your UPI ID</label>
+                                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Your UPI ID</label>
                                         <input 
                                             placeholder="e.g. user@okicici" 
                                             value={vpa}
@@ -465,7 +465,7 @@ export default function BuyPolicy() {
                                     </div>
 
                                     <div>
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Primary Token Number</label>
+                                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Primary Token Number</label>
                                         <input 
                                             maxLength="16"
                                             placeholder="16-Digit Sequence" 
@@ -476,7 +476,7 @@ export default function BuyPolicy() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Security Code</label>
+                                            <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Security Code</label>
                                             <input placeholder="***" maxLength="3" className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 outline-none placeholder:opacity-20" />
                                         </div>
                                         <div className="flex items-end">
@@ -493,13 +493,13 @@ export default function BuyPolicy() {
 
                             {paymentMethod === 'netbanking' && (
                                 <div className="space-y-6">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 block">Institutional Portal Selection</label>
+                                    <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Institutional Portal Selection</label>
                                     <div className="grid grid-cols-2 gap-4">
                                         {['HDFC Bank', 'ICICI Bank', 'SBI Bank', 'Axis Bank'].map(bank => (
                                             <button 
                                                 key={bank}
                                                 onClick={() => setSelectedBank(bank)}
-                                                className={`p-6 rounded-2xl font-black text-sm transition-all border-none ${selectedBank === bank ? 'clay bg-orange-600 text-white scale-[1.05]' : 'clay-inset text-gray-400 hover:text-orange-500'}`}
+                                                className={`p-6 rounded-2xl font-black text-sm transition-all border-none ${selectedBank === bank ? 'clay bg-orange-600 text-white scale-[1.05]' : 'clay-inset text-black hover:text-orange-500'}`}
                                             >
                                                 {bank}
                                             </button>

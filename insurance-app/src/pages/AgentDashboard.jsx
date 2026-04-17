@@ -74,13 +74,13 @@ export default function AgentDashboard() {
             <header className="flex justify-between items-center clay p-6 mb-12 w-full max-w-6xl shadow-xl sticky top-8 z-20 gap-4">
                 <div className="flex items-center gap-6">
                     <div className="flex gap-3">
-                        <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-gray-500">
+                        <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-black">
                             <ArrowLeft className="w-5 h-5" /> Back
                         </button>
                     </div>
                     <div className="flex items-center gap-3">
                         <Briefcase className="text-blue-600 w-8 h-8" />
-                        <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Mission Terminal</h1>
+                        <h1 className="text-3xl font-black text-black tracking-tighter uppercase">Mission Terminal</h1>
                     </div>
                 </div>
                 
@@ -96,12 +96,12 @@ export default function AgentDashboard() {
                 <div className="lg:col-span-3">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                         <motion.div whileHover={{ y: -5 }} className="clay p-8 flex flex-col bg-white">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Pending Claims</p>
+                            <label className="block text-xs font-black text-black uppercase tracking-widest mb-2">Final Evaluation</label>
                             <span className="text-6xl font-black text-amber-500 tracking-tighter">{stats.pending}</span>
                         </motion.div>
                         
                         <motion.div whileHover={{ y: -5 }} className="clay p-8 flex flex-col bg-white">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Survey Assignments</p>
+                            <p className="text-[10px] font-black text-black uppercase tracking-widest mb-4">Survey Assignments</p>
                             <span className="text-6xl font-black text-blue-600 tracking-tighter">{stats.surveys}</span>
                         </motion.div>
     
@@ -120,7 +120,7 @@ export default function AgentDashboard() {
                     >
                         <XCircle className="w-8 h-8" />
                         <div>
-                            <p className="font-black uppercase tracking-widest text-xs">System Alert</p>
+                            <h3 className="text-black font-black mb-2 uppercase tracking-widest text-sm">Open Tasks</h3>
                             <p className="font-bold text-sm">{error}</p>
                         </div>
                         <button onClick={fetchTasks} className="ml-auto bg-red-600 text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-red-700 transition">RETRY SYNC</button>
@@ -128,8 +128,8 @@ export default function AgentDashboard() {
                 )}
 
                 <div className="flex items-center gap-3 mb-8 mt-16">
-                    <Calendar className="w-6 h-6 text-gray-700" />
-                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">Field Surveys (Step 1)</h2>
+                    <Calendar className="w-6 h-6 text-black" />
+                    <h2 className="text-2xl font-black text-black tracking-tight">Field Surveys (Step 1)</h2>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
@@ -147,8 +147,8 @@ export default function AgentDashboard() {
                                         <MapPin className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-black text-gray-800 tracking-tight uppercase">Survey Request</h3>
-                                        <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">Policy Type: {appt.category}</p>
+                                        <h3 className="text-xl font-black text-black tracking-tight uppercase">Survey Request</h3>
+                                        <p className="text-[10px] font-black tracking-widest text-black uppercase">Policy Type: {appt.category}</p>
                                     </div>
                                 </div>
                                 <div className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${appt.status === 'Completed' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
@@ -157,10 +157,10 @@ export default function AgentDashboard() {
                             </div>
 
                             <div className="space-y-4 mb-8">
-                                <p className="text-sm font-bold text-gray-600 leading-relaxed italic">
+                                <p className="text-sm font-bold text-black leading-relaxed italic">
                                     " {appt.notes || "No additional field notes provided."} "
                                 </p>
-                                <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                                <div className="flex items-center gap-2 text-black text-[10px] font-black uppercase tracking-[0.2em]">
                                     <Calendar className="w-3 h-3" /> Preferred: {new Date(appt.preferred_date).toLocaleString()}
                                 </div>
                             </div>
@@ -187,8 +187,8 @@ export default function AgentDashboard() {
                 </div>
 
                 <div className="flex items-center gap-3 mb-8">
-                    <FileText className="w-6 h-6 text-gray-700" />
-                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">Active Claim Queue (Step 2)</h2>
+                    <FileText className="w-6 h-6 text-black" />
+                    <h2 className="text-2xl font-black text-black tracking-tight">Active Claim Queue (Step 2)</h2>
                 </div>
 
                 <div className="clay bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-white/50 mb-20">
@@ -196,11 +196,11 @@ export default function AgentDashboard() {
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="bg-gray-50/50 border-b border-gray-100">
-                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">ID</th>
-                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Subject</th>
-                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Claim Amount</th>
-                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Audit Status</th>
-                                    <th className="p-6 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">ID</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Subject</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Claim Amount</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Audit Status</th>
+                                    <th className="p-6 text-center text-[10px] font-black text-black uppercase tracking-widest">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -221,11 +221,11 @@ export default function AgentDashboard() {
                                             className="hover:bg-blue-50/30 transition-colors group"
                                         >
                                             <td className="p-6">
-                                                <span className="font-black text-gray-800">#{claim.id}</span>
+                                                <span className="font-black text-black">#{claim.id}</span>
                                             </td>
                                             <td className="p-6">
-                                                <p className="text-sm font-bold text-gray-700">Client: {claim.user__username || claim.user_id}</p>
-                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Policy #{claim.policy_id}</p>
+                                                <p className="text-sm font-bold text-black">Client: {claim.user__username || claim.user_id}</p>
+                                                <p className="text-[10px] font-black text-black uppercase tracking-widest">Policy #{claim.policy_id}</p>
                                             </td>
                                             <td className="p-6">
                                                 <span className="font-black text-blue-600 text-lg">₹{claim.amount?.toLocaleString()}</span>
@@ -265,8 +265,8 @@ export default function AgentDashboard() {
                                 ) : (
                                     <tr>
                                         <td colSpan="5" className="p-20 text-center">
-                                            <ClipboardList className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-                                            <p className="text-sm font-black text-gray-400 uppercase tracking-widest">All caught up! No active audits found.</p>
+                                            <ClipboardList className="w-12 h-12 text-black mx-auto mb-4" />
+                                            <p className="text-sm font-black text-black uppercase tracking-widest">All caught up! No active audits found.</p>
                                         </td>
                                     </tr>
                                 )}
@@ -277,8 +277,8 @@ export default function AgentDashboard() {
 
                 {/* Claims History */}
                 <div className="flex items-center gap-3 mb-8">
-                    <ClipboardList className="w-6 h-6 text-gray-700" />
-                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">Claims History</h2>
+                    <ClipboardList className="w-6 h-6 text-black" />
+                    <h2 className="text-2xl font-black text-black tracking-tight">Claims History</h2>
                 </div>
 
                 <div className="clay bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-white/50 mb-20">
@@ -286,11 +286,11 @@ export default function AgentDashboard() {
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="bg-gray-50/50 border-b border-gray-100">
-                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">ID</th>
-                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Subject</th>
-                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Claim Amount</th>
-                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Date & Time</th>
-                                    <th className="p-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Decision</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">ID</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Subject</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Claim Amount</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Date & Time</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Decision</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -304,17 +304,17 @@ export default function AgentDashboard() {
                                             className="hover:bg-gray-50/30 transition-colors group"
                                         >
                                             <td className="p-6">
-                                                <span className="font-black text-gray-800">#{claim.id}</span>
+                                                <span className="font-black text-black">#{claim.id}</span>
                                             </td>
                                             <td className="p-6">
-                                                <p className="text-sm font-bold text-gray-700">Client: {claim.user__username || claim.user_id}</p>
-                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Policy #{claim.policy_id}</p>
+                                                <p className="text-sm font-bold text-black">Client: {claim.user__username || claim.user_id}</p>
+                                                <p className="text-[10px] font-black text-black uppercase tracking-widest">Policy #{claim.policy_id}</p>
                                             </td>
                                             <td className="p-6">
-                                                <span className="font-black text-gray-600 text-lg">₹{claim.amount?.toLocaleString()}</span>
+                                                <span className="font-black text-black text-lg">₹{claim.amount?.toLocaleString()}</span>
                                             </td>
                                             <td className="p-6">
-                                                <span className="font-bold text-xs text-gray-500">
+                                                <span className="font-bold text-xs text-black">
                                                     {new Date(claim.created_at).toLocaleString('en-IN', {
                                                         day: '2-digit', month: 'short', year: 'numeric',
                                                         hour: '2-digit', minute: '2-digit'
@@ -332,7 +332,7 @@ export default function AgentDashboard() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="5" className="p-20 text-center text-sm font-black text-gray-400 uppercase tracking-widest">
+                                        <td colSpan="5" className="p-20 text-center text-sm font-black text-black uppercase tracking-widest">
                                             No history found.
                                         </td>
                                     </tr>

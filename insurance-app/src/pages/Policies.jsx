@@ -133,11 +133,11 @@ export default function Policies() {
       {/* ── Header ── */}
       <header className="w-full max-w-7xl flex flex-col md:flex-row justify-between items-center clay p-8 mb-16 shadow-xl sticky top-8 z-10 gap-6">
         <div className="flex items-center gap-6">
-          <button onClick={handleBack} className="clay px-4 py-3 hover:text-blue-600 transition rounded-xl flex items-center gap-2 font-bold text-gray-500">
+          <button onClick={handleBack} className="clay px-4 py-3 hover:text-blue-600 transition rounded-xl flex items-center gap-2 font-bold text-black">
             <ArrowLeft className="w-5 h-5" /> Back
           </button>
           <button onClick={handleHome} className="clay p-3 hover:text-blue-600 transition rounded-xl" title="Go to Dashboard">
-            <Home className="w-5 h-5 text-gray-500" />
+            <Home className="w-5 h-5 text-black" />
           </button>
           <div className="flex items-center gap-4">
             <Zap className="w-10 h-10 text-blue-600 fill-blue-600" />
@@ -155,7 +155,7 @@ export default function Policies() {
               key={cat.id}
               onClick={() => setFilter(cat.id)}
               className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all ${
-                filter === cat.id ? "bg-blue-600 text-white shadow-lg" : "text-gray-400 hover:text-blue-600"
+                filter === cat.id ? "bg-blue-600 text-white shadow-lg" : "text-black hover:text-blue-600"
               }`}
             >
               {cat.icon} {cat.label}
@@ -237,7 +237,7 @@ export default function Policies() {
                   <button
                     onClick={() => toggleCompare(p)}
                     className={`text-[10px] font-black px-4 py-2 rounded-xl transition ${
-                      inCompare ? "bg-blue-600 text-white" : "clay-inset text-gray-400 hover:text-blue-600"
+                      inCompare ? "bg-blue-600 text-white" : "clay-inset text-black hover:text-blue-600"
                     }`}
                   >
                     {inCompare ? "✓ IN COMPARE" : "+ COMPARE"}
@@ -247,17 +247,17 @@ export default function Policies() {
                 <h2 className="text-3xl font-black mb-3 text-gray-800 tracking-tighter group-hover:text-blue-600 transition-colors">
                   {p.name}
                 </h2>
-                <p className="text-gray-500 font-medium mb-8 flex-grow leading-relaxed line-clamp-3">
+                <p className="text-black font-medium mb-8 flex-grow leading-relaxed line-clamp-3">
                   {p.description}
                 </p>
 
                 {/* Premium */}
                 <div className="bg-white/40 p-6 rounded-[2rem] border border-white/20 mb-8 text-center">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Annual Premium</p>
+                  <p className="text-[10px] font-black text-black uppercase tracking-[0.3em] mb-1">Annual Premium</p>
                   <span className="text-5xl font-black text-blue-900 tracking-tighter">
                     ₹{(p.base_premium || p.premium || 0).toLocaleString()}
                   </span>
-                  <span className="text-sm text-gray-400 font-bold">/yr</span>
+                  <span className="text-sm text-black font-bold">/yr</span>
                 </div>
 
                 {/* CTA */}

@@ -42,14 +42,14 @@ export default function Dashboard() {
     <div className="min-h-screen bg-[#e0e5ec] w-full p-10 flex flex-col items-center">
       <header className="flex justify-between items-center clay p-6 mb-16 w-full max-w-6xl shadow-xl">
         <div className="flex items-center gap-4">
-          <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-gray-600">
+            <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-black">
             <ArrowLeft className="w-5 h-5" /> Back
           </button>
           <ShieldCheck className="w-10 h-10 text-blue-600" />
           <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Executive Portal</h1>
         </div>
         <div className="flex items-center gap-4">
-          <a href="/policies" className="clay px-5 py-3 rounded-xl font-black text-gray-600 hover:text-green-600 transition flex items-center gap-2">
+          <a href="/policies" className="clay px-5 py-3 rounded-xl font-black text-black hover:text-green-600 transition flex items-center gap-2">
             Next <ChevronRight className="w-4 h-4" />
           </a>
           <a href="/profile" className="clay p-3 hover:text-blue-600 transition rounded-xl" title="Profile & KYC">
@@ -83,7 +83,7 @@ export default function Dashboard() {
               className="clay p-8 bg-white/50 border border-white flex items-center justify-between group"
             >
               <div className="text-left">
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Marketplace</p>
+                <p className="text-xs font-black text-black uppercase tracking-widest">Marketplace</p>
                 <p className="text-2xl font-black text-gray-800 tracking-tight">My Active Plans</p>
               </div>
               <ChevronRight className="w-8 h-8 text-blue-600 group-hover:translate-x-2 transition-transform" />
@@ -95,7 +95,7 @@ export default function Dashboard() {
               className="clay p-8 bg-white/50 border border-white flex items-center justify-between group"
             >
               <div className="text-left">
-                <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Operations</p>
+                <p className="text-xs font-black text-black uppercase tracking-widest">Operations</p>
                 <p className="text-2xl font-black text-gray-800 tracking-tight">
                   {role === "admin" || role === "agent" ? "System Oversight" : "File a Claim"}
                 </p>
@@ -146,7 +146,7 @@ export default function Dashboard() {
                   <ClaimTracking claims={claims} />
               ) : (
                   <div className="clay p-12 text-center bg-gray-50/30">
-                      <p className="text-gray-400 font-bold italic">No active claims currently being tracked.</p>
+                      <p className="text-black font-bold italic">No active claims currently being tracked.</p>
                   </div>
               )}
           </div>

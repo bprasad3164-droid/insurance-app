@@ -66,7 +66,7 @@ export default function Claim() {
     <div className="min-h-screen bg-clay-bg p-8 flex flex-col items-center">
       <header className="w-full max-w-5xl flex justify-between items-center clay p-6 mb-12 shadow-xl">
           <div className="flex items-center gap-6">
-            <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-gray-600">
+            <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-black">
                 <ArrowLeft className="w-5 h-5" /> Back
             </button>
             <div className="flex items-center gap-4">
@@ -75,9 +75,9 @@ export default function Claim() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-              <a href="/my-policies" className="clay px-5 py-3 rounded-xl font-black text-gray-600 hover:text-green-600 transition flex items-center gap-2">Next &rarr;</a>
+              <a href="/my-policies" className="clay px-5 py-3 rounded-xl font-black text-black hover:text-green-600 transition flex items-center gap-2">Next &rarr;</a>
               <button onClick={handleHome} className="clay p-3 hover:text-blue-600 transition rounded-xl" title="Home">
-                  <Home className="w-5 h-5 text-gray-600" />
+                  <Home className="w-5 h-5 text-black" />
               </button>
           </div>
       </header>
@@ -103,7 +103,7 @@ export default function Claim() {
         <h2 className="text-3xl font-black mb-8 text-gray-800">Submit New Claim</h2>
         <form onSubmit={submit} className="space-y-8">
           <div>
-            <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">Select Protected Policy</label>
+            <label className="block text-sm font-bold text-black uppercase tracking-widest mb-3 px-2">Select Protected Policy</label>
             <select 
               className="clay-inset w-full p-5 focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold bg-transparent appearance-none"
               required
@@ -117,7 +117,7 @@ export default function Claim() {
           </div>
           
           <div>
-            <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">Claim Classification</label>
+            <label className="block text-sm font-bold text-black uppercase tracking-widest mb-3 px-2">Claim Classification</label>
             <select 
               className="clay-inset w-full p-5 focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold bg-transparent appearance-none"
               required
@@ -133,7 +133,7 @@ export default function Claim() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">Estimated Settlement Amount (INR)</label>
+            <label className="block text-sm font-bold text-black uppercase tracking-widest mb-3 px-2">Estimated Settlement Amount (INR)</label>
             <input 
               type="number"
               className="clay-inset w-full p-5 focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold bg-transparent"
@@ -146,7 +146,7 @@ export default function Claim() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">Email for Notifications</label>
+              <label className="block text-sm font-bold text-black uppercase tracking-widest mb-3 px-2">Email for Notifications</label>
               <input 
                 type="email"
                 className="clay-inset w-full p-5 focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold bg-transparent"
@@ -157,7 +157,7 @@ export default function Claim() {
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">WhatsApp Phone (with +91)</label>
+              <label className="block text-sm font-bold text-black uppercase tracking-widest mb-3 px-2">WhatsApp Phone (with +91)</label>
               <input 
                 type="text"
                 className="clay-inset w-full p-5 focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold bg-transparent"
@@ -170,10 +170,10 @@ export default function Claim() {
           </div>
 
           <div>
-             <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">Diagnostic Documents (PDF/JPG)</label>
+             <label className="block text-sm font-bold text-black uppercase tracking-widest mb-3 px-2">Diagnostic Documents (PDF/JPG)</label>
              <div className="clay-inset p-8 text-center relative hover:bg-white/30 transition-colors">
                 <FileUp className="w-10 h-10 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 font-bold mb-2">{file ? file.name : "Tap to upload supporting evidence"}</p>
+                <p className="text-black font-bold mb-2">{file ? file.name : "Tap to upload supporting evidence"}</p>
                 <input 
                   type="file" 
                   className="absolute inset-0 opacity-0 cursor-pointer"

@@ -106,7 +106,7 @@ export default function AdminDashboard() {
         <div className="lg:col-span-3">
           <header className="flex justify-between clay p-6 mb-12 w-full shadow-xl">
             <div className="flex items-center gap-6">
-                <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-gray-600">
+                <button onClick={handleBack} className="clay px-5 py-3 hover:text-blue-600 transition rounded-xl font-black flex items-center gap-2 text-black">
                     <ArrowLeft className="w-5 h-5" /> Back
                 </button>
                 <div className="flex items-center gap-3">
@@ -138,14 +138,14 @@ export default function AdminDashboard() {
                         <div key={appt.id} className="clay bg-white p-5 flex justify-between items-center shadow-sm">
                             <div>
                                 <p className="font-black text-gray-800">{appt.client__username}</p>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{appt.category} - {new Date(appt.preferred_date).toLocaleDateString()}</p>
+                                <p className="text-[10px] text-black font-bold uppercase tracking-widest">{appt.category} - {new Date(appt.preferred_date).toLocaleDateString()}</p>
                             </div>
                             <button onClick={() => setAssigning({type: 'appointment', id: appt.id})} className="bg-blue-600 text-white text-[10px] font-black px-4 py-2 rounded-xl hover:bg-blue-700 uppercase tracking-widest flex items-center gap-2">
                                 <UserPlus className="w-3 h-3" /> Assign
                             </button>
                         </div>
                     ))}
-                    {openTasks.appointments.length === 0 && <p className="text-gray-400 font-bold text-sm italic">No pending survey requests.</p>}
+                    {openTasks.appointments.length === 0 && <p className="text-black font-bold text-sm italic">No pending survey requests.</p>}
                 </div>
             </div>
 
@@ -158,14 +158,14 @@ export default function AdminDashboard() {
                         <div key={claim.id} className="clay bg-white p-5 flex justify-between items-center shadow-sm">
                             <div>
                                 <p className="font-black text-gray-800">{claim.user__username}</p>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Amount: ₹{claim.amount}</p>
+                                <p className="text-[10px] text-black font-bold uppercase tracking-widest">Amount: ₹{claim.amount}</p>
                             </div>
                             <button onClick={() => setAssigning({type: 'claim', id: claim.id})} className="bg-red-500 text-white text-[10px] font-black px-4 py-2 rounded-xl hover:bg-red-600 uppercase tracking-widest flex items-center gap-2">
                                 <UserPlus className="w-3 h-3" /> Assign
                             </button>
                         </div>
                     ))}
-                    {openTasks.claims.length === 0 && <p className="text-gray-400 font-bold text-sm italic">No pending claim verifications.</p>}
+                    {openTasks.claims.length === 0 && <p className="text-black font-bold text-sm italic">No pending claim verifications.</p>}
                 </div>
             </div>
         </div>
@@ -191,12 +191,12 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 w-full max-w-7xl mb-16">
         <motion.div whileHover={{ scale: 1.02 }} className="clay p-12 text-center shadow-2xl bg-white/20 flex flex-col justify-center">
-          <h3 className="text-gray-400 font-black mb-2 uppercase tracking-widest text-sm">System Capacity (Users)</h3>
+          <h3 className="text-black font-black mb-2 uppercase tracking-widest text-sm">System Capacity (Users)</h3>
           <p className="text-7xl font-black text-gray-800">{stats.users}</p>
         </motion.div>
         
         <div className="clay p-8 shadow-2xl bg-white border border-gray-100 flex flex-col items-center justify-center">
-            <h3 className="text-gray-400 font-black mb-6 uppercase tracking-widest text-xs w-full text-left">Revenue & Activity Streams</h3>
+            <h3 className="text-black font-black mb-6 uppercase tracking-widest text-xs w-full text-left">Revenue & Activity Streams</h3>
             <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={[stats]}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.2} />
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
         </div>
 
         <motion.div whileHover={{ scale: 1.02 }} className="clay p-12 text-center shadow-2xl bg-green-50/50 border-b-8 border-green-500 flex flex-col justify-center">
-          <h3 className="text-gray-400 font-black mb-2 uppercase tracking-widest text-sm">Resolved Claims</h3>
+          <h3 className="text-black font-black mb-2 uppercase tracking-widest text-sm">Resolved Claims</h3>
           <p className="text-7xl font-black text-green-600">{stats.approved}</p>
         </motion.div>
       </div>
@@ -228,7 +228,7 @@ export default function AdminDashboard() {
                         <div className="flex items-center justify-between border-b pb-4">
                             <div>
                                 <p className="text-sm font-black text-gray-800">{kyc.username}</p>
-                                <p className="text-xs text-gray-400 font-bold">{kyc.email}</p>
+                                <p className="text-xs text-black font-bold">{kyc.email}</p>
                             </div>
                             <span className="bg-amber-100 text-amber-600 px-3 py-1 rounded-lg text-[10px] uppercase font-black">Under Review</span>
                         </div>
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
         <div className="overflow-x-auto">
             <table className="w-full text-left">
                 <thead>
-                    <tr className="text-gray-400 uppercase text-xs tracking-widest border-b border-gray-100">
+                    <tr className="text-black uppercase text-xs tracking-widest border-b border-gray-100">
                         <th className="p-6">Reference</th>
                         <th className="p-6">Client ID</th>
                         <th className="p-6">Policy ID</th>
@@ -279,7 +279,7 @@ export default function AdminDashboard() {
                                         <MousePointer2 className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </button>
                                 ) : (
-                                    <span className="text-gray-400">#{item.type.slice(0,3).toUpperCase()}-{item.id}</span>
+                                    <span className="text-black">#{item.type.slice(0,3).toUpperCase()}-{item.id}</span>
                                 )}
                             </td>
                             <td className="p-6">{item.client}</td>
@@ -323,7 +323,7 @@ export default function AdminDashboard() {
                     ))}
                     {executiveQueue.length === 0 && (
                         <tr>
-                            <td colSpan="7" className="p-12 text-center text-gray-400 italic">No tasks currently require executive action.</td>
+                            <td colSpan="7" className="p-12 text-center text-black italic">No tasks currently require executive action.</td>
                         </tr>
                     )}
                 </tbody>
@@ -367,7 +367,7 @@ export default function AdminDashboard() {
                     
                     <form onSubmit={handleAddPolicy} className="space-y-8">
                         <div>
-                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Product Designation</label>
+                            <label className="block text-xs font-black text-black uppercase tracking-widest mb-2">Product Designation</label>
                             <input 
                                 className="clay-inset w-full p-4 focus:outline-none focus:ring-2 focus:ring-green-400 font-bold" 
                                 placeholder="e.g. Premium Health Shield"
@@ -377,7 +377,7 @@ export default function AdminDashboard() {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Product Description</label>
+                            <label className="block text-xs font-black text-black uppercase tracking-widest mb-2">Product Description</label>
                             <textarea 
                                 className="clay-inset w-full p-4 focus:outline-none focus:ring-2 focus:ring-green-400 font-bold h-32" 
                                 placeholder="Core benefits and coverage limits..."
@@ -387,7 +387,7 @@ export default function AdminDashboard() {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Category Selection</label>
+                            <label className="block text-xs font-black text-black uppercase tracking-widest mb-2">Category Selection</label>
                             <select 
                                 className="clay-inset w-full p-4 focus:outline-none focus:ring-2 focus:ring-green-400 font-bold bg-white/50"
                                 value={newPolicy.category}
@@ -399,7 +399,7 @@ export default function AdminDashboard() {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Quarterly Premium (INR)</label>
+                            <label className="block text-xs font-black text-black uppercase tracking-widest mb-2">Quarterly Premium (INR)</label>
                             <input 
                                 className="clay-inset w-full p-4 focus:outline-none focus:ring-2 focus:ring-green-400 font-bold" 
                                 type="number"

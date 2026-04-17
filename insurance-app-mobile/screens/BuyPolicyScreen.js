@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   policyDesc: { fontSize: 14, color: '#718096', lineHeight: 22, marginBottom: 20 },
   divider: { height: 1, backgroundColor: '#f1f5f9', marginBottom: 20 },
   inputGroup: { marginBottom: 20 },
-  label: { fontSize: 10, fontWeight: 'bold', color: '#a0aec0', letterSpacing: 1.5, marginBottom: 8 },
+  label: { fontSize: 10, fontWeight: 'bold', color: '#000000', letterSpacing: 1.5, marginBottom: 8 },
   input: { 
     backgroundColor: '#f8fafc', 
     padding: 15, 

@@ -88,14 +88,14 @@ export default function Login() {
             {currentRoleConfig.icon}
           </motion.div>
           <h1 className="text-4xl font-black text-gray-800 tracking-tighter mb-2">Pro Insurance</h1>
-          <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Unified Access Hub</p>
+          <p className="text-black font-bold uppercase tracking-widest text-xs">Unified Access Hub</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12 items-start justify-center">
           
           {/* Role Selection Sidebar */}
           <div className="w-full lg:w-1/3 flex flex-col gap-4">
-            <p className="text-gray-400 font-black text-xs uppercase ml-4 mb-2 tracking-widest">Select Portal</p>
+            <p className="text-black font-black text-xs uppercase ml-4 mb-2 tracking-widest">Select Portal</p>
             {roles.map((role) => (
               <button
                 key={role.id}
@@ -112,7 +112,7 @@ export default function Login() {
                 </div>
                 <div className="text-left">
                   <p className="font-black text-gray-800 text-lg leading-none mb-1">{role.label}</p>
-                  <p className="text-xs text-gray-400 font-bold">{role.description}</p>
+                  <p className="text-xs text-black font-bold">{role.description}</p>
                 </div>
                 {activeRole === role.id && (
                   <motion.div 
@@ -138,7 +138,7 @@ export default function Login() {
               >
                 <div className="mb-8">
                   <h2 className="text-2xl font-black text-gray-800 tracking-tight mb-1">{currentRoleConfig.label}</h2>
-                  <p className="text-sm font-medium text-gray-400">Please provide your credentials</p>
+                  <p className="text-sm font-medium text-black">Please provide your credentials</p>
                 </div>
 
                 {error && (
@@ -156,7 +156,7 @@ export default function Login() {
                     <div className="relative group">
                       <Mail className="absolute left-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                       <input
-                        className="w-full p-4 pl-12 rounded-2xl outline-none font-bold text-gray-800 placeholder:text-gray-400 transition-all shadow-inner"
+                        className="w-full p-4 pl-12 rounded-2xl outline-none font-bold text-gray-800 placeholder:text-black transition-all shadow-inner"
                         style={{ background: "#e0e5ec", boxShadow: "inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff" }}
                         placeholder="Email Address"
                         type="email"
@@ -168,7 +168,7 @@ export default function Login() {
                     <div className="relative group">
                       <Lock className="absolute left-4 top-4 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                       <input
-                        className="w-full p-4 pl-12 pr-12 rounded-2xl outline-none font-bold text-gray-800 placeholder:text-gray-400 transition-all shadow-inner"
+                        className="w-full p-4 pl-12 pr-12 rounded-2xl outline-none font-bold text-gray-800 placeholder:text-black transition-all shadow-inner"
                         style={{ background: "#e0e5ec", boxShadow: "inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff" }}
                         type={showPassword ? "text" : "password"}
                         placeholder="Password"
@@ -201,11 +201,11 @@ export default function Login() {
 
                 <div className="mt-8 pt-8 border-t border-gray-200/50 flex flex-col gap-4 text-center">
                   {activeRole === "user" && (
-                    <p className="text-sm font-bold text-gray-400">
+                    <p className="text-sm font-bold text-black">
                       New here? <a href="/register" className="text-blue-600 hover:underline">Create Account</a>
                     </p>
                   )}
-                  <a href="/home" className="flex items-center justify-center gap-2 text-sm font-black text-gray-400 hover:text-gray-600 transition-colors">
+                  <a href="/home" className="flex items-center justify-center gap-2 text-sm font-black text-black hover:text-gray-600 transition-colors">
                     <Home className="w-4 h-4" /> Back to Home
                   </a>
                 </div>

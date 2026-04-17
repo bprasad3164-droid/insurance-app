@@ -138,7 +138,7 @@ export default function ProfileKYC() {
                   <Home className="w-5 h-5" />
               </button>
           </div>
-          <h1 className="text-3xl font-black text-gray-800 tracking-tighter uppercase">Member Profile</h1>
+          <h1 className="text-3xl font-black text-black tracking-tighter uppercase">Member Profile</h1>
           <div className="w-16"></div> {/* Spacer for center alignment */}
       </header>
 
@@ -163,23 +163,23 @@ export default function ProfileKYC() {
 
                 {user?.kyc_status !== 'Verified' && (
                     <div className="text-left space-y-4">
-                        <p className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">Verify Your Identity (Requires 3 files)</p>
+                        <p className="text-xs font-black text-black uppercase tracking-widest px-2">Verify Your Identity (Requires 3 files)</p>
                         
                         <div className="clay-inset p-4 relative text-center hover:bg-white/30 transition rounded-xl">
                             <UploadCloud className="w-5 h-5 text-gray-400 mx-auto mb-1" />
-                            <p className="text-[10px] font-bold text-gray-500 uppercase">{aadhaar ? aadhaar.name : "1. Upload Aadhaar Card (PDF/JPG)"}</p>
+                            <p className="text-[10px] font-bold text-black uppercase">{aadhaar ? aadhaar.name : "1. Upload Aadhaar Card (PDF/JPG)"}</p>
                             <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => setAadhaar(e.target.files[0])} />
                         </div>
 
                         <div className="clay-inset p-4 relative text-center hover:bg-white/30 transition rounded-xl">
                             <UploadCloud className="w-5 h-5 text-gray-400 mx-auto mb-1" />
-                            <p className="text-[10px] font-bold text-gray-500 uppercase">{pan ? pan.name : "2. Upload PAN Card (PDF/JPG)"}</p>
+                            <p className="text-[10px] font-bold text-black uppercase">{pan ? pan.name : "2. Upload PAN Card (PDF/JPG)"}</p>
                             <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => setPan(e.target.files[0])} />
                         </div>
 
                         <div className="clay-inset p-4 relative text-center hover:bg-white/30 transition rounded-xl">
                             <UploadCloud className="w-5 h-5 text-gray-400 mx-auto mb-1" />
-                            <p className="text-[10px] font-bold text-gray-500 uppercase">{selfie ? selfie.name : "3. Upload Live Selfie (JPG/PNG)"}</p>
+                            <p className="text-[10px] font-bold text-black uppercase">{selfie ? selfie.name : "3. Upload Live Selfie (JPG/PNG)"}</p>
                             <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={e => setSelfie(e.target.files[0])} />
                         </div>
                         <button 
@@ -212,7 +212,7 @@ export default function ProfileKYC() {
                         <div key={p.id} className="clay-inset p-8 flex justify-between items-center group hover:bg-white/20 transition">
                             <div>
                                 <p className="font-black text-2xl text-gray-800">{p.policy_name}</p>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Cert ID: {p.certificate_id}</p>
+                                <p className="text-xs font-bold text-black uppercase tracking-widest mt-1">Cert ID: {p.certificate_id}</p>
                             </div>
                             <button 
                                 onClick={() => downloadCert(p.certificate_id)}
@@ -232,11 +232,11 @@ export default function ProfileKYC() {
 
             <div className="grid grid-cols-2 gap-8">
                 <div className="clay p-8 bg-blue-50/50">
-                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Total Premium Invested</p>
+                    <p className="text-xs font-black text-black uppercase tracking-widest mb-2">Total Premium Invested</p>
                     <p className="text-4xl font-black text-blue-800">₹ {stats.total_premium?.toLocaleString() || 0}</p>
                 </div>
                 <div className="clay p-8 bg-green-50/50">
-                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Next Renewal Date</p>
+                    <p className="text-xs font-black text-black uppercase tracking-widest mb-2">Next Renewal Date</p>
                     <p className="text-4xl font-black text-green-800">
                         {stats.next_renewal 
                             ? new Date(stats.next_renewal).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })

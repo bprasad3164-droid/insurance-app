@@ -36,7 +36,7 @@ export default function Register() {
         <div className="mb-8 text-center">
           <UserPlus className="w-12 h-12 text-blue-600 mx-auto mb-4" />
           <h2 className="text-3xl font-black text-gray-800 tracking-tight">Join Pro Insurance</h2>
-          <p className="text-gray-500 font-medium">Create your account to get started</p>
+          <p className="text-black font-medium">Create your account to get started</p>
         </div>
 
         <form onSubmit={handleRegister} className="space-y-6">
@@ -91,11 +91,11 @@ export default function Register() {
           </motion.button>
         </form>
 
-        <p className="mt-8 text-center text-gray-500 font-bold">
+        <p className="mt-8 text-center text-black font-bold">
           Already a member? <a href="/login" className="text-blue-600 hover:underline">Log in</a>
         </p>
         <p className="mt-3 text-center">
-          <a href="/home" className="text-sm font-bold text-gray-400 hover:text-blue-600 transition-colors">← Back to Home</a>
+          <a href="/home" className="text-sm font-bold text-black hover:text-blue-600 transition-colors">← Back to Home</a>
         </p>
       </motion.div>
     </div>
