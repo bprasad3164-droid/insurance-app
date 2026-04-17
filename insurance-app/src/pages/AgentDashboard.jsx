@@ -399,15 +399,6 @@ export default function AgentDashboard() {
                         <div className="clay p-8 bg-white border border-blue-100 shadow-2xl">
                             <ActivityFeed />
                         </div>
-                        
-                        <div className="clay p-6 bg-white border border-gray-100">
-                            <p className="text-[10px] font-black text-black uppercase tracking-widest mb-2">Unit Status</p>
-                            <p className="text-xl font-black tracking-tight mb-4 text-black">Online & Syncing</p>
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                <span className="text-[9px] font-black text-black uppercase">Secure Neural Link</span>
-                            </div>
-                        </div>
                     </div>
                 </aside>
             </main>
