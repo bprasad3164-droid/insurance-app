@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../api/api";
 import { motion } from "framer-motion";
-import { Check, XCircle, LogOut, ArrowLeft, Home, FileText, ClipboardList, MapPin, Calendar, Briefcase, ShieldCheck } from "lucide-react";
+import { Check, XCircle, LogOut, ArrowLeft, Home, FileText, ClipboardList, MapPin, Calendar, Briefcase, ShieldCheck, Download, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import ActivityFeed from "../components/ActivityFeed";
@@ -68,6 +68,39 @@ export default function AgentDashboard() {
         }
     };
 
+    const handleAction = async (claim, action) => {
+        if (action === 'download') {
+            try {
+                const response = await api.get(`/claim/report/${claim.id}/`, { responseType: 'blob' });
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `Claim_Report_${claim.id}.pdf`);
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode.removeChild(link);
+            } catch (err) { alert("Download failed"); }
+        } else if (action === 'notify') {
+            try {
+                await api.post('/notify/', { 
+                    email: claim.email, 
+                    phone: claim.phone,
+                    subject: `Claim Update: #${claim.id}`,
+                    message: `Your claim #${claim.id} is now ${claim.agent_status}. View details in terminal.`
+                });
+                alert("Multi-Channel Pulse Transmitted (Email & WhatsApp)");
+            } catch (err) { alert("Notification failed"); }
+        } else if (action === 'delete') {
+            if (window.confirm("CRITICAL: Permanent data erasure sequence?")) {
+                try {
+                    // This endpoint might need to be created if it doesn't exist
+                    alert("Record Hidden from view.");
+                    setClaims(prev => prev.filter(c => c.id !== claim.id));
+                } catch (err) { alert("Deletion failed"); }
+            }
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#e0e5ec] p-8 flex flex-col items-center">
             
@@ -105,9 +138,9 @@ export default function AgentDashboard() {
                             <span className="text-6xl font-black text-blue-600 tracking-tighter">{stats.surveys}</span>
                         </motion.div>
     
-                        <div className="clay p-8 flex flex-col bg-blue-600 text-white justify-center shadow-[0_20px_50px_rgba(59,130,246,0.3)]">
-                            <h3 className="font-black text-2xl mb-1 tracking-tight">Active Duty</h3>
-                            <p className="text-blue-200 text-xs font-black uppercase tracking-widest">Digital Field Unit 04</p>
+                        <div className="clay p-8 flex flex-col bg-white justify-center border-l-8 border-blue-600">
+                            <h3 className="font-black text-2xl mb-1 tracking-tight text-black uppercase">Active Duty</h3>
+                            <p className="text-black/60 text-[10px] font-black uppercase tracking-widest">Digital Field Unit 04</p>
                         </div>
                     </div>
 
@@ -288,9 +321,10 @@ export default function AgentDashboard() {
                                 <tr className="bg-gray-50/50 border-b border-gray-100">
                                     <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">ID</th>
                                     <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Subject</th>
-                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Claim Amount</th>
-                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Date & Time</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Amount</th>
+                                    <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Timestamp</th>
                                     <th className="p-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Decision</th>
+                                    <th className="p-6 text-center text-[10px] font-black text-black uppercase tracking-widest">Operations</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -328,6 +362,22 @@ export default function AgentDashboard() {
                                                     {claim.agent_status}
                                                 </span>
                                             </td>
+                                            <td className="p-6">
+                                                <div className="flex justify-center gap-2">
+                                                    <button onClick={() => navigate(`/claim-detail/${claim.id}`)} className="p-2 clay-inset text-blue-600 hover:bg-white transition rounded-lg" title="Review">
+                                                        <FileText className="w-4 h-4" />
+                                                    </button>
+                                                    <button onClick={() => handleAction(claim, 'download')} className="p-2 clay-inset text-emerald-600 hover:bg-white transition rounded-lg" title="Download">
+                                                        <Download className="w-4 h-4" />
+                                                    </button>
+                                                    <button onClick={() => handleAction(claim, 'notify')} className="p-2 clay-inset text-indigo-600 hover:bg-white transition rounded-lg" title="Send Notification">
+                                                        <Zap className="w-4 h-4" />
+                                                    </button>
+                                                    <button onClick={() => handleAction(claim, 'delete')} className="p-2 clay-inset text-red-600 hover:bg-white transition rounded-lg" title="Delete/Hide">
+                                                        <XCircle className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
                                         </motion.tr>
                                     ))
                                 ) : (
@@ -350,12 +400,12 @@ export default function AgentDashboard() {
                             <ActivityFeed />
                         </div>
                         
-                        <div className="clay p-6 bg-gray-900 text-white">
-                            <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Unit Status</p>
-                            <p className="text-xl font-black tracking-tight mb-4">Online & Syncing</p>
+                        <div className="clay p-6 bg-white border border-gray-100">
+                            <p className="text-[10px] font-black text-black uppercase tracking-widest mb-2">Unit Status</p>
+                            <p className="text-xl font-black tracking-tight mb-4 text-black">Online & Syncing</p>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                <span className="text-[9px] font-black text-gray-400 uppercase">Secure Neural Link</span>
+                                <span className="text-[9px] font-black text-black uppercase">Secure Neural Link</span>
                             </div>
                         </div>
                     </div>

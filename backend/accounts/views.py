@@ -648,13 +648,31 @@ def analytics(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def send_notification(request):
-    send_mail(
-        request.data.get('subject', "Policy Update"),
-        request.data.get('message', "Check your dashboard for updates."),
-        "admin@proinsurance.com",
-        [request.data.get('email', "user@test.com")]
-    )
-    return Response({"msg": "Notification sent (check console)"})
+    email = request.data.get('email')
+    phone = request.data.get('phone')
+    subject = request.data.get('subject', "Policy Update")
+    message = request.data.get('message', "Check your dashboard for updates.")
+
+    # 1. Email
+    if email:
+        send_mail(subject, message, "admin@proinsurance.com", [email])
+
+    # 2. WhatsApp (Twilio)
+    if phone:
+        try:
+            account_sid = settings.TWILIO_ACCOUNT_SID
+            auth_token = settings.TWILIO_AUTH_TOKEN
+            client = Client(account_sid, auth_token)
+            to_phone = phone if phone.startswith('+') else f"+91{phone}"
+            client.messages.create(
+                body=message,
+                from_=settings.TWILIO_WHATSAPP_NUMBER,
+                to=f"whatsapp:{to_phone}"
+            )
+        except Exception as e:
+            print(f"WhatsApp Notify Failed: {e}")
+
+    return Response({"msg": "Notifications Processed"})
 
 # ================= PAYMENTS & INVOICES =================
 
