@@ -10,3 +10,4 @@ python-dotenv
 xhtml2pdf
 reportlab
 dj-database-url
+twilio

@@ -10,6 +10,8 @@ export default function Claim() {
   const [amount, setAmount] = useState("");
   const [claimType, setClaimType] = useState("Accident");
   const [file, setFile] = useState(null);
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
@@ -41,6 +43,8 @@ export default function Claim() {
     formData.append("policy", selectedPolicy);
     formData.append("amount", amount);
     formData.append("claim_type", claimType);
+    formData.append("email", email);
+    formData.append("phone", phone);
     if (file) formData.append("file", file);
 
     try {
@@ -138,6 +142,31 @@ export default function Claim() {
               required
               onChange={e => setAmount(e.target.value)}
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">Email for Notifications</label>
+              <input 
+                type="email"
+                className="clay-inset w-full p-5 focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold bg-transparent"
+                placeholder="email@example.com"
+                value={email}
+                required
+                onChange={e => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 px-2">WhatsApp Phone (with +91)</label>
+              <input 
+                type="text"
+                className="clay-inset w-full p-5 focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold bg-transparent"
+                placeholder="+91 XXXXX XXXXX"
+                value={phone}
+                required
+                onChange={e => setPhone(e.target.value)}
+              />
+            </div>
           </div>
 
           <div>

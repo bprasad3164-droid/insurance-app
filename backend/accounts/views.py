@@ -15,6 +15,8 @@ from xhtml2pdf import pisa
 import os
 import razorpay
 import io
+from django.core.mail import send_mail
+from twilio.rest import Client
 import uuid
 from django.http import HttpResponse, FileResponse
 from reportlab.pdfgen import canvas
@@ -406,16 +408,64 @@ def create_claim(request):
         policy_id = request.data.get('policy')
         policy = Policy.objects.get(id=policy_id)
         
+        email = request.data.get('email')
+        phone = request.data.get('phone')
+        amount = request.data.get('amount', 0)
+        
         claim = Claim.objects.create(
             user=request.user,
             policy=policy,
             claim_type=request.data.get('claim_type', 'Accident'),
-            amount=request.data.get('amount', 0)
+            amount=amount,
+            email=email,
+            phone=phone
         )
+        
         log_activity(request.user, 'CLAIM', f"Submitted a {claim.claim_type} claim for ₹{claim.amount}.")
+        
+        # Trigger Notifications
+        send_claim_notifications(claim)
+        
         return Response({"msg": "Claim Submitted", "claim_id": claim.id})
     except Exception as e:
         return Response({"msg": str(e)}, status=400)
+
+def send_claim_notifications(claim):
+    """Sends Email and WhatsApp notifications for a new claim."""
+    # 1. Email Notification
+    if claim.email:
+        try:
+            subject = f"Claim Submitted Successfully: #{claim.id}"
+            message = f"Hello {claim.user.username},\n\nYour insurance claim #{claim.id} for the amount of ₹{claim.amount} has been successfully submitted and is under review.\n\nThank you for choosing Pro Insurance."
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [claim.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            print(f"Email failed: {e}")
+
+    # 2. WhatsApp Notification (Twilio)
+    if claim.phone:
+        try:
+            account_sid = settings.TWILIO_ACCOUNT_SID
+            auth_token = settings.TWILIO_AUTH_TOKEN
+            client = Client(account_sid, auth_token)
+
+            message_body = f"Hello! Your claim #{claim.id} for ₹{claim.amount} was submitted successfully to Pro Insurance. We are processing it now."
+            
+            # Ensure phone is in E.164 format for WhatsApp integration
+            to_phone = claim.phone if claim.phone.startswith('+') else f"+91{claim.phone}"
+            
+            client.messages.create(
+                body=message_body,
+                from_=settings.TWILIO_WHATSAPP_NUMBER,
+                to=f"whatsapp:{to_phone}"
+            )
+        except Exception as e:
+            print(f"WhatsApp failed: {e}")
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

@@ -110,6 +110,8 @@ class Claim(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='claim_tasks')
     agent_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    email = models.EmailField(null=True, blank=True)
+    phone = models.CharField(max_length=15, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
