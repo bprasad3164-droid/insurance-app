@@ -17,10 +17,14 @@ export default function BuyPolicy() {
   const [success, setSuccess] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(null); // 'upi', 'card', 'netbanking'
-  const [paymentStep, setPaymentStep] = useState('select'); // 'select', 'form', 'processing'
+  const [paymentStep, setPaymentStep] = useState('form'); // 'form', 'otp', 'processing', 'success'
   const [vpa, setVpa] = useState("");
   const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCVV, setCardCVV] = useState("");
+  const [otp, setOtp] = useState("");
   const [selectedBank, setSelectedBank] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("Establishing Handshake");
   const [portfolioStats, setPortfolioStats] = useState({ total_premium: 0, next_renewal: null });
 
   const fetchPortfolioStats = async () => {
@@ -109,67 +113,47 @@ export default function BuyPolicy() {
 
 
   const handleFinalPayment = async () => {
+    // Basic Validation
+    if (paymentMethod === 'upi' && !vpa.includes('@')) {
+        alert("Please enter a valid VPA (e.g., user@bank)");
+        return;
+    }
+    if (paymentMethod === 'card' && (cardNumber.length < 16 || !cardExpiry || !cardCVV)) {
+        alert("Please complete card details.");
+        return;
+    }
+    if (paymentMethod === 'netbanking' && !selectedBank) {
+        alert("Please select a bank.");
+        return;
+    }
+
+    // Step 1: Processing
     setPaymentStep('processing');
-    
+    const stages = [
+        "Verifying Account...",
+        "Authorizing Transaction...",
+        "Encrypting Payload...",
+        "Finalizing Handshake..."
+    ];
+
+    for (const stage of stages) {
+        setPaymentStatus(stage);
+        await new Promise(r => setTimeout(r, 800));
+    }
+
     try {
-        // 1. Create Razorpay Order from Backend
-        const orderRes = await api.post("/payment/", {
+        const res = await api.post("/payment/create/", {
             policy_id: id,
-            amount: premium
+            amount: premium,
+            method: paymentMethod
         });
-
-        const { order_id, amount, currency } = orderRes.data;
-
-        // 2. Open Razorpay Checkout
-        const options = {
-            key: "rzp_test_5uO7eYq2rX6M7z", // Replace with your actual Key ID
-            amount: amount,
-            currency: currency,
-            name: "Pro Insurance",
-            description: `Purchase for ${policy.name}`,
-            order_id: order_id,
-            handler: async (response) => {
-                try {
-                    // 3. Verify Payment
-                    const verifyRes = await api.post("/payment/verify/", {
-                        order_id: response.razorpay_order_id,
-                        payment_id: response.razorpay_payment_id,
-                        signature: response.razorpay_signature
-                    });
-
-                    if (verifyRes.data.status === 'success') {
-                        setSuccess(true);
-                        setTimeout(() => {
-                            // Backend verification already created the UserPolicy
-                            navigate(`/payment-success?payment_id=${response.razorpay_payment_id}&policy_id=${id}`);
-                        }, 2000);
-                    } else {
-                        throw new Error("Verification failed");
-                    }
-                } catch (err) {
-                    alert("Verification Failed: " + (err.response?.data?.error || err.message));
-                    setPaymentStep('form');
-                }
-            },
-            prefill: {
-                name: localStorage.getItem("username") || "Member Token",
-                email: "customer@proinsurance.com",
-            },
-            theme: {
-                color: "#2563eb",
-            },
-            modal: {
-                ondismiss: () => {
-                    setPaymentStep('form');
-                }
-            }
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-
+        setSuccess(true);
+        // Navigate to dashboard or show success message
+        setTimeout(() => {
+            navigate("/dashboard");
+        }, 3000);
     } catch (err) {
-        alert("Transaction Initialization Failed: " + (err.response?.data?.error || err.message));
+        alert("Transaction Failed: " + (err.response?.data?.msg || err.message));
         setPaymentStep('form');
     }
   };
@@ -379,166 +363,196 @@ export default function BuyPolicy() {
                     animate={{ scale: 1, y: 0 }}
                     className="clay bg-white w-full max-w-2xl p-0 relative overflow-hidden border border-white"
                 >
-                    <div className="p-10 pb-0">
-                        <div className="flex justify-between items-start mb-10">
-                            <div className="flex items-center gap-4">
-                                <div className="p-4 rounded-2xl bg-blue-50 text-blue-600">
-                                    <CreditCard className="w-8 h-8" />
-                                </div>
-                                <div>
-                                    <h1 className="text-4xl font-black text-gray-800 tracking-tighter uppercase">
-                                        {paymentMethod?.toUpperCase()} Payment
-                                    </h1>
-                                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.4em]">Handshake Protocol v2.4</p>
-                                </div>
-                            </div>
-                            <button 
-                                onClick={() => setShowPayment(false)}
-                                className="p-3 rounded-2xl text-gray-300 hover:text-red-500 transition clay-inset border-none"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="p-10 pt-0">
-                        {paymentStep === 'form' && (
-                            <>
-                                {paymentMethod === 'upi' && (
-
-                                <div className="space-y-6">
-                                    <div className="clay-inset p-6 rounded-3xl">
-                                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-4 block">Merchant VPA Handle</label>
-                                        <input 
-                                            placeholder="proinsure@axis" 
-                                            disabled
-                                            className="w-full bg-transparent p-0 font-black text-gray-300 text-2xl border-none outline-none focus:ring-0" 
-                                        />
-                                    </div>
-                                    
-                                    <div>
-                                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Your UPI ID</label>
-                                        <input 
-                                            placeholder="e.g. user@okicici" 
-                                            value={vpa}
-                                            onChange={(e) => setVpa(e.target.value)}
-                                            className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 focus:text-blue-600 outline-none placeholder:opacity-20" 
-                                        />
-                                    </div>
-
-                                    <div className="flex gap-4 pt-4">
-                                        <button 
-                                            onClick={handleFinalPayment}
-                                            className="flex-1 bg-blue-600 text-white p-6 rounded-2xl font-black text-lg shadow-xl hover:bg-blue-700 transition"
-                                        >
-                                            Transmit ₹{premium.toLocaleString()}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {paymentMethod === 'card' && (
-                                <div className="space-y-6">
-                                    <div className="clay-inset p-6 rounded-3xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-xl mb-8 relative overflow-hidden">
-                                        <div className="relative z-10">
-                                            <div className="flex justify-between items-start mb-10">
-                                                <div className="w-12 h-10 bg-yellow-400/80 rounded-lg shadow-inner" />
-                                                <Card className="w-8 h-8 opacity-60" />
-                                            </div>
-                                            <p className="font-mono text-2xl tracking-[0.2em] mb-8 font-black">
-                                                {cardNumber ? cardNumber.match(/.{1,4}/g).join(' ') : '**** **** **** ****'}
-                                            </p>
-                                            <div className="flex justify-between items-end">
-                                                <div>
-                                                    <p className="text-[10px] uppercase font-black opacity-60 mb-1">Asset Holder</p>
-                                                    <p className="font-black tracking-widest text-sm uppercase">Member Token</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-[10px] uppercase font-black opacity-60 mb-1">Maturity</p>
-                                                    <p className="font-black tracking-widest text-sm">12/28</p>
-                                                </div>
-                                            </div>
+                    {!success ? (
+                        <>
+                            <div className="p-10 pb-0">
+                                <div className="flex justify-between items-start mb-10">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-4 rounded-2xl bg-blue-50 text-blue-600">
+                                            <CreditCard className="w-8 h-8" />
                                         </div>
-                                        <div className="absolute top-0 right-0 -mr-8 -mt-8 opacity-10">
-                                            <Globe className="w-40 h-40" />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Primary Token Number</label>
-                                        <input 
-                                            maxLength="16"
-                                            placeholder="16-Digit Sequence" 
-                                            value={cardNumber}
-                                            onChange={(e) => setCardNumber(e.target.value)}
-                                            className="w-full clay-inset p-5 rounded-2xl font-mono font-black text-gray-700 outline-none placeholder:opacity-20" 
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Security Code</label>
-                                            <input placeholder="***" maxLength="3" className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 outline-none placeholder:opacity-20" />
-                                        </div>
-                                        <div className="flex items-end">
-                                            <button 
-                                                onClick={handleFinalPayment}
-                                                className="w-full bg-purple-600 text-white p-5 rounded-2xl font-black text-lg shadow-xl hover:bg-purple-700 transition"
-                                            >
-                                                Authorize
-                                            </button>
+                                            <h1 className="text-4xl font-black text-gray-800 tracking-tighter uppercase">
+                                                {paymentMethod?.toUpperCase()} Payment
+                                            </h1>
+                                            <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.4em]">Handshake Protocol v2.4</p>
                                         </div>
                                     </div>
-                                </div>
-                            )}
-
-                            {paymentMethod === 'netbanking' && (
-                                <div className="space-y-6">
-                                    <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Institutional Portal Selection</label>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {['HDFC Bank', 'ICICI Bank', 'SBI Bank', 'Axis Bank'].map(bank => (
-                                            <button 
-                                                key={bank}
-                                                onClick={() => setSelectedBank(bank)}
-                                                className={`p-6 rounded-2xl font-black text-sm transition-all border-none ${selectedBank === bank ? 'clay bg-orange-600 text-white scale-[1.05]' : 'clay-inset text-black hover:text-orange-500'}`}
-                                            >
-                                                {bank}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <div className="mt-8 pt-4">
-                                        <button 
-                                            onClick={handleFinalPayment}
-                                            disabled={!selectedBank}
-                                            className="w-full bg-orange-600 text-white p-6 rounded-2xl font-black text-xl shadow-xl hover:bg-orange-700 transition disabled:opacity-30 disabled:grayscale"
-                                        >
-                                            Link to {selectedBank || "Institution"}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                            </>
-                        )}
-                    </div>
-
-                    {paymentStep === 'processing' && (
-
-
-                        <div className="flex flex-col items-center justify-center py-20 bg-gray-50/10">
-                            <div className="relative mb-12">
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-                                    className="w-24 h-24 border-8 border-blue-600/10 border-t-blue-600 rounded-full"
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center uppercase font-black text-[8px] tracking-tighter text-blue-600">
-                                    Sync
+                                    <button 
+                                        onClick={() => setShowPayment(false)}
+                                        className="p-3 rounded-2xl text-gray-300 hover:text-red-500 transition clay-inset border-none"
+                                    >
+                                        <X className="w-6 h-6" />
+                                    </button>
                                 </div>
                             </div>
-                            <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tighter mb-4">Establishing Handshake</h2>
-                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.3em] text-center max-w-sm leading-loose">
-                                Security Hash Verified. Contacting Financial Gateway.<br />
-                                <span className="text-blue-600">Do not interrupt transmission.</span>
-                            </p>
+
+                            <div className="p-10 pt-0">
+                                {paymentStep === 'form' && (
+                                    <>
+                                        {paymentMethod === 'upi' && (
+                                            <div className="space-y-6">
+                                                <div className="clay-inset p-6 rounded-3xl">
+                                                    <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-4 block">Merchant VPA Handle</label>
+                                                    <input 
+                                                        placeholder="proinsure@axis" 
+                                                        disabled
+                                                        className="w-full bg-transparent p-0 font-black text-gray-300 text-2xl border-none outline-none focus:ring-0" 
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Your UPI ID</label>
+                                                    <input 
+                                                        placeholder="e.g. user@okicici" 
+                                                        value={vpa}
+                                                        onChange={(e) => setVpa(e.target.value)}
+                                                        className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 focus:text-blue-600 outline-none placeholder:opacity-20" 
+                                                    />
+                                                </div>
+                                                <div className="flex gap-4 pt-4">
+                                                    <button 
+                                                        onClick={handleFinalPayment}
+                                                        className="flex-1 bg-blue-600 text-white p-6 rounded-2xl font-black text-lg shadow-xl hover:bg-blue-700 transition"
+                                                    >
+                                                        Transmit ₹{premium.toLocaleString()}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {paymentMethod === 'card' && (
+                                            <div className="space-y-6">
+                                                <div className="clay-inset p-6 rounded-3xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-xl mb-8 relative overflow-hidden">
+                                                    <div className="relative z-10">
+                                                        <div className="flex justify-between items-start mb-10">
+                                                            <div className="w-12 h-10 bg-yellow-400/80 rounded-lg shadow-inner" />
+                                                            <Card className="w-8 h-8 opacity-60" />
+                                                        </div>
+                                                        <p className="font-mono text-2xl tracking-[0.2em] mb-8 font-black">
+                                                            {cardNumber ? cardNumber.match(/.{1,4}/g).join(' ') : '**** **** **** ****'}
+                                                        </p>
+                                                        <div className="flex justify-between items-end">
+                                                            <div>
+                                                                <p className="text-[10px] uppercase font-black opacity-60 mb-1">Asset Holder</p>
+                                                                <p className="font-black tracking-widest text-sm uppercase">Member Token</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[10px] uppercase font-black opacity-60 mb-1">Maturity</p>
+                                                                <p className="font-black tracking-widest text-sm">{cardExpiry || "MM/YY"}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Primary Token Number</label>
+                                                    <input 
+                                                        maxLength="16"
+                                                        placeholder="16-Digit Sequence" 
+                                                        value={cardNumber}
+                                                        onChange={(e) => setCardNumber(e.target.value)}
+                                                        className="w-full clay-inset p-5 rounded-2xl font-mono font-black text-gray-700 outline-none placeholder:opacity-20" 
+                                                    />
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Expiry Date</label>
+                                                        <input 
+                                                            placeholder="MM/YY" 
+                                                            maxLength="5" 
+                                                            value={cardExpiry}
+                                                            onChange={(e) => setCardExpiry(e.target.value)}
+                                                            className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 outline-none placeholder:opacity-20" 
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">CVV</label>
+                                                        <input 
+                                                            placeholder="***" 
+                                                            maxLength="3" 
+                                                            type="password"
+                                                            value={cardCVV}
+                                                            onChange={(e) => setCardCVV(e.target.value)}
+                                                            className="w-full clay-inset p-5 rounded-2xl font-black text-gray-700 outline-none placeholder:opacity-20" 
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="pt-4">
+                                                    <button 
+                                                        onClick={handleFinalPayment}
+                                                        className="w-full bg-purple-600 text-white p-5 rounded-2xl font-black text-lg shadow-xl hover:bg-purple-700 transition"
+                                                    >
+                                                        Authorize ₹{premium.toLocaleString()}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {paymentMethod === 'netbanking' && (
+                                            <div className="space-y-6">
+                                                <label className="text-[10px] font-black text-black uppercase tracking-[0.2em] mb-3 block">Institutional Portal Selection</label>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    {['HDFC Bank', 'ICICI Bank', 'SBI Bank', 'Axis Bank'].map(bank => (
+                                                        <button 
+                                                            key={bank}
+                                                            onClick={() => setSelectedBank(bank)}
+                                                            className={`p-6 rounded-2xl font-black text-sm transition-all border-none ${selectedBank === bank ? 'clay bg-orange-600 text-white scale-[1.05]' : 'clay-inset text-black hover:text-orange-500'}`}
+                                                        >
+                                                            {bank}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <div className="mt-8 pt-4">
+                                                    <button 
+                                                        onClick={handleFinalPayment}
+                                                        disabled={!selectedBank}
+                                                        className="w-full bg-orange-600 text-white p-6 rounded-2xl font-black text-xl shadow-xl hover:bg-orange-700 transition disabled:opacity-30 disabled:grayscale"
+                                                    >
+                                                        Link to {selectedBank || "Institution"}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+
+                            {paymentStep === 'processing' && (
+                                <div className="flex flex-col items-center justify-center py-20 bg-gray-50/10">
+                                    <div className="relative mb-12">
+                                        <motion.div
+                                            animate={{ rotate: 360 }}
+                                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                            className="w-24 h-24 border-8 border-blue-600/10 border-t-blue-600 rounded-full"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <ShieldCheck className="w-8 h-8 text-blue-600 animate-pulse" />
+                                        </div>
+                                    </div>
+                                    <h2 className="text-3xl font-black text-gray-800 uppercase tracking-tighter mb-4">{paymentStatus}</h2>
+                                    <p className="text-[10px] text-black font-black uppercase tracking-[0.3em] text-center max-w-sm leading-loose">
+                                        Security Hash Verified. Contacting Financial Gateway.<br />
+                                        <span className="text-blue-600">Do not refresh or close this window.</span>
+                                    </p>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="p-10">
+                            <div className="bg-blue-600 rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
+                                <div>
+                                    <h2 className="text-4xl font-black text-white tracking-tighter mb-2">Payment Successful!</h2>
+                                    <p className="text-blue-100 font-bold">Your policy is now active and ready.</p>
+                                </div>
+                                <button 
+                                    onClick={() => alert("Downloading Certificate...")}
+                                    className="bg-white text-blue-600 px-8 py-5 rounded-3xl font-black flex items-center gap-3 shadow-xl hover:bg-gray-50 transition-all uppercase tracking-widest text-sm"
+                                >
+                                    <Smartphone className="w-5 h-5" /> Download Invoice
+                                </button>
+                            </div>
+                            <div className="mt-10 text-center">
+                                <p className="text-[10px] font-black text-black uppercase tracking-[0.3em]">Redirecting to Executive Portal in 3s...</p>
+                            </div>
                         </div>
                     )}
                 </motion.div>
